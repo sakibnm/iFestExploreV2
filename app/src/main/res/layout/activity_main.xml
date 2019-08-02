@@ -23,8 +23,8 @@
 
             <ImageView
                 android:id="@+id/iv_front"
-                android:layout_width="240dp"
-                android:layout_height="240dp"
+                android:layout_width="196dp"
+                android:layout_height="196dp"
                 android:layout_marginTop="32dp"
                 android:fadingEdge="horizontal|vertical"
                 android:scaleType="fitCenter"
@@ -46,6 +46,7 @@
                 android:drawablePadding="15dp"
                 android:ems="10"
                 android:hint="username"
+                android:includeFontPadding="true"
                 android:inputType="textPersonName"
                 android:padding="4dp"
                 android:paddingLeft="15dp"
