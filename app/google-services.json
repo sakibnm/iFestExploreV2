@@ -1,0 +1,77 @@
+{
+  "project_info": {
+    "project_number": "604862343893",
+    "firebase_url": "https://bleproto-1.firebaseio.com",
+    "project_id": "bleproto-1",
+    "storage_bucket": "bleproto-1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:604862343893:android:e5392b96a2555e78",
+        "android_client_info": {
+          "package_name": "com.example.ifestexplore"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "604862343893-tbch9bnufm3l8puumet9km8nvpjak8tq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1VAWGlSQ3-Qf7dMImYE51s_x-qsDJ8c8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "604862343893-tbch9bnufm3l8puumet9km8nvpjak8tq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:604862343893:android:d9a947c9590b5413",
+        "android_client_info": {
+          "package_name": "com.example.usersasbeacons"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "604862343893-ls3lv35ladvrhntqe587huk78a4v8lov.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.usersasbeacons",
+            "certificate_hash": "f542b6d76968607f3da994a1dc3f886d15ad8618"
+          }
+        },
+        {
+          "client_id": "604862343893-tbch9bnufm3l8puumet9km8nvpjak8tq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1VAWGlSQ3-Qf7dMImYE51s_x-qsDJ8c8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "604862343893-tbch9bnufm3l8puumet9km8nvpjak8tq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#DCDFDC"
-    tools:context=".MainActivity">
+    tools:context=".Login">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -23,8 +23,8 @@
 
             <ImageView
                 android:id="@+id/iv_front"
-                android:layout_width="196dp"
-                android:layout_height="196dp"
+                android:layout_width="128dp"
+                android:layout_height="128dp"
                 android:layout_marginTop="32dp"
                 android:fadingEdge="horizontal|vertical"
                 android:scaleType="fitCenter"
@@ -35,19 +35,19 @@
                 app:srcCompat="@drawable/ic_front" />
 
             <EditText
-                android:id="@+id/et_username"
+                android:id="@+id/et_email"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="32dp"
                 android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
+                android:layout_marginEnd="32dp"
                 android:background="@drawable/edit_round"
-                android:drawableLeft="@drawable/ic_username"
+                android:drawableLeft="@drawable/ic_email_black_24dp"
                 android:drawablePadding="15dp"
                 android:ems="10"
-                android:hint="username"
+                android:hint="Email"
                 android:includeFontPadding="true"
-                android:inputType="textPersonName"
+                android:inputType="textWebEmailAddress"
                 android:padding="4dp"
                 android:paddingLeft="15dp"
                 android:textAlignment="gravity"
@@ -60,9 +60,9 @@
                 android:id="@+id/et_password"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="32dp"
                 android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
+                android:layout_marginEnd="32dp"
                 android:background="@drawable/edit_round"
                 android:drawableLeft="@drawable/ic_pass"
                 android:drawablePadding="15dp"
@@ -73,10 +73,10 @@
                 android:paddingLeft="15dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/et_username" />
+                app:layout_constraintTop_toBottomOf="@+id/et_email" />
 
             <Button
-                android:id="@+id/button"
+                android:id="@+id/button_login"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
@@ -94,24 +94,22 @@
                 app:layout_constraintTop_toBottomOf="@+id/et_password" />
 
             <Button
-                android:id="@+id/button_register"
+                android:id="@+id/button_register2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
-                android:layout_marginBottom="16dp"
                 android:background="@drawable/button_signup"
                 android:drawableLeft="@drawable/ic_signup_24dp"
                 android:drawablePadding="10dp"
-                android:padding="4dp"
+                android:padding="8dp"
                 android:paddingEnd="20dp"
                 android:text="Create a new account"
                 android:textColor="#FFFFFF"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/button" />
+                app:layout_constraintTop_toBottomOf="@+id/button_login" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 
