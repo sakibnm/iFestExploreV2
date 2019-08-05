@@ -3,31 +3,60 @@ package com.example.ifestexplore;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
+import java.io.ByteArrayOutputStream;
+import java.net.URI;
 
 public class Register extends AppCompatActivity {
 
     private static final String TAG = "demo";
+    private static final int REQ_CODE = 0x005;
     private FirebaseAuth mAuth;
 
     private EditText etName, etEmail, etPassword, etRepPassword;
+    private TextView tvInstr;
     private Button createAccount;
+    private ImageView ivUserPhoto;
+    private static int CAM_REQ = 0x1111;
+    private Bitmap bitmap;
+    private ProgressBar progressBar;
+    private URI userUri;
 
     @Override
     protected void onStart() {
@@ -46,18 +75,18 @@ public class Register extends AppCompatActivity {
         bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#042529")));
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
+        ivUserPhoto = findViewById(R.id.iv_userphoto);
+        tvInstr = findViewById(R.id.tvInstr);
         etName = findViewById(R.id.et_name);
         etEmail = findViewById(R.id.et_email);
         etPassword = findViewById(R.id.et_password);
         etRepPassword = findViewById(R.id.et_rep_password);
         createAccount = findViewById(R.id.button_register2);
 
-        String userEmail = String.valueOf(etEmail.getText());
-        String userPassword = String.valueOf(etPassword.getText());
-        final String userName = String.valueOf(etName.getText());
-        String userRepPassword = String.valueOf(etRepPassword.getText());
 
-//        mAuth = FirebaseAuth.getInstance();
+
+        mAuth = FirebaseAuth.getInstance();
+
 
 //        if(userPassword.equals(userRepPassword)){
 //            mAuth.createUserWithEmailAndPassword(userEmail, userPassword)
@@ -86,13 +115,158 @@ public class Register extends AppCompatActivity {
 //            Toast.makeText(getApplicationContext(), "Passwords do not match", Toast.LENGTH_LONG).show();
 //        }
 
+        ivUserPhoto.setOnClickListener(new TakePhoto());
 
         createAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
+                String userEmail = String.valueOf(etEmail.getText()).trim();
+                String userPassword = String.valueOf(etPassword.getText()).trim();
+                final String userName = String.valueOf(etName.getText()).trim();
+                String userRepPassword = String.valueOf(etRepPassword.getText()).trim();
+                boolean inputValid = true;
+                if(! Patterns.EMAIL_ADDRESS.matcher(userEmail).matches()){
+                    etEmail.setError("Put a valid Email address!");
+                    inputValid = false;
+                }
+                if(userName.equals("")|| userEmail.equals("") || bitmap==null||userPassword== ""||userRepPassword==""){
+                    inputValid = false;
+                    Toast.makeText(getApplicationContext(),"Please take a photo, and fill up all the fields", Toast.LENGTH_SHORT).show();
+                }else if (!userPassword.equals(userRepPassword)){
+                    inputValid = false;
+                    etPassword.setError("Passwords do not match!");
+                    etRepPassword.setError("Passwords do not match!");
+                }
+
+                else if(inputValid){
+                    displayProgressBar();
+                    User user = new User(userName, userEmail, userPassword);
+                    //Upload image....
+//                    Bitmap userPhotoBitmap = bitmap;
+//                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+//                    userPhotoBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+//                    final byte[] bytes = stream.toByteArray();
+//                    FirebaseStorage storage = FirebaseStorage.getInstance();
+//                    StorageReference userPhotoReference = storage.getReference().child("photos/photo.jpg");
+//                    UploadTask uploadTask = userPhotoReference.putBytes(bytes);
+//                    uploadImage(bitmap, user);
+                    signUp(user);
+
+                }
             }
         });
 
+
+
     }
+
+
+
+
+    class TakePhoto implements ImageButton.OnClickListener {
+
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            startActivityForResult(intent, CAM_REQ);
+        }
+    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CAM_REQ) {
+            bitmap = (Bitmap) data.getExtras().get("data");
+            ivUserPhoto.setImageBitmap(bitmap);
+            tvInstr.setText("");
+        }else if(requestCode == REQ_CODE){
+            finish();
+        }
+    }
+
+    private boolean isConnected() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+
+        if (networkInfo == null || !networkInfo.isConnected() ||
+                (networkInfo.getType() != ConnectivityManager.TYPE_WIFI
+                        && networkInfo.getType() != ConnectivityManager.TYPE_MOBILE)) {
+            return false;
+        }
+        return true;
+    }
+
+    private void uploadImage(Bitmap bitmap, final User user){
+        Bitmap userPhotoBitmap = bitmap;
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        userPhotoBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        final byte[] bytes = stream.toByteArray();
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        final StorageReference userPhotoReference = storage.getReference().child("userPhotos/"+user.getEmail()+"_photo.jpg");
+        UploadTask uploadTask = userPhotoReference.putBytes(bytes);
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle unsuccessful uploads
+                exception.printStackTrace();
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                String imageURL = taskSnapshot.getMetadata().getPath();
+                Log.d(TAG, "onSuccess: ImageUpload"+imageURL);
+                user.setPhotoURL(imageURL);
+//                signUp(user);
+                progressBar.setVisibility(View.GONE);
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
+                Intent intent = new Intent(Register.this, Home.class);
+
+                startActivityForResult(intent, REQ_CODE);
+            }
+        });
+
+
+    }
+    private void displayProgressBar() {
+        ConstraintLayout layout = findViewById(R.id.display_register);
+        progressBar = new ProgressBar(getApplicationContext(),null,android.R.attr.progressBarStyleLarge);
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(100,100);
+        params.addRule(RelativeLayout.CENTER_IN_PARENT);
+        layout.addView(progressBar,params);
+        progressBar.setVisibility(View.VISIBLE);  //To show ProgressBar
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    }
+
+    private void signUp(final User userR){
+        Log.d(TAG, "signUpStarting: "+userR.toString());
+//        final Uri userProfURI = Uri.parse(userR.getPhotoURL());
+        mAuth.createUserWithEmailAndPassword(userR.getEmail(), userR.getPassword())
+                .addOnCompleteListener(Register.this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if(task.isSuccessful()){
+                            final FirebaseUser user = mAuth.getCurrentUser();
+                            UserProfileChangeRequest profileChangeRequest = new UserProfileChangeRequest.Builder()
+                                    .setDisplayName(userR.getName())
+//                                    .setPhotoUri(userProfURI)
+                                    .build();
+                            user.updateProfile(profileChangeRequest).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d(TAG, "User profile updated.");
+                                    uploadImage(bitmap, userR);
+                                }
+                            });
+
+                        }else{
+
+                        }
+                    }
+                });
+
+
+    }
+
 }

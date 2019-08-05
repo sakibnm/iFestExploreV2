@@ -72,6 +72,9 @@ public class Login extends AppCompatActivity {
                                     FirebaseUser user = mAuth.getCurrentUser();
 
                                     Log.d(TAG, "onComplete: "+ user.getDisplayName()+user.getEmail());
+                                    Intent intent = new Intent(Login.this, Home.class);
+
+                                    startActivity(intent);
 
                                 } else {
                                     // If sign in fails, display a message to the user.
