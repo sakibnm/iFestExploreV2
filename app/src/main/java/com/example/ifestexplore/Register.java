@@ -3,7 +3,6 @@ package com.example.ifestexplore;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,7 +11,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -24,7 +22,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,12 +33,20 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import org.altbeacon.beacon.Identifier;
+
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class Register extends AppCompatActivity {
 
@@ -74,6 +79,8 @@ public class Register extends AppCompatActivity {
         ActionBar bar = getSupportActionBar();
         bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#042529")));
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        
+        if(!isNetworkAvailable()) Log.d(TAG, "onCreate: Internet not Available!!!");
 
         ivUserPhoto = findViewById(R.id.iv_userphoto);
         tvInstr = findViewById(R.id.tvInstr);
@@ -142,15 +149,7 @@ public class Register extends AppCompatActivity {
                 else if(inputValid){
                     displayProgressBar();
                     User user = new User(userName, userEmail, userPassword);
-                    //Upload image....
-//                    Bitmap userPhotoBitmap = bitmap;
-//                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-//                    userPhotoBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-//                    final byte[] bytes = stream.toByteArray();
-//                    FirebaseStorage storage = FirebaseStorage.getInstance();
-//                    StorageReference userPhotoReference = storage.getReference().child("photos/photo.jpg");
-//                    UploadTask uploadTask = userPhotoReference.putBytes(bytes);
-//                    uploadImage(bitmap, user);
+
                     signUp(user);
 
                 }
@@ -229,12 +228,6 @@ public class Register extends AppCompatActivity {
 
     }
     private void displayProgressBar() {
-//        ConstraintLayout layout = findViewById(R.id.display_register);
-//        progressBar = new ProgressBar(getApplicationContext(),null,android.R.attr.progressBarStyleLarge);
-//        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(100,100);
-//        params.addRule(RelativeLayout.CENTER_IN_PARENT);
-//        layout.addView(progressBar,params);
-//        progressBar.setVisibility(View.VISIBLE);  //To show ProgressBar
         findViewById(R.id.progressCard).setVisibility(View.VISIBLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
@@ -253,6 +246,8 @@ public class Register extends AppCompatActivity {
                                     .setDisplayName(userR.getName())
 //                                    .setPhotoUri(userProfURI)
                                     .build();
+
+                            createUsersData(userR);
                             user.updateProfile(profileChangeRequest).addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
@@ -262,12 +257,47 @@ public class Register extends AppCompatActivity {
                             });
 
                         }else{
-
+                            Toast.makeText(getApplicationContext(), task.getException().getMessage().toString(), Toast.LENGTH_SHORT);
                         }
                     }
                 });
 
 
+    }
+
+    private void createUsersData(final User userC){
+        final String email = userC.getEmail();
+        String name = userC.getName();
+        List<Ad> ads = new ArrayList<Ad>();
+        ads.add(new Ad("Comment 1", 1));
+        ads.add(new Ad("Comment 2", 2));
+        String instanceID = Identifier.parse(UUID.randomUUID().toString()).toString();
+        final UsersData usersData = new UsersData(email, name, instanceID, ads);
+
+        final FirebaseFirestore saveDB = FirebaseFirestore.getInstance();
+
+        saveDB.collection("usersData").document(email).set(usersData.toHashMap())
+            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Log.d(TAG, "onSuccess Saving User to Firestore for: "+ email);
+                    Map<String, Object> idToEmail = new HashMap<>();
+                    idToEmail.put("email", usersData.getEmail());
+                    saveDB.collection("mapIDtoemail").document(usersData.getInstanceID()).set(idToEmail);
+                }
+            })
+        .addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e(TAG, "onFailure Saving User to Firestore for: "+ email);
+            }
+        });
+    }
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
 }
