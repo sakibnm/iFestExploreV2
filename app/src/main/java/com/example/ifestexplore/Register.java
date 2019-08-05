@@ -217,7 +217,7 @@ public class Register extends AppCompatActivity {
                 Log.d(TAG, "onSuccess: ImageUpload"+imageURL);
                 user.setPhotoURL(imageURL);
 //                signUp(user);
-                progressBar.setVisibility(View.GONE);
+                findViewById(R.id.progressCard).setVisibility(View.GONE);
                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
                 Intent intent = new Intent(Register.this, Home.class);
@@ -229,12 +229,13 @@ public class Register extends AppCompatActivity {
 
     }
     private void displayProgressBar() {
-        ConstraintLayout layout = findViewById(R.id.display_register);
-        progressBar = new ProgressBar(getApplicationContext(),null,android.R.attr.progressBarStyleLarge);
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(100,100);
-        params.addRule(RelativeLayout.CENTER_IN_PARENT);
-        layout.addView(progressBar,params);
-        progressBar.setVisibility(View.VISIBLE);  //To show ProgressBar
+//        ConstraintLayout layout = findViewById(R.id.display_register);
+//        progressBar = new ProgressBar(getApplicationContext(),null,android.R.attr.progressBarStyleLarge);
+//        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(100,100);
+//        params.addRule(RelativeLayout.CENTER_IN_PARENT);
+//        layout.addView(progressBar,params);
+//        progressBar.setVisibility(View.VISIBLE);  //To show ProgressBar
+        findViewById(R.id.progressCard).setVisibility(View.VISIBLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
     }
