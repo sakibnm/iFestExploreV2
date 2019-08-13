@@ -37,7 +37,18 @@ public class Login extends AppCompatActivity {
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
-        if (currentUser!=null)Log.d(TAG, "onStart: "+ currentUser.getEmail()+" name: "+currentUser.getDisplayName());
+        if (currentUser!=null){
+            Log.d(TAG, "onStart: "+ currentUser.getEmail()+" name: "+currentUser.getDisplayName());
+//            FirebaseAuth.getInstance().signOut();
+//            Intent intent = new Intent(Login.this, Home.class);
+//            startActivity(intent);
+
+
+
+        }else{
+
+
+        }
     }
 
     @Override

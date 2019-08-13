@@ -269,8 +269,8 @@ public class Register extends AppCompatActivity {
         final String email = userC.getEmail();
         String name = userC.getName();
         List<Ad> ads = new ArrayList<Ad>();
-        ads.add(new Ad("Comment 1", 1));
-        ads.add(new Ad("Comment 2", 2));
+        ads.add(new Ad("Comment 1", "1"));
+        ads.add(new Ad("Comment 2", "2"));
         String instanceID = Identifier.parse(UUID.randomUUID().toString()).toString();
         final UsersData usersData = new UsersData(email, name, instanceID, ads);
 
@@ -283,7 +283,11 @@ public class Register extends AppCompatActivity {
                     Log.d(TAG, "onSuccess Saving User to Firestore for: "+ email);
                     Map<String, Object> idToEmail = new HashMap<>();
                     idToEmail.put("email", usersData.getEmail());
-                    saveDB.collection("mapIDtoemail").document(usersData.getInstanceID()).set(idToEmail);
+                    String partInstanceID1 = usersData.getInstanceID().substring(0, 8);
+                    String partInstanceID2 = usersData.getInstanceID().substring(9, 13);
+                    String partInstanceID = "0x"+partInstanceID1+partInstanceID2;
+                    Log.d(TAG, "PART INSTANCE ID: "+ partInstanceID1+" "+partInstanceID2+" "+partInstanceID);
+                    saveDB.collection("mapIDtoemail").document(partInstanceID).set(idToEmail);
                 }
             })
         .addOnFailureListener(new OnFailureListener() {

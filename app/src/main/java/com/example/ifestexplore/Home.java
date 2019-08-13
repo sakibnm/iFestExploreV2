@@ -40,8 +40,11 @@ import org.altbeacon.beacon.RangeNotifier;
 import org.altbeacon.beacon.Region;
 import org.altbeacon.beacon.utils.UrlBeaconUrlCompressor;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 
 public class Home extends AppCompatActivity implements BeaconConsumer, RangeNotifier {
 
@@ -129,6 +132,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if(task.isSuccessful()){
                     instanceID = (String) task.getResult().get("instanceID");
+                    Log.d(TAG, "INSTANCE ID: "+instanceID);
                     transmitBeacon();
                 }else{
                     Log.d(TAG, "Failed getting instanceKey: "+ task.getException());
@@ -180,35 +184,76 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
     @Override
     public void didRangeBeaconsInRegion(Collection<Beacon> collection, Region region) {
         for (Beacon beacon: collection) {
-            if (beacon.getServiceUuid() == 0xfeaa && beacon.getBeaconTypeCode() == 0x00) {
+            Identifier namespaceId = beacon.getId1();
+            Identifier instanceId = beacon.getId2();
+//            String.valueOf(namespaceId).equals("0x"+masterUUID
+//            Log.d(TAG, "NAMESPACE READING: "+ String.valueOf(namespaceId));
+//            Log.d(TAG, "INSTANCE READING: "+ String.valueOf(instanceId));
+//            Log.d(TAG, "MASTERID READING: "+ String.valueOf(masterUUID));
+//            if (String.valueOf(masterUUID).equals(String.valueOf(namespaceId)))
+//                Log.d(TAG, "NAME and MASTER Matched!!!");
+            if (String.valueOf(masterUUID).equals(String.valueOf(namespaceId)) && beacon.getServiceUuid() == 0xfeaa && beacon.getBeaconTypeCode() == 0x00 ) {
                 // This is a Eddystone-UID frame
-                Identifier namespaceId = beacon.getId1();
-                Identifier instanceId = beacon.getId2();
+
+                db.collection("mapIDtoemail").document(String.valueOf(instanceId)).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(task.isSuccessful()){
+                            String emailRec = task.getResult().getString("email");
+                            Log.d(TAG, "FOUND Instance for: "+emailRec);
+                            db.collection("usersData").document(emailRec).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    DocumentSnapshot documentSnapshot = task.getResult();
+                                    ArrayList<Ad> ads = new ArrayList();
+                                    ArrayList adsGot = (ArrayList) documentSnapshot.get("ads");
+
+                                    for (Object ad: adsGot){
+                                        HashMap<String, String> adHM = (HashMap<String, String>) ad;
+                                        ads.add(new Ad(adHM.get("comment"),adHM.get("serial_no")));
+
+                                    }
+                                }
+                            });
+                        }
+
+                    }
+                });
+
                 Log.d(TAG, "I see a beacon transmitting namespace id: "+namespaceId+
                         " and instance id: "+instanceId+
                         " approximately "+beacon.getDistance()+" meters away."+", "+beacon.getExtraDataFields().toString());
+//                __________________________________________________________________________________________________________
 
-                // Do we have telemetry data?
-                if (beacon.getExtraDataFields().size() > 0) {
-                    long telemetryVersion = beacon.getExtraDataFields().get(0);
-                    long batteryMilliVolts = beacon.getExtraDataFields().get(1);
-                    long pduCount = beacon.getExtraDataFields().get(3);
-                    long uptime = beacon.getExtraDataFields().get(4);
 
-                    Log.d(TAG, "The above beacon is sending telemetry version "+telemetryVersion+
-                            ", has been up for : "+uptime+" seconds"+
-                            ", has a battery level of "+batteryMilliVolts+" mV"+
-                            ", and has transmitted "+pduCount+" advertisements.");
+
+//                __________________________________________________________________________________________________________
+
+
+
+
+//                // Do we have telemetry data?
+//                if (beacon.getExtraDataFields().size() > 0) {
+//                    long telemetryVersion = beacon.getExtraDataFields().get(0);
+//                    long batteryMilliVolts = beacon.getExtraDataFields().get(1);
+//                    long pduCount = beacon.getExtraDataFields().get(3);
+//                    long uptime = beacon.getExtraDataFields().get(4);
+//
+//                    Log.d(TAG, "The above beacon is sending telemetry version "+telemetryVersion+
+//                            ", has been up for : "+uptime+" seconds"+
+//                            ", has a battery level of "+batteryMilliVolts+" mV"+
+//                            ", and has transmitted "+pduCount+" advertisements.");
 
                 }
-            }else if (beacon.getServiceUuid() == 0xfeaa && beacon.getBeaconTypeCode() == 0x10) {
-                // This is a Eddystone-URL frame
-                String url = UrlBeaconUrlCompressor.uncompress(beacon.getId1().toByteArray());
-                Log.d(TAG, "I see a beacon transmitting a url: " + url +
-                        " approximately " + beacon.getDistance() + " meters away.");
-            }else{
-                Log.d(TAG, "didRangeBeaconsInRegion: "+beacon.getBluetoothAddress()+", "+beacon.getBluetoothName()+", "+beacon.getServiceUuid()+", "+beacon.getExtraDataFields().toString());
-            }
+//            }else if (beacon.getServiceUuid() == 0xfeaa && beacon.getBeaconTypeCode() == 0x10) {
+//                // This is a Eddystone-URL frame
+//                String url = UrlBeaconUrlCompressor.uncompress(beacon.getId1().toByteArray());
+//                Log.d(TAG, "I see a beacon transmitting a url: " + url +
+//                        " approximately " + beacon.getDistance() + " meters away.");
+//            else{
+//                Log.d(TAG, "didRangeBeaconsInRegion: "+beacon.getBluetoothAddress()+", "+beacon.getBluetoothName()+", "+beacon.getServiceUuid()+", "+beacon.getExtraDataFields().toString());
+//            }
+
         }
 
     }
