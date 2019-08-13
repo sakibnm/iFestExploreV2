@@ -3,6 +3,7 @@ package com.example.ifestexplore;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -15,6 +16,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -25,6 +27,7 @@ import android.widget.Button;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -46,7 +49,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 
-public class Home extends AppCompatActivity implements BeaconConsumer, RangeNotifier {
+public class Home extends AppCompatActivity implements BeaconConsumer, RangeNotifier, BottomNavigationView.OnNavigationItemSelectedListener, FragmentContainer.OnFragmentInteractionListener, ReceivedPosts.OnFragmentInteractionListener, MyPosts.OnFragmentInteractionListener,CreatePosts.OnFragmentInteractionListener, Bookmarks.OnFragmentInteractionListener {
 
     private FirebaseAuth mAuth;
     FirebaseUser user;
@@ -98,6 +101,16 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+//        ___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+//        Navigation menus and fragments...
+        loadFragment(new ReceivedPosts());
+
+        BottomNavigationView navigationView = findViewById(R.id.home_nav);
+        navigationView.setOnNavigationItemSelectedListener(this);
+//        ___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+
+
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
         setupBluetooth();
@@ -298,5 +311,46 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
             });
             builder.show();
         }
+    }
+
+
+    //FRAGMENTS and NAVIGATION...........
+    private boolean loadFragment(Fragment fragment) {
+        //switching fragment
+        if (fragment != null) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, fragment)
+                    .commit();
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        Fragment fragment = null;
+
+        switch(menuItem.getItemId()){
+            case R.id.navigation_received_posts:
+                fragment = new ReceivedPosts();
+                break;
+            case R.id.navigation_new_post:
+                fragment = new CreatePosts();
+                break;
+            case R.id.nav_my_posts:
+                fragment = new MyPosts();
+                break;
+            case R.id.nav_bookmarks:
+                fragment = new Bookmarks();
+                break;
+        }
+
+        return loadFragment(fragment);
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
     }
 }
