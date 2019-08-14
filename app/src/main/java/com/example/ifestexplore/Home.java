@@ -23,6 +23,8 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.ifestexplore.fragments.Bookmarks;
 import com.example.ifestexplore.fragments.CreatePosts;
@@ -55,6 +57,8 @@ import java.util.HashMap;
 public class Home extends AppCompatActivity implements BeaconConsumer, RangeNotifier, BottomNavigationView.OnNavigationItemSelectedListener, FragmentContainer.OnFragmentInteractionListener, ReceivedPosts.OnFragmentInteractionListener, MyPosts.OnFragmentInteractionListener, CreatePosts.OnFragmentInteractionListener, Bookmarks.OnFragmentInteractionListener {
 
     private FirebaseAuth mAuth;
+    private ImageView iv_userPhoto;
+    private TextView tv_userName;
     FirebaseUser user;
     FirebaseFirestore db;
     public static String masterUUID;
@@ -113,14 +117,14 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         navigationView.setOnNavigationItemSelectedListener(this);
 //        ___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
 
+        iv_userPhoto = findViewById(R.id.iv_userphoto);
+        tv_userName = findViewById(R.id.tv_userName);
 
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
         setupBluetooth();
-
-        mAuth = FirebaseAuth.getInstance();
-        user = mAuth.getCurrentUser();
-
+        setImageAndName(user);
+        
         db = FirebaseFirestore.getInstance();
 
         //Getting the masterKey....
@@ -142,8 +146,18 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 
     }
 
+    private void setImageAndName(FirebaseUser user) {
+        String name = user.getDisplayName();
+        Uri url = user.getPhotoUrl();
+        Log.d(TAG, "setImageAndName: "+url);
+
+        tv_userName.setText(name);
+        iv_userPhoto.setImageURI(url);
+
+    }
+
     private void getUserInstanceIDandTransmit(String userEmail) {
-        db.collection("usersData").document(userEmail).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        db.collection("users").document(userEmail).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if(task.isSuccessful()){

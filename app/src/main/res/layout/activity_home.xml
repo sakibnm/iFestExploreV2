@@ -6,6 +6,16 @@
     android:layout_height="match_parent"
     tools:context=".Home">
 
+    <ImageView
+        android:id="@+id/iv_userPhoto"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@tools:sample/avatars" />
+
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
@@ -16,7 +26,7 @@
         app:layout_constraintBottom_toTopOf="@+id/home_nav"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/tv_userName">
 
         <fragment
             android:id="@+id/fragment2"
@@ -35,4 +45,15 @@
         app:menu="@menu/bottom_nav_menu" >
 
     </com.google.android.material.bottomnavigation.BottomNavigationView>
+
+    <TextView
+        android:id="@+id/tv_userName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="TextView"
+        android:textStyle="bold|italic"
+        app:layout_constraintStart_toEndOf="@+id/iv_userPhoto"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

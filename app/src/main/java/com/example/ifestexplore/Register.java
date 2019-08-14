@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -218,13 +219,47 @@ public class Register extends AppCompatActivity {
                 String imageURL = taskSnapshot.getMetadata().getPath();
                 Log.d(TAG, "onSuccess: ImageUpload"+imageURL);
                 user.setPhotoURL(imageURL);
+
+                StorageReference downloadStorage = taskSnapshot.getMetadata().getReference();
+
+                downloadStorage.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        UserProfileChangeRequest profileChangeRequest = new UserProfileChangeRequest.Builder()
+////                        .setDisplayName(userR.getName())
+                                .setPhotoUri(uri)
+                                .build();
+                        mAuth.getCurrentUser().updateProfile(profileChangeRequest).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                findViewById(R.id.progressCard).setVisibility(View.GONE);
+                                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
+                                Intent intent = new Intent(Register.this, Home.class);
+
+                                startActivityForResult(intent, REQ_CODE);
+                            }
+                        });
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: FAILED URI");
+                    }
+                });
+
+//                if(downloadUri.isSuccessful()){
+//                    Log.d(TAG, "onSuccess: URL: "+downloadUri.getResult());
+//
+//                }else{
+//                    Log.d(TAG, "onFailure: NOT WORKING URI" );
+//                }
+
+
+
+
 //                signUp(user);
-                findViewById(R.id.progressCard).setVisibility(View.GONE);
-                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
-                Intent intent = new Intent(Register.this, Home.class);
-
-                startActivityForResult(intent, REQ_CODE);
             }
         });
 
