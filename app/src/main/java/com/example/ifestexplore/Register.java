@@ -151,7 +151,7 @@ public class Register extends AppCompatActivity {
 
                 else if(inputValid){
                     displayProgressBar();
-                    User user = new User(userName, userEmail, userPassword);
+                    User user = new User(userName, userEmail, "", userPassword);
 
                     signUp(user);
 
@@ -272,8 +272,7 @@ public class Register extends AppCompatActivity {
         final String email = userC.getEmail();
         String name = userC.getName();
         List<Ad> ads = new ArrayList<Ad>();
-        ads.add(new Ad("Comment 1", "1"));
-        ads.add(new Ad("Comment 2", "2"));
+
         String instanceID = Identifier.parse(UUID.randomUUID().toString()).toString();
         final UsersData usersData = new UsersData(email, name, instanceID, ads);
 

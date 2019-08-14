@@ -6,7 +6,7 @@ public class Ad {
     private String userEmail;
     private String adSerialNo;
     private String userPhotoURL;
-    private ArrayList<String> usersForwarded;
+    private ArrayList<String> users;
 
 
     public Ad(){
@@ -17,7 +17,7 @@ public class Ad {
         this.userEmail = userEmail;
         this.adSerialNo = adSerialNo;
         this.userPhotoURL = userPhotoURL;
-        this.usersForwarded = users;
+        this.users = users;
     }
 
     public String getUserEmail() {
@@ -45,11 +45,11 @@ public class Ad {
     }
 
     public ArrayList<String> getUsers() {
-        return usersForwarded;
+        return users;
     }
 
     public void setUsers(ArrayList<String> users) {
-        this.usersForwarded = users;
+        this.users = users;
     }
 
     @Override
@@ -58,7 +58,7 @@ public class Ad {
                 "userEmail='" + userEmail + '\'' +
                 ", adSerialNo='" + adSerialNo + '\'' +
                 ", userPhotoURL='" + userPhotoURL + '\'' +
-                ", users=" + usersForwarded +
+                ", users=" + users +
                 '}';
     }
 }
