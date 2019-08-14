@@ -1,4 +1,6 @@
-package com.example.ifestexplore;
+package com.example.ifestexplore.models;
+
+import com.example.ifestexplore.models.Ad;
 
 import java.util.HashMap;
 import java.util.List;

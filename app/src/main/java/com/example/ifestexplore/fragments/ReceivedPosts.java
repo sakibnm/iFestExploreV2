@@ -1,4 +1,4 @@
-package com.example.ifestexplore;
+package com.example.ifestexplore.fragments;
 
 import android.content.Context;
 import android.net.Uri;
@@ -9,10 +9,14 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.ifestexplore.models.Ad;
+import com.example.ifestexplore.controllers.AdAdapter;
+import com.example.ifestexplore.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -101,7 +105,7 @@ public class ReceivedPosts extends Fragment {
                     for (Object ad: adsGot){
                         HashMap<String, String> adHM = (HashMap<String, String>) ad;
                         adArrayList.add(new Ad(adHM.get("comment"),adHM.get("serial_no")));
-
+                        Log.d(TAG, "ADS: "+adArrayList.toString());
                     }
                     adAdapter.notifyDataSetChanged();
                 }

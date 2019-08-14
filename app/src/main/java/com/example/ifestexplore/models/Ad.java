@@ -1,4 +1,4 @@
-package com.example.ifestexplore;
+package com.example.ifestexplore.models;
 
 public class Ad {
     String comment;

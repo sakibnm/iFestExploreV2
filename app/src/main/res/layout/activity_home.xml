@@ -20,7 +20,7 @@
 
         <fragment
             android:id="@+id/fragment2"
-            android:name="com.example.ifestexplore.FragmentContainer"
+            android:name="com.example.ifestexplore.fragments.FragmentContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </FrameLayout>

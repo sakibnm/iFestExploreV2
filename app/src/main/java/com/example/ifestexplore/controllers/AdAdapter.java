@@ -1,4 +1,4 @@
-package com.example.ifestexplore;
+package com.example.ifestexplore.controllers;
 
 import android.content.Context;
 import android.util.Log;
@@ -9,6 +9,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.ifestexplore.R;
+import com.example.ifestexplore.models.Ad;
 
 import java.util.ArrayList;
 
