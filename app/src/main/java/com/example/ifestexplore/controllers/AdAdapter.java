@@ -40,8 +40,6 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
     public void onBindViewHolder(@NonNull AdHolder holder, int position) {
         Ad ad = adArrayList.get(position);
         // Set the data to the views here
-        holder.setComment(ad.getComment());
-        holder.setSerialno(ad.getSerial_no());
 
         Log.d(TAG, "onBindViewHolder: "+ad.toString());
 
@@ -61,13 +59,6 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
         public AdHolder(@NonNull View itemView) {
             super(itemView);
         }
-        public void setComment(String comment){
-            tv_rec_comment = itemView.findViewById(R.id.tv_rec_comment);
-            tv_rec_comment.setText(comment);
-        }
-        public void setSerialno(String serial){
-            tv_rec_serial = itemView.findViewById(R.id.tv_rec_serial);
-            tv_rec_serial.setText(serial);
-        }
+
     }
 }

@@ -226,7 +226,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 
                                     for (Object ad: adsGot){
                                         HashMap<String, String> adHM = (HashMap<String, String>) ad;
-                                        ads.add(new Ad(adHM.get("comment"),adHM.get("serial_no")));
+//                                        ads.add(new Ad(adHM.get("comment"),adHM.get("serial_no")));
 
                                     }
                                 }

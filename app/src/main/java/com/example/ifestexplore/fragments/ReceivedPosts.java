@@ -94,23 +94,6 @@ public class ReceivedPosts extends Fragment {
         rv_Ads.setAdapter(adAdapter);
 
 //        ___________________________________________________________________________________________
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("usersData").document("abc@fgh.com").get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()){
-                    DocumentSnapshot documentSnapshot = task.getResult();
-                    ArrayList adsGot = (ArrayList) documentSnapshot.get("ads");
-
-                    for (Object ad: adsGot){
-                        HashMap<String, String> adHM = (HashMap<String, String>) ad;
-                        adArrayList.add(new Ad(adHM.get("comment"),adHM.get("serial_no")));
-                        Log.d(TAG, "ADS: "+adArrayList.toString());
-                    }
-                    adAdapter.notifyDataSetChanged();
-                }
-            }
-        });
 
 //        ___________________________________________________________________________________________
 

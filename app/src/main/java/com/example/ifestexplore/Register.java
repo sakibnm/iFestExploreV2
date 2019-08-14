@@ -274,11 +274,11 @@ public class Register extends AppCompatActivity {
         List<Ad> ads = new ArrayList<Ad>();
 
         String instanceID = Identifier.parse(UUID.randomUUID().toString()).toString();
-        final UsersData usersData = new UsersData(email, name, instanceID, ads);
+        final UsersData usersData = new UsersData(email, name, instanceID);
 
         final FirebaseFirestore saveDB = FirebaseFirestore.getInstance();
 
-        saveDB.collection("usersData").document(email).set(usersData.toHashMap())
+        saveDB.collection("users").document(email).set(usersData.toHashMap())
             .addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
