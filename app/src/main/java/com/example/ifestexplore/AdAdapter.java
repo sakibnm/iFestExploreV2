@@ -37,10 +37,10 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
     public void onBindViewHolder(@NonNull AdHolder holder, int position) {
         Ad ad = adArrayList.get(position);
         // Set the data to the views here
-        holder.setComment(user.getName());
-        holder.setUserImage(user.getImageURL());
+        holder.setComment(ad.getComment());
+        holder.setSerialno(ad.getSerial_no());
 
-        Log.d(TAG, "onBindViewHolder: "+user.toString());
+        Log.d(TAG, "onBindViewHolder: "+ad.toString());
 
         // You can set click listners to indvidual items in the viewholder here
         // make sure you pass down the listner or make the Data members of the viewHolder public
@@ -49,7 +49,7 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
 
     @Override
     public int getItemCount() {
-        return 0;
+        return adArrayList == null? 0: adArrayList.size();
     }
 
     public class AdHolder extends RecyclerView.ViewHolder {
@@ -57,6 +57,14 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
         private TextView tv_rec_serial;
         public AdHolder(@NonNull View itemView) {
             super(itemView);
+        }
+        public void setComment(String comment){
+            tv_rec_comment = itemView.findViewById(R.id.tv_rec_comment);
+            tv_rec_comment.setText(comment);
+        }
+        public void setSerialno(String serial){
+            tv_rec_serial = itemView.findViewById(R.id.tv_rec_serial);
+            tv_rec_serial.setText(serial);
         }
     }
 }
