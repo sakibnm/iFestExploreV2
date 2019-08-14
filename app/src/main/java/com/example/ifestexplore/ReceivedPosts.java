@@ -4,11 +4,22 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 
 /**
@@ -30,6 +41,11 @@ public class ReceivedPosts extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+
+    private static final String TAG = "demo";
+    private AdAdapter adAdapter;
+    private ArrayList<Ad> adArrayList = new ArrayList<>();
+    private RecyclerView rv_Ads;
 
     public ReceivedPosts() {
         // Required empty public constructor
@@ -66,7 +82,37 @@ public class ReceivedPosts extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_received_posts, container, false);
+        View view =  inflater.inflate(R.layout.fragment_received_posts, container, false);
+        rv_Ads = view.findViewById(R.id.rv_rec);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this.getActivity());
+        rv_Ads.setLayoutManager(linearLayoutManager);
+        adAdapter = new AdAdapter(adArrayList, this.getActivity());
+        rv_Ads.setAdapter(adAdapter);
+
+//        ___________________________________________________________________________________________
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("usersData").document("abc@fgh.com").get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()){
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    ArrayList adsGot = (ArrayList) documentSnapshot.get("ads");
+
+                    for (Object ad: adsGot){
+                        HashMap<String, String> adHM = (HashMap<String, String>) ad;
+                        adArrayList.add(new Ad(adHM.get("comment"),adHM.get("serial_no")));
+
+                    }
+                    adAdapter.notifyDataSetChanged();
+                }
+            }
+        });
+
+//        ___________________________________________________________________________________________
+
+
+
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
