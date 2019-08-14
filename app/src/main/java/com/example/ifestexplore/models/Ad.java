@@ -1,39 +1,64 @@
 package com.example.ifestexplore.models;
 
+import java.util.ArrayList;
+
 public class Ad {
-    String comment;
-    String serial_no;
+    private String userEmail;
+    private String adSerialNo;
+    private String userPhotoURL;
+    private ArrayList<String> usersForwarded;
+
 
     public Ad(){
 
     }
 
-    public String getComment() {
-        return comment;
+    public Ad(String userEmail, String adSerialNo, String userPhotoURL, ArrayList<String> users) {
+        this.userEmail = userEmail;
+        this.adSerialNo = adSerialNo;
+        this.userPhotoURL = userPhotoURL;
+        this.usersForwarded = users;
     }
 
-    public void setComment(String comment) {
-        this.comment = comment;
+    public String getUserEmail() {
+        return userEmail;
     }
 
-    public String getSerial_no() {
-        return serial_no;
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
     }
 
-    public void setSerial_no(String serial_no) {
-        this.serial_no = serial_no;
+    public String getAdSerialNo() {
+        return adSerialNo;
     }
 
-    public Ad(String comment, String serial_no) {
-        this.comment = comment;
-        this.serial_no = serial_no;
+    public void setAdSerialNo(String adSerialNo) {
+        this.adSerialNo = adSerialNo;
+    }
+
+    public String getUserPhotoURL() {
+        return userPhotoURL;
+    }
+
+    public void setUserPhotoURL(String userPhotoURL) {
+        this.userPhotoURL = userPhotoURL;
+    }
+
+    public ArrayList<String> getUsers() {
+        return usersForwarded;
+    }
+
+    public void setUsers(ArrayList<String> users) {
+        this.usersForwarded = users;
     }
 
     @Override
     public String toString() {
         return "Ad{" +
-                "comment='" + comment + '\'' +
-                ", serial_no='" + serial_no + '\'' +
+                "userEmail='" + userEmail + '\'' +
+                ", adSerialNo='" + adSerialNo + '\'' +
+                ", userPhotoURL='" + userPhotoURL + '\'' +
+                ", users=" + usersForwarded +
                 '}';
     }
 }
