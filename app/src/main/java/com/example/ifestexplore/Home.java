@@ -39,6 +39,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.squareup.picasso.Picasso;
 
 import org.altbeacon.beacon.Beacon;
 import org.altbeacon.beacon.BeaconConsumer;
@@ -117,7 +118,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         navigationView.setOnNavigationItemSelectedListener(this);
 //        ___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
 
-        iv_userPhoto = findViewById(R.id.iv_userphoto);
+        iv_userPhoto = findViewById(R.id.iv_user_photo);
         tv_userName = findViewById(R.id.tv_userName);
 
         mAuth = FirebaseAuth.getInstance();
@@ -152,8 +153,9 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         Log.d(TAG, "setImageAndName: "+url);
 
         tv_userName.setText(name);
-        iv_userPhoto.setImageURI(url);
+//        iv_userPhoto.setImageURI(url);
 
+        Picasso.get().load(url).into(iv_userPhoto);
     }
 
     private void getUserInstanceIDandTransmit(String userEmail) {
