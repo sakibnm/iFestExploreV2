@@ -14,4 +14,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="share_button">Share</string>
     <string name="cancel_button">Cancel</string>
+    <string name="txt_takePhotoItem">Take the item\'s photo</string>
+    <string name="button_create_Share">Share</string>
+    <string name="button_create_Clear" >Clear All</string>
 </resources>

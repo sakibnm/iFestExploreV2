@@ -1,31 +1,51 @@
 package com.example.ifestexplore.models;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Ad {
-    private String userEmail;
+    private String creatorEmail;
     private String adSerialNo;
     private String userPhotoURL;
-    private ArrayList<String> users;
+    private String itemPhotoURL;
+    private String comment;
+    private ArrayList<String> usersForwarded;
+
+    private Map<String, Object> hashMap;
 
 
     public Ad(){
 
     }
 
-    public Ad(String userEmail, String adSerialNo, String userPhotoURL, ArrayList<String> users) {
-        this.userEmail = userEmail;
+    public Ad(String creatorEmail, String adSerialNo, String userPhotoURL, String itemPhotoURL, String comment, ArrayList<String> usersForwarded) {
+        this.creatorEmail = creatorEmail;
         this.adSerialNo = adSerialNo;
         this.userPhotoURL = userPhotoURL;
-        this.users = users;
+        this.itemPhotoURL = itemPhotoURL;
+        this.comment = comment;
+        this.usersForwarded = usersForwarded;
     }
 
-    public String getUserEmail() {
-        return userEmail;
+    public Map toHashMap(){
+        this.hashMap = new HashMap<>();
+
+        this.hashMap.put("creator", this.creatorEmail);
+        this.hashMap.put("adSerialNo", this.adSerialNo);
+        this.hashMap.put("itemPhotoURL", this.itemPhotoURL);
+        this.hashMap.put("comment", this.comment);
+        this.hashMap.put("userPhotoURL", this.userPhotoURL);
+
+        return this.hashMap;
     }
 
-    public void setUserEmail(String userEmail) {
-        this.userEmail = userEmail;
+    public String getCreatorEmail() {
+        return creatorEmail;
+    }
+
+    public void setCreatorEmail(String creatorEmail) {
+        this.creatorEmail = creatorEmail;
     }
 
     public String getAdSerialNo() {
@@ -44,21 +64,29 @@ public class Ad {
         this.userPhotoURL = userPhotoURL;
     }
 
-    public ArrayList<String> getUsers() {
-        return users;
+    public String getItemPhotoURL() {
+        return itemPhotoURL;
     }
 
-    public void setUsers(ArrayList<String> users) {
-        this.users = users;
+    public void setItemPhotoURL(String itemPhotoURL) {
+        this.itemPhotoURL = itemPhotoURL;
     }
 
-    @Override
-    public String toString() {
-        return "Ad{" +
-                "userEmail='" + userEmail + '\'' +
-                ", adSerialNo='" + adSerialNo + '\'' +
-                ", userPhotoURL='" + userPhotoURL + '\'' +
-                ", users=" + users +
-                '}';
+    public String getComment() {
+        return comment;
     }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public ArrayList<String> getUsersForwarded() {
+        return usersForwarded;
+    }
+
+    public void setUsersForwarded(ArrayList<String> usersForwarded) {
+        this.usersForwarded = usersForwarded;
+    }
+
+
 }

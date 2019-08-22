@@ -372,4 +372,14 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
     public void onFragmentInteraction(Uri uri) {
 
     }
+
+    @Override
+    public void onClearAllPressedFromCreatePosts() {
+        loadFragment(new CreatePosts());
+    }
+
+    @Override
+    public void onCreatePressedFromCreatePosts() {
+        loadFragment(new ReceivedPosts());
+    }
 }

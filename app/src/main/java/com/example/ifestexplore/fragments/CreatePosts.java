@@ -1,16 +1,48 @@
 package com.example.ifestexplore.fragments;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.example.ifestexplore.Home;
 import com.example.ifestexplore.R;
+import com.example.ifestexplore.Register;
+import com.example.ifestexplore.models.Ad;
+import com.example.ifestexplore.models.User;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Random;
 
 
 /**
@@ -21,17 +53,34 @@ import com.example.ifestexplore.R;
  * Use the {@link CreatePosts#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class CreatePosts extends Fragment {
+public class CreatePosts extends Fragment implements View.OnClickListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private static final int CAM_REQ = 0x1111;
+    private static final int REQ_CODE = 0x005;
+    private static final String TAG = "demo";
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore saveDB;
+    private FirebaseFirestore getDB;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+    private View view;
+    private CardView cardViewTakePhoto;
+    private Bitmap bitmap;
+    private Button button_createAd;
+    private Button button_createAdClear;
+    private EditText et_Comment;
+
+    private Boolean takenPhoto = false;
+    private Boolean commentGiven = false;
+
+    private Ad createdAd;
 
     public CreatePosts() {
         // Required empty public constructor
@@ -68,7 +117,16 @@ public class CreatePosts extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_create_posts, container, false);
+        view = inflater.inflate(R.layout.fragment_create_posts, container, false);
+        button_createAd = view.findViewById(R.id.button_createAd_share);
+        button_createAdClear = view.findViewById(R.id.button_createAdClearAll);
+        cardViewTakePhoto = view.findViewById(R.id.card_addPhoto);
+        cardViewTakePhoto.setOnClickListener(new TakePhoto());
+
+        button_createAd.setOnClickListener(this);
+        button_createAdClear.setOnClickListener(this);
+
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -95,6 +153,130 @@ public class CreatePosts extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public void onClick(View view) {
+        if(view.getId() == R.id.button_createAd_share){
+            et_Comment = this.view.findViewById(R.id.et_Comment);
+            String comment = et_Comment.getText().toString().trim();
+            if(comment.equals(""))commentGiven =false;
+            else commentGiven =true;
+            mAuth = FirebaseAuth.getInstance();
+            FirebaseUser user = mAuth.getCurrentUser();
+
+
+            if(takenPhoto && commentGiven){
+                displayProgressBar();
+                this.createdAd = new Ad(user.getEmail(),"",user.getPhotoUrl().toString(),"",comment,null);
+                uploadImage(bitmap);
+            }
+
+        }else if (view.getId() == R.id.button_createAdClearAll){
+            clearAll();
+        }
+    }
+
+    class TakePhoto implements ImageButton.OnClickListener {
+
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            startActivityForResult(intent, CAM_REQ);
+        }
+    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CAM_REQ) {
+            bitmap = (Bitmap) data.getExtras().get("data");
+            ImageView iv_createAdPhoto = view.findViewById(R.id.iv_createAdPhoto);
+            iv_createAdPhoto.setImageBitmap(bitmap);
+//            cardViewTakePhoto.setBackground(new BitmapDrawable(getResources(), bitmap));
+            ((TextView) view.findViewById(R.id.textView2)).setText("");
+            takenPhoto = true;
+        }
+    }
+
+    private void uploadImage(Bitmap bitmap) {
+        Bitmap userPhotoBitmap = bitmap;
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        userPhotoBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        final byte[] bytes = stream.toByteArray();
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        byte[] array = new byte[12]; // length is bounded by 7
+        new Random().nextBytes(array);
+        String key = new String(array, Charset.forName("UTF-8"));
+        final StorageReference userPhotoReference = storage.getReference().child("adsImages/"+key+".png");
+        UploadTask uploadTask = userPhotoReference.putBytes(bytes);
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle unsuccessful uploads
+                exception.printStackTrace();
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                String imageURL = taskSnapshot.getMetadata().getPath();
+                Log.d(TAG, "onSuccess: ImageUpload" + imageURL);
+
+                StorageReference downloadStorage = taskSnapshot.getMetadata().getReference();
+
+                downloadStorage.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        createdAd.setItemPhotoURL(uri.toString());
+                        getDB = FirebaseFirestore.getInstance();
+                        saveDB = FirebaseFirestore.getInstance();
+                        Log.d(TAG, "onSuccess: Saving Ad First");
+                        getDB.collection("adsRepo").document("adscounter").get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                            @Override
+                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                final long current_count = (long) documentSnapshot.get("count");
+                                createdAd.setAdSerialNo(String.valueOf(current_count));
+                                saveDB.collection("adsRepo").document(createdAd.getAdSerialNo()).set(createdAd.toHashMap())
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        saveDB.collection("adsRepo").document("adscounter").update("count", current_count+1);
+
+                                        view.findViewById(R.id.progress_createAd).setVisibility(View.GONE);
+                                        getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                                        Log.d(TAG, "onSuccess: Saving Ad Second!");
+
+                                        getBackToReceived();
+
+                                    }
+                                });
+                            }
+                        });
+
+//                        saveDB.collection("adsRepo").document(createdAd.)
+                    }
+                });}
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "onFailure: FAILED URI");
+                    }
+                });
+
+    }
+
+    private void displayProgressBar() {
+        view.findViewById(R.id.progress_createAd).setVisibility(View.VISIBLE);
+        getActivity().getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    }
+
+    public void clearAll(){
+
+        mListener.onClearAllPressedFromCreatePosts();
+    }
+    public void getBackToReceived(){
+        mListener.onCreatePressedFromCreatePosts();
+    }
+
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -108,5 +290,7 @@ public class CreatePosts extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+        void onClearAllPressedFromCreatePosts();
+        void onCreatePressedFromCreatePosts();
     }
 }
