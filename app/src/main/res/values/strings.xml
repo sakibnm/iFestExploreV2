@@ -17,4 +17,6 @@
     <string name="txt_takePhotoItem">Take the item\'s photo</string>
     <string name="button_create_Share">Share</string>
     <string name="button_create_Clear" >Clear All</string>
+    <string name="button_my_posts_view" >View</string>
+    <string name="button_my_posts_Stop">Stop Posting</string>
 </resources>

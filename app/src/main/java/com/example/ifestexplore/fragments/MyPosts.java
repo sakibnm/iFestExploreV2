@@ -5,12 +5,18 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.ifestexplore.R;
+import com.example.ifestexplore.controllers.MyAdAdapter;
+import com.example.ifestexplore.models.Ad;
+
+import java.util.ArrayList;
 
 
 /**
@@ -32,6 +38,12 @@ public class MyPosts extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+
+    private static final String TAG = "demo";
+    private MyAdAdapter myAdAdapter;
+    private ArrayList<Ad> adArrayList = new ArrayList<>();
+    private RecyclerView rv_MyPosts;
+    private View view;
 
     public MyPosts() {
         // Required empty public constructor
@@ -68,7 +80,18 @@ public class MyPosts extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_my_posts, container, false);
+        view = inflater.inflate(R.layout.fragment_my_posts, container, false);
+        rv_MyPosts = view.findViewById(R.id.rv_my_posts);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this.getActivity());
+        myAdAdapter = new MyAdAdapter(adArrayList, this.getActivity());
+        rv_MyPosts.setAdapter(myAdAdapter);
+
+//        ____________________________________________________________________________________
+
+
+//        ____________________________________________________________________________________
+
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
