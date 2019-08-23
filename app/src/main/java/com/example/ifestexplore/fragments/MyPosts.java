@@ -86,6 +86,7 @@ public class MyPosts extends Fragment {
         myAdAdapter = new MyAdAdapter(adArrayList, this.getActivity());
         rv_MyPosts.setAdapter(myAdAdapter);
 
+//       Fetching my posts...
 //        ____________________________________________________________________________________
 
 
