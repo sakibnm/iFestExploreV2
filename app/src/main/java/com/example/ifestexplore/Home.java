@@ -34,7 +34,10 @@ import com.example.ifestexplore.fragments.ReceivedPosts;
 import com.example.ifestexplore.models.Ad;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomnavigation.BottomNavigationMenu;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.bottomnavigation.LabelVisibilityMode;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -68,6 +71,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
     BluetoothManager btManager;
     BluetoothAdapter btAdapter;
     BluetoothLeScanner btLeScanner;
+    BottomNavigationView navigationView;
 
     BeaconManager beaconManager;
 
@@ -114,8 +118,9 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 //        Navigation menus and fragments...
         loadFragment(new ReceivedPosts());
 
-        BottomNavigationView navigationView = findViewById(R.id.home_nav);
+        navigationView = findViewById(R.id.home_nav);
         navigationView.setOnNavigationItemSelectedListener(this);
+        navigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_LABELED);
 //        ___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
 
         iv_userPhoto = findViewById(R.id.iv_user_photo);
@@ -381,5 +386,6 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
     @Override
     public void onCreatePressedFromCreatePosts() {
         loadFragment(new ReceivedPosts());
+        navigationView.getMenu().getItem(0).setChecked(true);
     }
 }

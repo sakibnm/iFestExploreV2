@@ -22,6 +22,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.ifestexplore.Home;
 import com.example.ifestexplore.R;
@@ -197,6 +198,7 @@ public class CreatePosts extends Fragment implements View.OnClickListener {
     }
 
     private void uploadImage(Bitmap bitmap) {
+        Log.d(TAG, "uploading Ad Image");
         Bitmap userPhotoBitmap = bitmap;
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         userPhotoBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
@@ -257,6 +259,10 @@ public class CreatePosts extends Fragment implements View.OnClickListener {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.d(TAG, "onFailure: FAILED URI");
+                        Toast.makeText(getContext(), "Could not post due to network errors! Please try again!", Toast.LENGTH_SHORT).show();
+                        view.findViewById(R.id.progress_createAd).setVisibility(View.GONE);
+                        getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                        
                     }
                 });
 
@@ -273,6 +279,7 @@ public class CreatePosts extends Fragment implements View.OnClickListener {
         mListener.onClearAllPressedFromCreatePosts();
     }
     public void getBackToReceived(){
+        Log.d(TAG, "getBackToReceived: done!");
         mListener.onCreatePressedFromCreatePosts();
     }
 
