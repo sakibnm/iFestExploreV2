@@ -25,6 +25,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.ifestexplore.fragments.Bookmarks;
 import com.example.ifestexplore.fragments.CreatePosts;
@@ -33,6 +34,8 @@ import com.example.ifestexplore.fragments.MyPosts;
 import com.example.ifestexplore.fragments.ReceivedPosts;
 import com.example.ifestexplore.models.Ad;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationMenu;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -40,8 +43,12 @@ import com.google.android.material.bottomnavigation.LabelVisibilityMode;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
 
 import org.altbeacon.beacon.Beacon;
@@ -58,6 +65,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 
+import javax.annotation.Nullable;
+
 public class Home extends AppCompatActivity implements BeaconConsumer, RangeNotifier, BottomNavigationView.OnNavigationItemSelectedListener, FragmentContainer.OnFragmentInteractionListener, ReceivedPosts.OnFragmentInteractionListener, MyPosts.OnFragmentInteractionListener, CreatePosts.OnFragmentInteractionListener, Bookmarks.OnFragmentInteractionListener {
 
     private FirebaseAuth mAuth;
@@ -72,9 +81,12 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
     BluetoothAdapter btAdapter;
     BluetoothLeScanner btLeScanner;
     BottomNavigationView navigationView;
+    private ArrayList<Ad> myAdArrayList = new ArrayList<>();
 
     BeaconManager beaconManager;
 
+
+    CollectionReference adsReference;
     //Permission flags...
     private final static int REQUEST_ENABLE_BT = 1;
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
@@ -147,6 +159,32 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                 }else{
                     Log.d(TAG, "Failed getting masterkey: "+ task.getException());
                 }
+            }
+        });
+
+//        Fetching myAds.....
+        adsReference = db.collection("adsRepo");
+        adsReference.get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        for (DocumentSnapshot documentSnapshot: queryDocumentSnapshots){
+
+                            Ad tempAd = new Ad(documentSnapshot.getData());
+                            if(tempAd!=null){
+                                if(tempAd.getCreatorEmail()!=null && tempAd.getCreatorEmail().equals("ab@d.com")){
+//                                    Log.d(TAG, "onSuccess Fetch: "+tempAd.toString());
+                                    myAdArrayList.add(tempAd);
+                                }
+
+                            }
+
+                        }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getApplicationContext(), "Unable to fetch data, please try again!", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -376,6 +414,11 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
     @Override
     public void onFragmentInteraction(Uri uri) {
 
+    }
+
+    @Override
+    public ArrayList<Ad> getAdsArrayList() {
+        return myAdArrayList;
     }
 
     @Override

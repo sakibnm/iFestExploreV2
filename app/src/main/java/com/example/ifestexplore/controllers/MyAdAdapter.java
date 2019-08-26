@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.ifestexplore.R;
 import com.example.ifestexplore.models.Ad;
 import com.google.api.LogDescriptor;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -26,6 +27,16 @@ public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
     public MyAdAdapter(ArrayList<Ad> adArrayList, Context mContext) {
         this.adArrayList = adArrayList;
         this.mContext = mContext;
+    }
+
+    public void clear(){
+        adArrayList.clear();
+        notifyDataSetChanged();
+    }
+
+    public void addAll(ArrayList<Ad> adsList){
+        adArrayList.addAll(adsList);
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -40,6 +51,9 @@ public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
     @Override
     public void onBindViewHolder(@NonNull MyAdAdapter.AdHolder holder, int position) {
         Ad ad = adArrayList.get(position);
+        holder.tv_my_posts_comment.setText(ad.getComment());
+//        holder.tv_my_posts_users.setText(ad.getUsersForwarded().toString());
+        Picasso.get().load(ad.getItemPhotoURL()).into(holder.iv_my_posts_image);
 
         Log.d(TAG, "onBindViewHolder: "+ad.toString());
     }
@@ -47,6 +61,10 @@ public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
     @Override
     public int getItemCount() {
         return adArrayList == null? 0: adArrayList.size();
+    }
+
+    public void setAdArrayList(ArrayList<Ad> adArrayList) {
+        this.adArrayList = adArrayList;
     }
 
 
@@ -59,6 +77,12 @@ public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
 
         public AdHolder(@NonNull View itemView) {
             super(itemView);
+            tv_my_posts_comment = itemView.findViewById(R.id.tv_comment_my_posts_cell);
+            tv_my_posts_users = itemView.findViewById(R.id.tv_users_my_posts_cell);
+            iv_my_posts_image = itemView.findViewById(R.id.iv_my_post_image);
+            button_my_posts_View = itemView.findViewById(R.id.button_my_posts_View);
+            button_my_posts_stop = itemView.findViewById(R.id.button_my_posts_Stop);
         }
     }
+
 }

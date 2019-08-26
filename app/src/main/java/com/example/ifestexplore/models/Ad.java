@@ -28,6 +28,29 @@ public class Ad {
         this.usersForwarded = usersForwarded;
     }
 
+    @Override
+    public String toString() {
+        return "Ad{" +
+                "creatorEmail='" + creatorEmail + '\'' +
+                ", adSerialNo='" + adSerialNo + '\'' +
+                ", userPhotoURL='" + userPhotoURL + '\'' +
+                ", itemPhotoURL='" + itemPhotoURL + '\'' +
+                ", comment='" + comment + '\'' +
+                ", usersForwarded=" + usersForwarded +
+                ", hashMap=" + hashMap +
+                '}';
+    }
+
+    public Ad(Map<String, Object> map){
+        this.creatorEmail = (String) map.get("creator");
+        this.adSerialNo = (String) map.get("adSerialNo");
+        this.userPhotoURL = (String) map.get("userPhotoURL");
+        this.itemPhotoURL = (String) map.get("itemPhotoURL");
+        this.comment = (String) map.get("comment");
+//        TODO: change null to list...
+        this.usersForwarded = null;
+    }
+
     public Map toHashMap(){
         this.hashMap = new HashMap<>();
 
