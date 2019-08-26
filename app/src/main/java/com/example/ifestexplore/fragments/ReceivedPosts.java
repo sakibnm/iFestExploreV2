@@ -7,7 +7,9 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +29,7 @@ import java.util.ArrayList;
  * Use the {@link ReceivedPosts#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ReceivedPosts extends Fragment {
+public class ReceivedPosts extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -43,6 +45,8 @@ public class ReceivedPosts extends Fragment {
     private AdAdapter adAdapter;
     private ArrayList<Ad> adArrayList = new ArrayList<>();
     private RecyclerView rv_Ads;
+    View view;
+    SwipeRefreshLayout swipeRefreshLayout;
 
     public ReceivedPosts() {
         // Required empty public constructor
@@ -79,14 +83,22 @@ public class ReceivedPosts extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view =  inflater.inflate(R.layout.fragment_received_posts, container, false);
+        view =  inflater.inflate(R.layout.fragment_received_posts, container, false);
+        swipeRefreshLayout = view.findViewById(R.id.received_post_swip);
+        swipeRefreshLayout.setOnRefreshListener(ReceivedPosts.this);
         rv_Ads = view.findViewById(R.id.rv_received_posts);
+        rv_Ads.setHasFixedSize(true);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this.getActivity());
         rv_Ads.setLayoutManager(linearLayoutManager);
-        adAdapter = new AdAdapter(adArrayList, this.getActivity());
+        adAdapter = new AdAdapter(adArrayList, getContext());
         rv_Ads.setAdapter(adAdapter);
 
 //        ___________________________________________________________________________________________
+//Fetching others' posts...
+        adArrayList = mListener.getOtherAdsArrayList();
+        Log.d(TAG, "Fetched From Fragment: "+adArrayList.toString());
+        adAdapter.setAdArrayList(adArrayList);
+        adAdapter.notifyDataSetChanged();
 
 //        ___________________________________________________________________________________________
 
@@ -119,6 +131,18 @@ public class ReceivedPosts extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public void onRefresh() {
+        getUpdatedList();
+    }
+
+    private void getUpdatedList() {
+        adArrayList = mListener.getOtherAdsArrayList();
+        adAdapter.setAdArrayList(adArrayList);
+        adAdapter.notifyDataSetChanged();
+        swipeRefreshLayout.setRefreshing(false);
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -132,5 +156,6 @@ public class ReceivedPosts extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+        ArrayList<Ad> getOtherAdsArrayList();
     }
 }

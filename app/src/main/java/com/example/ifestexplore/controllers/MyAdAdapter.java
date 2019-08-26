@@ -17,12 +17,15 @@ import com.example.ifestexplore.models.Ad;
 import com.google.api.LogDescriptor;
 import com.squareup.picasso.Picasso;
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Base64;
 
 public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
     private static final String TAG = "demo";
     private ArrayList<Ad> adArrayList;
     private Context mContext;
+
 
     public MyAdAdapter(ArrayList<Ad> adArrayList, Context mContext) {
         this.adArrayList = adArrayList;
@@ -53,7 +56,7 @@ public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
         Ad ad = adArrayList.get(position);
         holder.tv_my_posts_comment.setText(ad.getComment());
 //        holder.tv_my_posts_users.setText(ad.getUsersForwarded().toString());
-        Picasso.get().load(ad.getItemPhotoURL()).into(holder.iv_my_posts_image);
+        Picasso.get().load(URLEncoder.encode(ad.getItemPhotoURL())).into(holder.iv_my_posts_image);
 
         Log.d(TAG, "onBindViewHolder: "+ad.toString());
     }

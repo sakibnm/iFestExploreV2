@@ -48,6 +48,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
 
@@ -82,6 +83,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
     BluetoothLeScanner btLeScanner;
     BottomNavigationView navigationView;
     private ArrayList<Ad> myAdArrayList = new ArrayList<>();
+    private ArrayList<Ad> othersAdArrayList = new ArrayList<>();
 
     BeaconManager beaconManager;
 
@@ -161,32 +163,53 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                 }
             }
         });
-
-//        Fetching myAds.....
-        adsReference = db.collection("adsRepo");
-        adsReference.get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+//______________________________________________________________________________________________________________________________________
+//        Fetching MYADS................
+        db.collection("adsRepo")
+                .whereEqualTo("creator", user.getEmail())
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        for (DocumentSnapshot documentSnapshot: queryDocumentSnapshots){
-
-                            Ad tempAd = new Ad(documentSnapshot.getData());
-                            if(tempAd!=null){
-                                if(tempAd.getCreatorEmail()!=null && tempAd.getCreatorEmail().equals("ab@d.com")){
-//                                    Log.d(TAG, "onSuccess Fetch: "+tempAd.toString());
-                                    myAdArrayList.add(tempAd);
-                                }
-
-                            }
-
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                        if(e!=null){
+                            Log.e(TAG, "Failed reloading Data: ", e);
+                            return;
                         }
+                        ArrayList<Ad> tempAds = new ArrayList<>();
+                        for (QueryDocumentSnapshot ad: queryDocumentSnapshots){
+                            if (ad!=null){
+                                tempAds.add(new Ad(ad.getData()));
+                            }
+                        }
+                        Log.d(TAG, "REFRESHED LIST!!!"+ tempAds.toString());
+
+                        myAdArrayList.clear();
+                        myAdArrayList.addAll(tempAds);
                     }
-                }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getApplicationContext(), "Unable to fetch data, please try again!", Toast.LENGTH_SHORT).show();
-            }
-        });
+                });
+//______________________________________________________________________________________________________________________________________
+//        Fetching Others' ads...
+        db.collection("adsRepo")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                        if(e!=null){
+                            Log.e(TAG, "Failed reloading Data: ", e);
+                            return;
+                        }
+                        ArrayList<Ad> tempAds = new ArrayList<>();
+                        for (QueryDocumentSnapshot ad: queryDocumentSnapshots){
+                            if (ad!=null && String.valueOf(ad.get("creator"))!= user.getEmail()){
+                                tempAds.add(new Ad(ad.getData()));
+                            }
+                        }
+                        Log.d(TAG, "REFRESHED LIST!!!"+ tempAds.toString());
+
+                        othersAdArrayList.clear();
+                        othersAdArrayList.addAll(tempAds);
+                    }
+                });
+//______________________________________________________________________________________________________________________________________
+
 
     }
 
@@ -261,21 +284,16 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         for (Beacon beacon: collection) {
             Identifier namespaceId = beacon.getId1();
             Identifier instanceId = beacon.getId2();
-//            String.valueOf(namespaceId).equals("0x"+masterUUID
-//            Log.d(TAG, "NAMESPACE READING: "+ String.valueOf(namespaceId));
-//            Log.d(TAG, "INSTANCE READING: "+ String.valueOf(instanceId));
-//            Log.d(TAG, "MASTERID READING: "+ String.valueOf(masterUUID));
-//            if (String.valueOf(masterUUID).equals(String.valueOf(namespaceId)))
-//                Log.d(TAG, "NAME and MASTER Matched!!!");
+
             if (String.valueOf(masterUUID).equals(String.valueOf(namespaceId)) && beacon.getServiceUuid() == 0xfeaa && beacon.getBeaconTypeCode() == 0x00 ) {
                 // This is a Eddystone-UID frame
 
                 db.collection("mapIDtoemail").document(String.valueOf(instanceId)).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if(task.isSuccessful()){
+                        if (task.isSuccessful()) {
                             String emailRec = task.getResult().getString("email");
-                            Log.d(TAG, "FOUND Instance for: "+emailRec);
+                            Log.d(TAG, "FOUND Instance for: " + emailRec);
                             db.collection("usersData").document(emailRec).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -283,7 +301,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                                     ArrayList<Ad> ads = new ArrayList();
                                     ArrayList adsGot = (ArrayList) documentSnapshot.get("ads");
 
-                                    for (Object ad: adsGot){
+                                    for (Object ad : adsGot) {
                                         HashMap<String, String> adHM = (HashMap<String, String>) ad;
 //                                        ads.add(new Ad(adHM.get("comment"),adHM.get("serial_no")));
 
@@ -295,39 +313,14 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                     }
                 });
 
-                Log.d(TAG, "I see a beacon transmitting namespace id: "+namespaceId+
-                        " and instance id: "+instanceId+
-                        " approximately "+beacon.getDistance()+" meters away."+", "+beacon.getExtraDataFields().toString());
+                Log.d(TAG, "I see a beacon transmitting namespace id: " + namespaceId +
+                        " and instance id: " + instanceId +
+                        " approximately " + beacon.getDistance() + " meters away." + ", " + beacon.getExtraDataFields().toString());
 //                __________________________________________________________________________________________________________
 
 
-
 //                __________________________________________________________________________________________________________
-
-
-
-
-//                // Do we have telemetry data?
-//                if (beacon.getExtraDataFields().size() > 0) {
-//                    long telemetryVersion = beacon.getExtraDataFields().get(0);
-//                    long batteryMilliVolts = beacon.getExtraDataFields().get(1);
-//                    long pduCount = beacon.getExtraDataFields().get(3);
-//                    long uptime = beacon.getExtraDataFields().get(4);
-//
-//                    Log.d(TAG, "The above beacon is sending telemetry version "+telemetryVersion+
-//                            ", has been up for : "+uptime+" seconds"+
-//                            ", has a battery level of "+batteryMilliVolts+" mV"+
-//                            ", and has transmitted "+pduCount+" advertisements.");
-
-                }
-//            }else if (beacon.getServiceUuid() == 0xfeaa && beacon.getBeaconTypeCode() == 0x10) {
-//                // This is a Eddystone-URL frame
-//                String url = UrlBeaconUrlCompressor.uncompress(beacon.getId1().toByteArray());
-//                Log.d(TAG, "I see a beacon transmitting a url: " + url +
-//                        " approximately " + beacon.getDistance() + " meters away.");
-//            else{
-//                Log.d(TAG, "didRangeBeaconsInRegion: "+beacon.getBluetoothAddress()+", "+beacon.getBluetoothName()+", "+beacon.getServiceUuid()+", "+beacon.getExtraDataFields().toString());
-//            }
+            }
 
         }
 
@@ -417,7 +410,12 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
     }
 
     @Override
-    public ArrayList<Ad> getAdsArrayList() {
+    public ArrayList<Ad> getOtherAdsArrayList() {
+        return othersAdArrayList;
+    }
+
+    @Override
+    public ArrayList<Ad> getMyAdsArrayList() {
         return myAdArrayList;
     }
 

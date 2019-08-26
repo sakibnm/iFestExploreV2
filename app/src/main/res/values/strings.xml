@@ -19,4 +19,5 @@
     <string name="button_create_Clear" >Clear All</string>
     <string name="button_my_posts_view" >View</string>
     <string name="button_my_posts_Stop">Stop Posting</string>
+    <string name="buttoon_rec_txt_view">View</string>
 </resources>
