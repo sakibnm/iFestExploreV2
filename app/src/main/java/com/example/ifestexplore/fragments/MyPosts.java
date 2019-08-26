@@ -110,7 +110,7 @@ public class MyPosts extends Fragment implements SwipeRefreshLayout.OnRefreshLis
         rv_MyPosts.setAdapter(myAdAdapter);
 //       Fetching my posts...
 //        ____________________________________________________________________________________
-        adArrayList = mListener.getAdsArrayList();
+        adArrayList = mListener.getMyAdsArrayList();
         Log.d(TAG, "Fetched From Fragment: "+adArrayList.toString());
         myAdAdapter.setAdArrayList(adArrayList);
         myAdAdapter.notifyDataSetChanged();
@@ -186,7 +186,14 @@ public class MyPosts extends Fragment implements SwipeRefreshLayout.OnRefreshLis
 
     @Override
     public void onRefresh() {
+        getUpdatedList();
+    }
 
+    private void getUpdatedList() {
+        adArrayList = mListener.getMyAdsArrayList();
+        myAdAdapter.setAdArrayList(adArrayList);
+        myAdAdapter.notifyDataSetChanged();
+        swipeRefreshLayout.setRefreshing(false);
     }
 
     /**
@@ -202,7 +209,7 @@ public class MyPosts extends Fragment implements SwipeRefreshLayout.OnRefreshLis
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
-        ArrayList<Ad> getAdsArrayList();
+        ArrayList<Ad> getMyAdsArrayList();
 
     }
 }
