@@ -230,6 +230,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 
         Picasso.get().load(url).into(iv_userPhoto);
     }
+//______________________________________________________________________________________________________________________________________
 
     private void getUserInstanceIDandTransmit(String userEmail) {
         db.collection("users").document(userEmail).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -257,6 +258,11 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                 .setTxPower(-59)
                 .setDataFields(Arrays.asList(new Long[] {0l}))
                 .build();
+        int result = BeaconTransmitter.checkTransmissionSupported(getApplicationContext());
+        
+        if (result == BeaconTransmitter.NOT_SUPPORTED_CANNOT_GET_ADVERTISER){
+            Log.e(TAG, "transmitBeacon: Failed Error 4");
+        }
 
         BeaconParser beaconParser = new BeaconParser().setBeaconLayout(BeaconParser.EDDYSTONE_UID_LAYOUT);
         BeaconTransmitter beaconTransmitter = new BeaconTransmitter(getApplicationContext(), beaconParser);
@@ -274,6 +280,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
             }
         });
     }
+//______________________________________________________________________________________________________________________________________
 
     @Override
     public void onBeaconServiceConnect() {
@@ -286,6 +293,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         beaconManager.addRangeNotifier(this);
     }
 
+//______________________________________________________________________________________________________________________________________
 
 //    Scanning surrounding beacons.............
     @Override
@@ -303,20 +311,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                         if (task.isSuccessful()) {
                             String emailRec = task.getResult().getString("email");
                             Log.d(TAG2, "FOUND Instance for: " + emailRec);
-                            db.collection("usersData").document(emailRec).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    DocumentSnapshot documentSnapshot = task.getResult();
-                                    ArrayList<Ad> ads = new ArrayList();
-                                    ArrayList adsGot = (ArrayList) documentSnapshot.get("ads");
 
-                                    for (Object ad : adsGot) {
-                                        HashMap<String, String> adHM = (HashMap<String, String>) ad;
-//                                        ads.add(new Ad(adHM.get("comment"),adHM.get("serial_no")));
-
-                                    }
-                                }
-                            });
                         }
 
                     }
@@ -325,15 +320,16 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                 Log.d(TAG, "I see a beacon transmitting namespace id: " + namespaceId +
                         " and instance id: " + instanceId +
                         " approximately " + beacon.getDistance() + " meters away." + ", " + beacon.getExtraDataFields().toString());
-//                __________________________________________________________________________________________________________
+// __________________________________________________________________________________________________________
 
 
-//                __________________________________________________________________________________________________________
+//__________________________________________________________________________________________________________
             }
 
         }
 
     }
+//______________________________________________________________________________________________________________________________________
 
     void setupBluetooth(){
         btManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
@@ -377,6 +373,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         }
     }
 
+//______________________________________________________________________________________________________________________________________
 
     //FRAGMENTS and NAVIGATION...........
     private boolean loadFragment(Fragment fragment) {
