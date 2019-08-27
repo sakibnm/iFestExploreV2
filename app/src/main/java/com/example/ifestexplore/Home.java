@@ -197,7 +197,10 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                             return;
                         }
                         ArrayList<Ad> tempAds = new ArrayList<>();
+
                         for (QueryDocumentSnapshot ad: queryDocumentSnapshots){
+                            if (ad.contains("count"))continue;
+
                             if (ad!=null && String.valueOf(ad.get("creator"))!= user.getEmail()){
                                 tempAds.add(new Ad(ad.getData()));
                             }

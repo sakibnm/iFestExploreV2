@@ -55,8 +55,9 @@ public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
     public void onBindViewHolder(@NonNull MyAdAdapter.AdHolder holder, int position) {
         Ad ad = adArrayList.get(position);
         holder.tv_my_posts_comment.setText(ad.getComment());
+        String urlPhoto = String.valueOf(ad.getItemPhotoURL());
 //        holder.tv_my_posts_users.setText(ad.getUsersForwarded().toString());
-        Picasso.get().load(URLEncoder.encode(ad.getItemPhotoURL())).into(holder.iv_my_posts_image);
+        if (urlPhoto!=null && !urlPhoto.equals(""))Picasso.get().load(urlPhoto).into(holder.iv_my_posts_image);
 
         Log.d(TAG, "onBindViewHolder: "+ad.toString());
     }
