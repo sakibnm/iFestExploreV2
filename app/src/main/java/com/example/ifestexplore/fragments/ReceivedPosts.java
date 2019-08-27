@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.ifestexplore.Home;
 import com.example.ifestexplore.models.Ad;
 import com.example.ifestexplore.controllers.AdAdapter;
 import com.example.ifestexplore.R;
@@ -76,6 +77,7 @@ public class ReceivedPosts extends Fragment implements SwipeRefreshLayout.OnRefr
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
+
             getUpdatedList();
         }
     }
@@ -83,6 +85,7 @@ public class ReceivedPosts extends Fragment implements SwipeRefreshLayout.OnRefr
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Home.navigationView.getMenu().getItem(0).setChecked(true);
         // Inflate the layout for this fragment
         view =  inflater.inflate(R.layout.fragment_received_posts, container, false);
         swipeRefreshLayout = view.findViewById(R.id.received_post_swip);
@@ -93,6 +96,7 @@ public class ReceivedPosts extends Fragment implements SwipeRefreshLayout.OnRefr
         rv_Ads.setLayoutManager(linearLayoutManager);
         adAdapter = new AdAdapter(adArrayList, getContext());
         rv_Ads.setAdapter(adAdapter);
+
 
 //        ___________________________________________________________________________________________
 //Fetching others' posts...
@@ -158,5 +162,7 @@ public class ReceivedPosts extends Fragment implements SwipeRefreshLayout.OnRefr
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
         ArrayList<Ad> getOtherAdsArrayList();
+
+//        void refreshList();
     }
 }

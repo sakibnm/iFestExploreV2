@@ -15,6 +15,7 @@ import android.bluetooth.le.BluetoothLeScanner;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -70,6 +71,7 @@ import javax.annotation.Nullable;
 
 public class Home extends AppCompatActivity implements BeaconConsumer, RangeNotifier, BottomNavigationView.OnNavigationItemSelectedListener, FragmentContainer.OnFragmentInteractionListener, ReceivedPosts.OnFragmentInteractionListener, MyPosts.OnFragmentInteractionListener, CreatePosts.OnFragmentInteractionListener, Bookmarks.OnFragmentInteractionListener {
 
+    private static final String TAG2 = "ble";
     private FirebaseAuth mAuth;
     private ImageView iv_userPhoto;
     private TextView tv_userName;
@@ -81,7 +83,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
     BluetoothManager btManager;
     BluetoothAdapter btAdapter;
     BluetoothLeScanner btLeScanner;
-    BottomNavigationView navigationView;
+    public static BottomNavigationView navigationView;
     private ArrayList<Ad> myAdArrayList = new ArrayList<>();
     private ArrayList<Ad> othersAdArrayList = new ArrayList<>();
 
@@ -127,6 +129,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
 //        ___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
 //        Navigation menus and fragments...
@@ -180,7 +183,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                                 tempAds.add(new Ad(ad.getData()));
                             }
                         }
-                        Log.d(TAG, "REFRESHED LIST!!!"+ tempAds.toString());
+//                        Log.d(TAG, "REFRESHED LIST!!!"+ tempAds.toString());
 
                         myAdArrayList.clear();
                         myAdArrayList.addAll(tempAds);
@@ -200,15 +203,16 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 
                         for (QueryDocumentSnapshot ad: queryDocumentSnapshots){
                             if (ad.contains("count"))continue;
-
-                            if (ad!=null && String.valueOf(ad.get("creator"))!= user.getEmail()){
+                            Log.d(TAG, "EMAILS: "+ String.valueOf(ad.get("creator"))+" "+user.getEmail());
+                            if (ad!=null && !String.valueOf(ad.get("creator")).equals(user.getEmail())){
                                 tempAds.add(new Ad(ad.getData()));
                             }
                         }
-                        Log.d(TAG, "REFRESHED LIST!!!"+ tempAds.toString());
+//                        Log.d(TAG, "REFRESHED LIST!!!"+ tempAds.toString());
 
                         othersAdArrayList.clear();
                         othersAdArrayList.addAll(tempAds);
+                        loadFragment(new ReceivedPosts());
                     }
                 });
 //______________________________________________________________________________________________________________________________________
@@ -282,6 +286,8 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         beaconManager.addRangeNotifier(this);
     }
 
+
+//    Scanning surrounding beacons.............
     @Override
     public void didRangeBeaconsInRegion(Collection<Beacon> collection, Region region) {
         for (Beacon beacon: collection) {
@@ -296,7 +302,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful()) {
                             String emailRec = task.getResult().getString("email");
-                            Log.d(TAG, "FOUND Instance for: " + emailRec);
+                            Log.d(TAG2, "FOUND Instance for: " + emailRec);
                             db.collection("usersData").document(emailRec).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -417,6 +423,11 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         return othersAdArrayList;
     }
 
+//    @Override
+//    public void refreshList() {
+//        loadFragment(new ReceivedPosts());
+//    }
+
     @Override
     public ArrayList<Ad> getMyAdsArrayList() {
         return myAdArrayList;
@@ -429,7 +440,10 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 
     @Override
     public void onCreatePressedFromCreatePosts() {
+
         loadFragment(new ReceivedPosts());
-        navigationView.getMenu().getItem(0).setChecked(true);
+
+//        navigationView.setSelectedItemId(navigationView.getMenu().getItem(0).getItemId());
+
     }
 }

@@ -111,6 +111,7 @@ public class CreatePosts extends Fragment implements View.OnClickListener {
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
+
         }
     }
 
@@ -242,7 +243,7 @@ public class CreatePosts extends Fragment implements View.OnClickListener {
                                         saveDB.collection("adsRepo").document("adscounter").update("count", current_count+1);
 
                                         view.findViewById(R.id.progress_createAd).setVisibility(View.GONE);
-                                        getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+//                                        getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                                         Log.d(TAG, "onSuccess: Saving Ad Second!");
 
                                         getBackToReceived();
@@ -270,17 +271,17 @@ public class CreatePosts extends Fragment implements View.OnClickListener {
 
     private void displayProgressBar() {
         view.findViewById(R.id.progress_createAd).setVisibility(View.VISIBLE);
-        getActivity().getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+//        getActivity().getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+//                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
     }
 
     public void clearAll(){
 
-        mListener.onClearAllPressedFromCreatePosts();
+        if (mListener!=null)mListener.onClearAllPressedFromCreatePosts();
     }
     public void getBackToReceived(){
         Log.d(TAG, "getBackToReceived: done!");
-        mListener.onCreatePressedFromCreatePosts();
+        if (mListener!=null)mListener.onCreatePressedFromCreatePosts();
     }
 
 
