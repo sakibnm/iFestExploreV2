@@ -7,11 +7,14 @@ import androidx.fragment.app.Fragment;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.AdvertiseCallback;
 import android.bluetooth.le.AdvertiseSettings;
 import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -87,6 +90,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
     private ArrayList<Ad> myAdArrayList = new ArrayList<>();
     private ArrayList<Ad> othersAdArrayList = new ArrayList<>();
 
+
     BeaconManager beaconManager;
 
 
@@ -120,6 +124,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         switch(item.getItemId()){
             case R.id.action_logout:
                 FirebaseAuth.getInstance().signOut();
+                beaconManager.unbind(this);
                 finish();
         }
         return super.onOptionsItemSelected(item);
@@ -189,33 +194,6 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                         myAdArrayList.addAll(tempAds);
                     }
                 });
-//______________________________________________________________________________________________________________________________________
-//        Fetching Others' ads...
-        db.collection("adsRepo")
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                        if(e!=null){
-                            Log.e(TAG, "Failed reloading Data: ", e);
-                            return;
-                        }
-                        ArrayList<Ad> tempAds = new ArrayList<>();
-
-                        for (QueryDocumentSnapshot ad: queryDocumentSnapshots){
-                            if (ad.contains("count"))continue;
-                            Log.d(TAG, "EMAILS: "+ String.valueOf(ad.get("creator"))+" "+user.getEmail());
-                            if (ad!=null && !String.valueOf(ad.get("creator")).equals(user.getEmail())){
-                                tempAds.add(new Ad(ad.getData()));
-                            }
-                        }
-//                        Log.d(TAG, "REFRESHED LIST!!!"+ tempAds.toString());
-
-                        othersAdArrayList.clear();
-                        othersAdArrayList.addAll(tempAds);
-                        loadFragment(new ReceivedPosts());
-                    }
-                });
-//______________________________________________________________________________________________________________________________________
 
 
     }
@@ -310,7 +288,37 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful()) {
                             String emailRec = task.getResult().getString("email");
-                            Log.d(TAG2, "FOUND Instance for: " + emailRec);
+                            Log.d(TAG, "FOUND Instance for: " + emailRec);
+                            //______________________________________________________________________________________________________________________________________
+//        Fetching Others' ads...
+                            db.collection("adsRepo").whereEqualTo("creator",emailRec.trim())
+                                    .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                                        @Override
+                                        public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                                            if(e!=null){
+                                                Log.e(TAG, "Failed reloading Data: ", e);
+                                                return;
+                                            }
+                                            ArrayList<Ad> tempAds = new ArrayList<>();
+
+                                            for (QueryDocumentSnapshot ad: queryDocumentSnapshots){
+                                                if (ad.contains("count"))continue;
+                                                Log.d(TAG, "EMAILS: "+ String.valueOf(ad.get("creator"))+" "+user.getEmail());
+                                                if (ad!=null && !String.valueOf(ad.get("creator")).equals(user.getEmail())){
+                                                    tempAds.add(new Ad(ad.getData()));
+                                                }
+                                            }
+//                        Log.d(TAG, "REFRESHED LIST!!!"+ tempAds.toString());
+
+                                            othersAdArrayList.clear();
+                                            othersAdArrayList.addAll(tempAds);
+//                                            loadFragment(new ReceivedPosts());
+                                            ReceivedPosts.getUpdatedList();
+
+                                        }
+                                    });
+//______________________________________________________________________________________________________________________________________
+
 
                         }
 
@@ -443,4 +451,6 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 //        navigationView.setSelectedItemId(navigationView.getMenu().getItem(0).getItemId());
 
     }
+
+
 }

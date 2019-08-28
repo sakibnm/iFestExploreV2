@@ -40,14 +40,14 @@ public class ReceivedPosts extends Fragment implements SwipeRefreshLayout.OnRefr
     private String mParam1;
     private String mParam2;
 
-    private OnFragmentInteractionListener mListener;
+    private static OnFragmentInteractionListener mListener;
 
     private static final String TAG = "demo";
-    private AdAdapter adAdapter;
-    private ArrayList<Ad> adArrayList = new ArrayList<>();
+    static AdAdapter adAdapter;
+    private static ArrayList<Ad> adArrayList = new ArrayList<>();
     private RecyclerView rv_Ads;
     View view;
-    SwipeRefreshLayout swipeRefreshLayout;
+    static SwipeRefreshLayout swipeRefreshLayout;
 
     public ReceivedPosts() {
         // Required empty public constructor
@@ -141,12 +141,14 @@ public class ReceivedPosts extends Fragment implements SwipeRefreshLayout.OnRefr
         getUpdatedList();
     }
 
-    private void getUpdatedList() {
-        adArrayList = mListener.getOtherAdsArrayList();
+    public static void getUpdatedList() {
+        if(mListener!=null)adArrayList = mListener.getOtherAdsArrayList();
         adAdapter.setAdArrayList(adArrayList);
         adAdapter.notifyDataSetChanged();
         swipeRefreshLayout.setRefreshing(false);
     }
+
+
 
     /**
      * This interface must be implemented by activities that contain this

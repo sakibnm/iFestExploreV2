@@ -23,6 +23,8 @@
                 android:layout_height="160dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/content_24dp" />
