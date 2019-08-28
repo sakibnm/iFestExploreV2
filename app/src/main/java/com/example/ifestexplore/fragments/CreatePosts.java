@@ -3,7 +3,6 @@ package com.example.ifestexplore.fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -24,16 +23,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.ifestexplore.Home;
 import com.example.ifestexplore.R;
-import com.example.ifestexplore.Register;
 import com.example.ifestexplore.models.Ad;
-import com.example.ifestexplore.models.User;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -42,7 +37,6 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
-import java.util.HashMap;
 import java.util.Random;
 
 
@@ -76,12 +70,14 @@ public class CreatePosts extends Fragment implements View.OnClickListener {
     private Bitmap bitmap;
     private Button button_createAd;
     private Button button_createAdClear;
+    private EditText et_Title;
     private EditText et_Comment;
 
     private Boolean takenPhoto = false;
     private Boolean commentGiven = false;
 
     private Ad createdAd;
+    private boolean titleGiven;
 
     public CreatePosts() {
         // Required empty public constructor
@@ -158,17 +154,21 @@ public class CreatePosts extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View view) {
         if(view.getId() == R.id.button_createAd_share){
+            et_Title = this.view.findViewById(R.id.et_Title);
             et_Comment = this.view.findViewById(R.id.et_Comment);
+            String title = et_Title.getText().toString().trim();
             String comment = et_Comment.getText().toString().trim();
             if(comment.equals(""))commentGiven =false;
             else commentGiven =true;
+            if(title.equals(""))titleGiven =false;
+            else titleGiven =true;
             mAuth = FirebaseAuth.getInstance();
             FirebaseUser user = mAuth.getCurrentUser();
 
 
-            if(takenPhoto && commentGiven){
+            if(takenPhoto && titleGiven && commentGiven){
                 displayProgressBar();
-                this.createdAd = new Ad(user.getEmail(),"",user.getPhotoUrl().toString(),"",comment,null);
+                this.createdAd = new Ad(user.getEmail(),"",user.getPhotoUrl().toString(),"", title, comment,null);
                 uploadImage(bitmap);
             }
 

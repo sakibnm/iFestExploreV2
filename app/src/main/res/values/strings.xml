@@ -20,4 +20,10 @@
     <string name="button_my_posts_view" >View</string>
     <string name="button_my_posts_Stop">Stop Posting</string>
     <string name="buttoon_rec_txt_view">View</string>
+    <string name="creator_Text" >"Shared by "</string>
+    <string name="forwardText">and Forwarded by</string>
+    <string name="textShared">Shared by</string>
+    <string name="fav_button">Mark Favorite</string>
+    <string name="fwd_button">Re Share</string>
+    <string name="hint_title">Title</string>
 </resources>

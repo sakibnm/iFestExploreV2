@@ -9,6 +9,7 @@ public class Ad {
     private String adSerialNo;
     private String userPhotoURL;
     private String itemPhotoURL;
+    private String title;
     private String comment;
     private ArrayList<String> usersForwarded;
 
@@ -19,11 +20,12 @@ public class Ad {
 
     }
 
-    public Ad(String creatorEmail, String adSerialNo, String userPhotoURL, String itemPhotoURL, String comment, ArrayList<String> usersForwarded) {
+    public Ad(String creatorEmail, String adSerialNo, String userPhotoURL, String itemPhotoURL, String title, String comment, ArrayList<String> usersForwarded) {
         this.creatorEmail = creatorEmail;
         this.adSerialNo = adSerialNo;
         this.userPhotoURL = userPhotoURL;
         this.itemPhotoURL = itemPhotoURL;
+        this.title = title;
         this.comment = comment;
         this.usersForwarded = usersForwarded;
     }
@@ -46,9 +48,18 @@ public class Ad {
         this.adSerialNo = (String) map.get("adSerialNo");
         this.userPhotoURL = (String) map.get("userPhotoURL");
         this.itemPhotoURL = (String) map.get("itemPhotoURL");
+        this.title = (String) map.get("title");
         this.comment = (String) map.get("comment");
-//        TODO: change null to list...
+//        TODO: change null to list.
         this.usersForwarded = null;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public Map toHashMap(){
@@ -57,6 +68,7 @@ public class Ad {
         this.hashMap.put("creator", this.creatorEmail);
         this.hashMap.put("adSerialNo", this.adSerialNo);
         this.hashMap.put("itemPhotoURL", this.itemPhotoURL);
+        this.hashMap.put("title", this.title);
         this.hashMap.put("comment", this.comment);
         this.hashMap.put("userPhotoURL", this.userPhotoURL);
 

@@ -16,8 +16,6 @@ import com.example.ifestexplore.R;
 import com.example.ifestexplore.models.Ad;
 import com.squareup.picasso.Picasso;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 
 public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
@@ -87,16 +85,16 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
 
     public class AdHolder extends RecyclerView.ViewHolder {
         private TextView tv_rec_comment;
-        private TextView tv_rec_users;
+        private TextView tv_rec_title;
         private ImageView iv_rec_image;
-        private Button button_rec_View;
+        private Button button_rec_favorite;
         private Button button_rec_Forward;
         public AdHolder(@NonNull View itemView) {
             super(itemView);
             tv_rec_comment = itemView.findViewById(R.id.tv_rec_item_comment);
-            tv_rec_users = itemView.findViewById(R.id.tv_rec_users);
+            tv_rec_title = itemView.findViewById(R.id.tv_rec_title);
             iv_rec_image = itemView.findViewById(R.id.iv_rec_item_image);
-            button_rec_View = itemView.findViewById(R.id.button_rec_view);
+            button_rec_favorite = itemView.findViewById(R.id.button_rec_favorite);
             button_rec_Forward = itemView.findViewById(R.id.button_rec_forward);
         }
 

@@ -208,7 +208,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         Uri url = user.getPhotoUrl();
         Log.d(TAG, "setImageAndName: "+url);
 
-        tv_userName.setText(name);
+        tv_userName.setText("Hello "+name+"!");
 //        iv_userPhoto.setImageURI(url);
 
         Picasso.get().load(url).into(iv_userPhoto);
