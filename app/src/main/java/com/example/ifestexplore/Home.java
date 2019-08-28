@@ -68,6 +68,8 @@ import org.altbeacon.beacon.Region;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 
 import javax.annotation.Nullable;
@@ -89,6 +91,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
     public static BottomNavigationView navigationView;
     private ArrayList<Ad> myAdArrayList = new ArrayList<>();
     private ArrayList<Ad> othersAdArrayList = new ArrayList<>();
+    private HashMap<String, Integer> adMap;
 
 
     BeaconManager beaconManager;
@@ -135,6 +138,8 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        adMap= new HashMap<>();
 
 //        ___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
 //        Navigation menus and fragments...
@@ -287,10 +292,14 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful()) {
-                            String emailRec = task.getResult().getString("email");
+                            final String emailRec = task.getResult().getString("email");
                             Log.d(TAG, "FOUND Instance for: " + emailRec);
+                            if(!adMap.containsKey(emailRec.trim())){
+                                adMap.put(emailRec.trim(),0);
+                            }
                             //______________________________________________________________________________________________________________________________________
 //        Fetching Others' ads...
+                            final int[] adscount = {0};
                             db.collection("adsRepo").whereEqualTo("creator",emailRec.trim())
                                     .addSnapshotListener(new EventListener<QuerySnapshot>() {
                                         @Override
@@ -306,12 +315,42 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                                                 Log.d(TAG, "EMAILS: "+ String.valueOf(ad.get("creator"))+" "+user.getEmail());
                                                 if (ad!=null && !String.valueOf(ad.get("creator")).equals(user.getEmail())){
                                                     tempAds.add(new Ad(ad.getData()));
+                                                    adscount[0]++;
+                                                }
+                                            }
+
+                                            Collections.sort(tempAds, new Comparator<Ad>() {
+                                                @Override
+                                                public int compare(Ad t1, Ad t2) {
+                                                    return Integer.parseInt(t2.getAdSerialNo().trim()) - Integer.parseInt(t1.getAdSerialNo().trim());
+                                                }
+                                            });
+
+                                            Log.d(TAG, "RECEIVED ADS ALL: "+tempAds.toString());
+
+                                            if (adMap.get(emailRec.trim())!=adscount[0]){
+                                                int differenceAdCount = adMap.get(emailRec.trim()) - adscount[0];
+                                                Log.d(TAG, "HASHMAP DIFFERENCE: "+differenceAdCount);
+                                                adMap.put(emailRec.trim(), adscount[0]);
+                                                for (Ad ad: othersAdArrayList){
+                                                    if(ad.getCreatorEmail().equals(emailRec)){
+                                                        if (!tempAds.contains(ad)){
+                                                            tempAds.remove(ad);
+                                                        }
+                                                    }
+                                                }
+                                                for (Ad ad: tempAds){
+
+                                                    if (!othersAdArrayList.contains(ad)){
+                                                        othersAdArrayList.add(ad);
+                                                    }
+
                                                 }
                                             }
 //                        Log.d(TAG, "REFRESHED LIST!!!"+ tempAds.toString());
 
-                                            othersAdArrayList.clear();
-                                            othersAdArrayList.addAll(tempAds);
+//                                            othersAdArrayList.clear();
+//                                            othersAdArrayList.addAll(tempAds);
 //                                            loadFragment(new ReceivedPosts());
                                             ReceivedPosts.getUpdatedList();
 
