@@ -167,7 +167,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
             @Override
             public void onClick(View view) {
                 FirebaseAuth.getInstance().signOut();
-                beaconManager.unbind((BeaconConsumer) getBaseContext() );
+                beaconManager.unbind(Home.this );
                 finish();
             }
         });
