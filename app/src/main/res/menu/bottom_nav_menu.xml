@@ -17,8 +17,8 @@
         android:title="@string/nav_my_posts" />
     <item
         android:id="@+id/nav_bookmarks"
-        android:icon="@drawable/ic_bookmark_black_24dp"
-        android:title="@string/nav_bookmarks"/>
+        android:icon="@drawable/button_favorite"
+        android:title="@string/nav_bookmarks" />
 
 
 </menu>

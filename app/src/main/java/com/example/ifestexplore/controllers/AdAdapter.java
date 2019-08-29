@@ -55,6 +55,7 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
 //TODO: FILTER FOR USERS NEEDED...
         // Set the data to the views here
         holder.tv_rec_comment.setText(ad.getComment());
+        holder.tv_rec_title.setText(ad.getTitle());
         String urlPhoto = String.valueOf(ad.getItemPhotoURL());
 //        try {
 //            urlPhoto = URLEncoder.encode(ad.getItemPhotoURL(), "UTF-8");
@@ -63,6 +64,7 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
 //            e.printStackTrace();
 //        }
         if (urlPhoto!=null && !urlPhoto.equals(""))Picasso.get().load(urlPhoto).into(holder.iv_rec_image);
+//        if (urlPhoto!=null && !urlPhoto.equals(""))Picasso.get().load(urlPhoto).into(holder.iv_rec_image);
         Log.d(TAG, "onBindViewHolder: "+ad.toString());
 
         // You can set click listners to indvidual items in the viewholder here
