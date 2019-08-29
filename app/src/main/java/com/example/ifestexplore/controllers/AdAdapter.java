@@ -1,6 +1,7 @@
 package com.example.ifestexplore.controllers;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -66,11 +67,29 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
         if (urlPhoto!=null && !urlPhoto.equals(""))Picasso.get().load(urlPhoto).into(holder.iv_rec_image);
 //        if (urlPhoto!=null && !urlPhoto.equals(""))Picasso.get().load(urlPhoto).into(holder.iv_rec_image);
         Log.d(TAG, "onBindViewHolder: "+ad.toString());
+        holder.button_rec_favorite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Drawable currentBack = ((Button)view.findViewById(R.id.button_rec_favorite)).getBackground();
+                int resourceIDofDrawable = 0;
+
+                if (view.getResources().getDrawable(R.drawable.button__background_unfavorite_round, null) == currentBack) resourceIDofDrawable = R.drawable.button__background_unfavorite_round;
+                if (view.getResources().getDrawable(R.drawable.button__background_favorite_round, null) == currentBack) resourceIDofDrawable = R.drawable.button__background_favorite_round;
+
+                if (resourceIDofDrawable == R.drawable.button__background_unfavorite_round) {
+                    view.findViewById(R.id.button_rec_favorite).setBackground(view.getResources().getDrawable(R.drawable.button__background_favorite_round, null));
+                }else{
+                    view.findViewById(R.id.button_rec_favorite).setBackground(view.getResources().getDrawable(R.drawable.button__background_unfavorite_round, null));
+                }
+            }
+        });
 
         // You can set click listners to indvidual items in the viewholder here
         // make sure you pass down the listner or make the Data members of the viewHolder public
 
     }
+
+
 
     @Override
     public int getItemCount() {

@@ -62,9 +62,11 @@ public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
         holder.tv_my_posts_title.setText(ad.getTitle());
         holder.tv_my_posts_me.setText(user.getDisplayName());
         String urlPhoto = String.valueOf(ad.getItemPhotoURL());
+        String urlMyPhoto = String.valueOf(ad.getUserPhotoURL());
 //        holder.tv_my_posts_users.setText(ad.getUsersForwarded().toString());
 //        if (urlPhoto!=null && !urlPhoto.equals(""))
           Picasso.get().load(urlPhoto).into(holder.iv_my_posts_image);
+          Picasso.get().load(urlMyPhoto).into(holder.iv_my_photo_image);
 
 //        TODO: stop button logic should be added......
 
@@ -86,6 +88,7 @@ public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
         private TextView tv_my_posts_me;
         private TextView tv_my_posts_title;
         private ImageView iv_my_posts_image;
+        private ImageView iv_my_photo_image;
         private Button button_my_posts_stop;
 
         public AdHolder(@NonNull View itemView) {
@@ -94,6 +97,7 @@ public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
             tv_my_posts_me = itemView.findViewById(R.id.tv_my_username);
             tv_my_posts_title = itemView.findViewById(R.id.tv_my_Title);
             iv_my_posts_image = itemView.findViewById(R.id.iv_my_userphoto);
+            iv_my_photo_image = itemView.findViewById(R.id.iv_my_photo);
             button_my_posts_stop = itemView.findViewById(R.id.button_my_Stop_Posting);
         }
     }
