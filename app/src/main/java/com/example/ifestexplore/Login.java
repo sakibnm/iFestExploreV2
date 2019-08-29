@@ -28,7 +28,6 @@ public class Login extends AppCompatActivity {
     EditText etPassword;
     String userEmail;
     String userPassword;
-    Button buttonRegister;
     Button buttonLogin;
     FirebaseAuth mAuth;
 
@@ -66,7 +65,6 @@ public class Login extends AppCompatActivity {
         etEmail = findViewById(R.id.et_email);
         etPassword = findViewById(R.id.et_password);
         buttonLogin = findViewById(R.id.button_login);
-        buttonRegister = findViewById(R.id.button_register2);
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
@@ -102,13 +100,13 @@ public class Login extends AppCompatActivity {
         });
 
 
-        buttonRegister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), Register.class);
-                startActivity(intent);
-            }
-        });
+//        buttonRegister.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Intent intent = new Intent(getApplicationContext(), Register.class);
+//                startActivity(intent);
+//            }
+//        });
 
 
 

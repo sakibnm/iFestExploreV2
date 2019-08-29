@@ -26,4 +26,8 @@
     <string name="fav_button">Mark Favorite</string>
     <string name="fwd_button">Re Share</string>
     <string name="hint_title">Title</string>
+    <string name="button_text_stop_posting">Stop Posting</string>
+    <string name="text_login_register" >Register</string>
+    <string name="sign_in_string">Already have an account?</string>
+    <string name="text_sign_in_clicker">login</string>
 </resources>

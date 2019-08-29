@@ -14,22 +14,25 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ifestexplore.R;
 import com.example.ifestexplore.models.Ad;
-import com.google.api.LogDescriptor;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
 
-import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Base64;
 
 public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
     private static final String TAG = "demo";
     private ArrayList<Ad> adArrayList;
     private Context mContext;
+    private FirebaseAuth mAuth;
+    private FirebaseUser user;
 
 
     public MyAdAdapter(ArrayList<Ad> adArrayList, Context mContext) {
         this.adArrayList = adArrayList;
         this.mContext = mContext;
+        this.mAuth = FirebaseAuth.getInstance();
+        this.user = mAuth.getCurrentUser();
     }
 
     public void clear(){
@@ -54,12 +57,18 @@ public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
     @Override
     public void onBindViewHolder(@NonNull MyAdAdapter.AdHolder holder, int position) {
         Ad ad = adArrayList.get(position);
+        Log.d(TAG, "onBindViewHolder: "+ad.getTitle());
         holder.tv_my_posts_comment.setText(ad.getComment());
+        holder.tv_my_posts_title.setText(ad.getTitle());
+        holder.tv_my_posts_me.setText(user.getDisplayName());
         String urlPhoto = String.valueOf(ad.getItemPhotoURL());
 //        holder.tv_my_posts_users.setText(ad.getUsersForwarded().toString());
-        if (urlPhoto!=null && !urlPhoto.equals(""))Picasso.get().load(urlPhoto).into(holder.iv_my_posts_image);
+//        if (urlPhoto!=null && !urlPhoto.equals(""))
+          Picasso.get().load(urlPhoto).into(holder.iv_my_posts_image);
 
-        Log.d(TAG, "onBindViewHolder: "+ad.toString());
+//        TODO: stop button logic should be added......
+
+
     }
 
     @Override
@@ -74,18 +83,18 @@ public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
 
     public class AdHolder extends RecyclerView.ViewHolder {
         private TextView tv_my_posts_comment;
-        private TextView tv_my_posts_users;
+        private TextView tv_my_posts_me;
+        private TextView tv_my_posts_title;
         private ImageView iv_my_posts_image;
-        private Button button_my_posts_View;
         private Button button_my_posts_stop;
 
         public AdHolder(@NonNull View itemView) {
             super(itemView);
-            tv_my_posts_comment = itemView.findViewById(R.id.tv_comment_my_posts_cell);
-            tv_my_posts_users = itemView.findViewById(R.id.tv_users_my_posts_cell);
-            iv_my_posts_image = itemView.findViewById(R.id.iv_my_post_image);
-            button_my_posts_View = itemView.findViewById(R.id.button_my_posts_View);
-            button_my_posts_stop = itemView.findViewById(R.id.button_my_posts_Stop);
+            tv_my_posts_comment = itemView.findViewById(R.id.tv_my_comment);
+            tv_my_posts_me = itemView.findViewById(R.id.tv_my_username);
+            tv_my_posts_title = itemView.findViewById(R.id.tv_my_Title);
+            iv_my_posts_image = itemView.findViewById(R.id.iv_my_userphoto);
+            button_my_posts_stop = itemView.findViewById(R.id.button_my_Stop_Posting);
         }
     }
 

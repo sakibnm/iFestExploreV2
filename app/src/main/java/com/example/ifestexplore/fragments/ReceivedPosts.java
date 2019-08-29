@@ -144,6 +144,7 @@ public class ReceivedPosts extends Fragment implements SwipeRefreshLayout.OnRefr
     public static void getUpdatedList() {
         if(mListener!=null)adArrayList = mListener.getOtherAdsArrayList();
         adAdapter.setAdArrayList(adArrayList);
+        Log.d(TAG, "IN RECYCLER VIEW LIST: "+adArrayList.size()+" "+adArrayList);
         adAdapter.notifyDataSetChanged();
         swipeRefreshLayout.setRefreshing(false);
     }

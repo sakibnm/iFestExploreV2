@@ -62,6 +62,7 @@ public class Register extends AppCompatActivity {
     private EditText etName, etEmail, etPassword, etRepPassword;
     private TextView tvInstr;
     private Button createAccount;
+    private TextView tvLoginClicked;
     private ImageView ivUserPhoto;
     private static int CAM_REQ = 0x1111;
     private Bitmap bitmap;
@@ -95,7 +96,7 @@ public class Register extends AppCompatActivity {
         etPassword = findViewById(R.id.et_password);
         etRepPassword = findViewById(R.id.et_rep_password);
         createAccount = findViewById(R.id.button_register2);
-
+        tvLoginClicked = findViewById(R.id.tv_sign_in_click);
 
 
         mAuth = FirebaseAuth.getInstance();
@@ -162,10 +163,18 @@ public class Register extends AppCompatActivity {
             }
         });
 
+        tvLoginClicked.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Intent intent = new Intent(getApplicationContext(), Login.class);
+                startActivity(intent);
+            }
+        });
+
 
 
     }
-
 
 
 

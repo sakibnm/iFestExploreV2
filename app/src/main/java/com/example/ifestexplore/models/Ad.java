@@ -3,12 +3,36 @@ package com.example.ifestexplore.models;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class Ad {
     private String creatorEmail;
     private String adSerialNo;
     private String userPhotoURL;
     private String itemPhotoURL;
+
+    public Map<String, Object> getHashMap() {
+        return hashMap;
+    }
+
+    public void setHashMap(Map<String, Object> hashMap) {
+        this.hashMap = hashMap;
+    }
+
+    @Override
+    public String toString() {
+        return "Ad{" +
+                "creatorEmail='" + creatorEmail + '\'' +
+                ", adSerialNo='" + adSerialNo + '\'' +
+                ", userPhotoURL='" + userPhotoURL + '\'' +
+                ", itemPhotoURL='" + itemPhotoURL + '\'' +
+                ", title='" + title + '\'' +
+                ", comment='" + comment + '\'' +
+                ", usersForwarded=" + usersForwarded +
+                ", hashMap=" + hashMap +
+                '}';
+    }
+
     private String title;
     private String comment;
     private ArrayList<String> usersForwarded;
@@ -28,19 +52,6 @@ public class Ad {
         this.title = title;
         this.comment = comment;
         this.usersForwarded = usersForwarded;
-    }
-
-    @Override
-    public String toString() {
-        return "Ad{" +
-                "creatorEmail='" + creatorEmail + '\'' +
-                ", adSerialNo='" + adSerialNo + '\'' +
-                ", userPhotoURL='" + userPhotoURL + '\'' +
-                ", itemPhotoURL='" + itemPhotoURL + '\'' +
-                ", comment='" + comment + '\'' +
-                ", usersForwarded=" + usersForwarded +
-                ", hashMap=" + hashMap +
-                '}';
     }
 
     public Ad(Map<String, Object> map){
@@ -123,5 +134,19 @@ public class Ad {
         this.usersForwarded = usersForwarded;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Ad ad = (Ad) o;
+        return Objects.equals(creatorEmail, ad.creatorEmail) &&
+                Objects.equals(adSerialNo, ad.adSerialNo) &&
+                Objects.equals(title, ad.title) &&
+                Objects.equals(comment, ad.comment);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(creatorEmail, adSerialNo, title, comment);
+    }
 }

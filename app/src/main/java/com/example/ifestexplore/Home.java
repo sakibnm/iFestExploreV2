@@ -3,6 +3,7 @@ package com.example.ifestexplore;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
 import android.Manifest;
@@ -27,6 +28,7 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -80,6 +82,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
     private FirebaseAuth mAuth;
     private ImageView iv_userPhoto;
     private TextView tv_userName;
+    private CardView logoutCard;
     FirebaseUser user;
     FirebaseFirestore db;
     public static String masterUUID;
@@ -141,6 +144,8 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 
         adMap= new HashMap<>();
 
+
+
 //        ___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
 //        Navigation menus and fragments...
         loadFragment(new ReceivedPosts());
@@ -152,11 +157,20 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 
         iv_userPhoto = findViewById(R.id.iv_user_photo);
         tv_userName = findViewById(R.id.tv_userName);
-
+        logoutCard = findViewById(R.id.card_logout);
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
         setupBluetooth();
         setImageAndName(user);
+
+        logoutCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FirebaseAuth.getInstance().signOut();
+                beaconManager.unbind((BeaconConsumer) getBaseContext() );
+                finish();
+            }
+        });
         
         db = FirebaseFirestore.getInstance();
 
@@ -299,11 +313,12 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                             }
                             //______________________________________________________________________________________________________________________________________
 //        Fetching Others' ads...
-                            final int[] adscount = {0};
+//                            final int[] adscount = {0};
                             db.collection("adsRepo").whereEqualTo("creator",emailRec.trim())
                                     .addSnapshotListener(new EventListener<QuerySnapshot>() {
                                         @Override
                                         public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                                            int adscount = 0;
                                             if(e!=null){
                                                 Log.e(TAG, "Failed reloading Data: ", e);
                                                 return;
@@ -315,9 +330,11 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                                                 Log.d(TAG, "EMAILS: "+ String.valueOf(ad.get("creator"))+" "+user.getEmail());
                                                 if (ad!=null && !String.valueOf(ad.get("creator")).equals(user.getEmail())){
                                                     tempAds.add(new Ad(ad.getData()));
-                                                    adscount[0]++;
+                                                    adscount++;
                                                 }
                                             }
+
+                                            Log.d(TAG, "All TEMP ADS: "+tempAds.toString());
 
                                             Collections.sort(tempAds, new Comparator<Ad>() {
                                                 @Override
@@ -328,10 +345,12 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 
                                             Log.d(TAG, "RECEIVED ADS ALL: "+tempAds.toString());
 
-                                            if (adMap.get(emailRec.trim())!=adscount[0]){
-                                                int differenceAdCount = adMap.get(emailRec.trim()) - adscount[0];
+                                            Log.d(TAG, "ADS COUNT"+adMap.get(emailRec)+" "+adscount);
+
+                                            if (adMap.get(emailRec)!=adscount){
+                                                int differenceAdCount = adMap.get(emailRec.trim()) - adscount;
                                                 Log.d(TAG, "HASHMAP DIFFERENCE: "+differenceAdCount);
-                                                adMap.put(emailRec.trim(), adscount[0]);
+                                                adMap.put(emailRec.trim(), adscount);
                                                 for (Ad ad: othersAdArrayList){
                                                     if(ad.getCreatorEmail().equals(emailRec)){
                                                         if (!tempAds.contains(ad)){
@@ -339,15 +358,18 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                                                         }
                                                     }
                                                 }
+
+                                                Log.d(TAG, "Updated TEMP Ads"+ tempAds.size()+ " "+ tempAds);
                                                 for (Ad ad: tempAds){
 
                                                     if (!othersAdArrayList.contains(ad)){
                                                         othersAdArrayList.add(ad);
+                                                        Log.d(TAG, "ADDING to LIST: "+ad.toString());
                                                     }
 
                                                 }
                                             }
-//                        Log.d(TAG, "REFRESHED LIST!!!"+ tempAds.toString());
+                        Log.d(TAG, "REFRESHED LIST!!!"+ othersAdArrayList.toString());
 
 //                                            othersAdArrayList.clear();
 //                                            othersAdArrayList.addAll(tempAds);

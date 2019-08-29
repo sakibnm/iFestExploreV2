@@ -82,6 +82,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="32dp"
                 android:layout_marginEnd="16dp"
+                android:layout_marginBottom="8dp"
                 android:background="@drawable/button_round"
                 android:backgroundTint="#71A3B9"
                 android:backgroundTintMode="multiply"
@@ -91,27 +92,11 @@
                 android:paddingEnd="20dp"
                 android:text="Login"
                 android:textColor="#FFFFFF"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/et_password" />
 
-            <Button
-                android:id="@+id/button_register2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                android:background="@drawable/button_signup"
-                android:drawableLeft="@drawable/ic_signup_24dp"
-                android:drawablePadding="10dp"
-                android:padding="8dp"
-                android:paddingEnd="20dp"
-                android:text="Create a new account"
-                android:textColor="#FFFFFF"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/button_login" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 
