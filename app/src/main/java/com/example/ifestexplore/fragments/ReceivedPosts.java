@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.ifestexplore.Home;
 import com.example.ifestexplore.models.Ad;
@@ -94,7 +95,18 @@ public class ReceivedPosts extends Fragment implements SwipeRefreshLayout.OnRefr
         rv_Ads.setHasFixedSize(true);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this.getActivity());
         rv_Ads.setLayoutManager(linearLayoutManager);
-        adAdapter = new AdAdapter(adArrayList, getContext());
+        adAdapter = new AdAdapter(adArrayList, getContext(), new AdAdapter.MyClickListener() {
+
+            @Override
+            public void onFavoriteClicked(int position, View view) {
+
+            }
+
+            @Override
+            public void onForwardClicked(int position, View view) {
+
+            }
+        });
         rv_Ads.setAdapter(adAdapter);
 
 

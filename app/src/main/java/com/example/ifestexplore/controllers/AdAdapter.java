@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,11 +25,13 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
     private static final String TAG = "demo";
     private ArrayList<Ad> adArrayList;
     private Context mContext;
+    public MyClickListener myClickListener;
 
 
-    public AdAdapter(ArrayList<Ad> adArrayList, Context mContext) {
+    public AdAdapter(ArrayList<Ad> adArrayList, Context mContext, MyClickListener myClickListener) {
         this.adArrayList = adArrayList;
         this.mContext = mContext;
+        this.myClickListener = myClickListener;
     }
 
     public void clear(){
@@ -47,42 +50,45 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
         // Inflate the layout view you have created for the list rows here
         View view = layoutInflater.inflate(R.layout.received_ad_cell, parent, false);
-        return new AdAdapter.AdHolder(view);
+        AdAdapter.AdHolder holder = new AdAdapter.AdHolder(view, new MyClickListener() {
+            @Override
+            public void onFavoriteClicked(int position, View view) {
+//                Toast.makeText(view.getContext(), "Favorite clicked: from "+view.getResources().get, Toast.LENGTH_SHORT).show();
+                
+//                view.findViewById(R.id.button_rec_favorite).setBackground(view.getResources().getDrawable(R.drawable.button__background_favorite_round));
+                
+                toggleButtonBackground(view);
+            }
+
+            @Override
+            public void onForwardClicked(int position, View view) {
+
+            }
+
+        });
+        //        return new AdAdapter.AdHolder(view);
+
+        return holder;
+    }
+
+    private void toggleButtonBackground(View view) {
+
     }
 
     @Override
     public void onBindViewHolder(@NonNull AdHolder holder, int position) {
         Ad ad = adArrayList.get(position);
-//TODO: FILTER FOR USERS NEEDED...
+//      TODO: FILTER FOR USERS NEEDED...
         // Set the data to the views here
         holder.tv_rec_comment.setText(ad.getComment());
         holder.tv_rec_title.setText(ad.getTitle());
         String urlPhoto = String.valueOf(ad.getItemPhotoURL());
-//        try {
-//            urlPhoto = URLEncoder.encode(ad.getItemPhotoURL(), "UTF-8");
-//            Log.d(TAG, "BALCHAL: "+urlPhoto);
-//        } catch (UnsupportedEncodingException e) {
-//            e.printStackTrace();
-//        }
+
         if (urlPhoto!=null && !urlPhoto.equals(""))Picasso.get().load(urlPhoto).into(holder.iv_rec_image);
 //        if (urlPhoto!=null && !urlPhoto.equals(""))Picasso.get().load(urlPhoto).into(holder.iv_rec_image);
         Log.d(TAG, "onBindViewHolder: "+ad.toString());
-        holder.button_rec_favorite.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Drawable currentBack = ((Button)view.findViewById(R.id.button_rec_favorite)).getBackground();
-                int resourceIDofDrawable = 0;
 
-                if (view.getResources().getDrawable(R.drawable.button__background_unfavorite_round, null) == currentBack) resourceIDofDrawable = R.drawable.button__background_unfavorite_round;
-                if (view.getResources().getDrawable(R.drawable.button__background_favorite_round, null) == currentBack) resourceIDofDrawable = R.drawable.button__background_favorite_round;
 
-                if (resourceIDofDrawable == R.drawable.button__background_unfavorite_round) {
-                    view.findViewById(R.id.button_rec_favorite).setBackground(view.getResources().getDrawable(R.drawable.button__background_favorite_round, null));
-                }else{
-                    view.findViewById(R.id.button_rec_favorite).setBackground(view.getResources().getDrawable(R.drawable.button__background_unfavorite_round, null));
-                }
-            }
-        });
 
         // You can set click listners to indvidual items in the viewholder here
         // make sure you pass down the listner or make the Data members of the viewHolder public
@@ -104,20 +110,44 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
         this.mContext = mContext;
     }
 
-    public class AdHolder extends RecyclerView.ViewHolder {
+    public class AdHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView tv_rec_comment;
         private TextView tv_rec_title;
         private ImageView iv_rec_image;
         private Button button_rec_favorite;
         private Button button_rec_Forward;
-        public AdHolder(@NonNull View itemView) {
+        MyClickListener myClickListener;
+        public AdHolder(@NonNull View itemView, MyClickListener myClickListener) {
             super(itemView);
             tv_rec_comment = itemView.findViewById(R.id.tv_rec_item_comment);
             tv_rec_title = itemView.findViewById(R.id.tv_rec_title);
             iv_rec_image = itemView.findViewById(R.id.iv_rec_item_image);
             button_rec_favorite = itemView.findViewById(R.id.button_rec_favorite);
             button_rec_Forward = itemView.findViewById(R.id.button_rec_forward);
+            this.myClickListener = myClickListener;
+
+            button_rec_favorite.setOnClickListener(this);
+            button_rec_Forward.setOnClickListener(this);
         }
 
+        @Override
+        public void onClick(View view) {
+            switch (view.getId()){
+                case R.id.button_rec_favorite:
+                    myClickListener.onFavoriteClicked(this.getLayoutPosition(), view);
+                    break;
+                case R.id.button_rec_forward:
+                    myClickListener.onForwardClicked(this.getLayoutPosition(), view);
+                    break;
+                default:
+                    break;
+
+            }
+        }
+    }
+
+    public interface MyClickListener{
+        void onFavoriteClicked(int position, View view);
+        void onForwardClicked(int position, View view);
     }
 }
