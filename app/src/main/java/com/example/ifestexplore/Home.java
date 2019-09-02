@@ -93,6 +93,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
     BluetoothLeScanner btLeScanner;
     public static BottomNavigationView navigationView;
     private ArrayList<Ad> myAdArrayList = new ArrayList<>();
+    private ArrayList<Ad> myFavAdArrayList = new ArrayList<>();
     private ArrayList<Ad> othersAdArrayList = new ArrayList<>();
     private HashMap<String, Integer> adMap;
 
@@ -214,8 +215,43 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                     }
                 });
 
+        //        Fetching MY Favorite ADS................
+        CollectionReference collectionReference = db.collection("favoriteAds")
+                .document(user.getEmail()).collection("favorites");
+        collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                if (e!=null){
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+
+                if (queryDocumentSnapshots!=null && !queryDocumentSnapshots.isEmpty()){
+                    ArrayList<Ad> tempAds = new ArrayList<>();
+                    for (QueryDocumentSnapshot ad: queryDocumentSnapshots){
+                        if(ad!=null){
+                            tempAds.add(new Ad(ad.getData()));
+                        }
+
+                    }
+                    Log.d(TAG, "FAVORITES: "+tempAds);
+
+                    myFavAdArrayList.clear();
+                    myFavAdArrayList.addAll(tempAds);
+                }
+            }
+        });
+//                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+//                    @Override
+//                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+
+////                        Bookmarks.getUpdatedList();
+//                    }
+//                });
+
 
     }
+
 
     private void setImageAndName(FirebaseUser user) {
         String name = user.getDisplayName();
@@ -482,6 +518,11 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
     @Override
     public void onFragmentInteraction(Uri uri) {
 
+    }
+
+    @Override
+    public ArrayList<Ad> getFavAdsArrayList() {
+        return myFavAdArrayList;
     }
 
     @Override

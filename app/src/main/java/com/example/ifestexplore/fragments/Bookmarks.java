@@ -5,12 +5,20 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.ifestexplore.R;
+import com.example.ifestexplore.controllers.FavAdAdapter;
+import com.example.ifestexplore.models.Ad;
+
+import java.util.ArrayList;
 
 
 /**
@@ -21,7 +29,7 @@ import com.example.ifestexplore.R;
  * Use the {@link Bookmarks#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class Bookmarks extends Fragment {
+public class Bookmarks extends Fragment implements SwipeRefreshLayout.OnRefreshListener{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -31,7 +39,14 @@ public class Bookmarks extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    private OnFragmentInteractionListener mListener;
+    private static OnFragmentInteractionListener mListener;
+
+    private static final String TAG = "demo";
+    public static FavAdAdapter adAdapter;
+    private static ArrayList<Ad> adArrayList = new ArrayList<>();
+    private RecyclerView rv_Fav_Ads;
+    View view;
+    static SwipeRefreshLayout swipeRefreshLayout;
 
     public Bookmarks() {
         // Required empty public constructor
@@ -61,6 +76,7 @@ public class Bookmarks extends Fragment {
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
+            getUpdatedList();
         }
     }
 
@@ -68,7 +84,35 @@ public class Bookmarks extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_bookmarks, container, false);
+        View view = inflater.inflate(R.layout.fragment_bookmarks, container, false);
+        swipeRefreshLayout = view.findViewById(R.id.favorite_posts_swype);
+        swipeRefreshLayout.setOnRefreshListener(Bookmarks.this);
+
+        rv_Fav_Ads = view.findViewById(R.id.rv_fav_posts);
+        rv_Fav_Ads.setHasFixedSize(true);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this.getActivity());
+        rv_Fav_Ads.setLayoutManager(linearLayoutManager);
+
+        adAdapter = new FavAdAdapter(adArrayList, getContext(), new FavAdAdapter.MyFavClickListener() {
+            @Override
+            public void onRemove(int position, View view) {
+//                adAdapter.notifyDataSetChanged();
+            }
+        });
+
+        rv_Fav_Ads.setAdapter(adAdapter);
+
+        //        ___________________________________________________________________________________________
+//Fetching favorite posts...
+        adArrayList = mListener.getFavAdsArrayList();
+//        Log.d(TAG, "Fetched From Fragment: "+adArrayList.toString());
+        adAdapter.setFavArrayList(adArrayList);
+        adAdapter.notifyDataSetChanged();
+
+//        ___________________________________________________________________________________________
+
+
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -95,6 +139,19 @@ public class Bookmarks extends Fragment {
         mListener = null;
     }
 
+    public static void getUpdatedList(){
+        if(mListener!=null)adArrayList = mListener.getFavAdsArrayList();
+        adAdapter.setFavArrayList(adArrayList);
+        Log.d(TAG, "IN RECYCLER VIEW LIST: "+adArrayList.size()+" "+adArrayList);
+        adAdapter.notifyDataSetChanged();
+        swipeRefreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    public void onRefresh() {
+        getUpdatedList();
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -108,5 +165,6 @@ public class Bookmarks extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+        ArrayList<Ad> getFavAdsArrayList();
     }
 }

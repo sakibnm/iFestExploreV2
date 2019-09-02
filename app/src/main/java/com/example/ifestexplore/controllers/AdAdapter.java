@@ -21,6 +21,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
 
@@ -61,31 +62,66 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
             public void onFavoriteClicked(int position, final View view) {
 //                Toast.makeText(view.getContext(), "Favorite clicked: from "+view.getResources().get, Toast.LENGTH_SHORT).show();
 
-                String textFav = (String) ((Button)view.findViewById(R.id.button_rec_favorite)).getText();
+                String textFav = ((Button)view.findViewById(R.id.button_rec_favorite)).getText().toString().trim();
 
-                Toast.makeText(mContext, "Button saus, "+textFav, Toast.LENGTH_SHORT).show();
+                final Ad favAd = adArrayList.get(position);
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                final String currentEmail = user.getEmail();
+                db = FirebaseFirestore.getInstance();
+
+                DocumentReference favAdReference = db.collection("favoriteAds").document(currentEmail)
+                        .collection("favorites").document(favAd.getAdSerialNo());
+
+                if (textFav.equals("Mark Favorite")){
+
+
+                    favAdReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            if (!documentSnapshot.exists()){
+                                db.collection("favoriteAds").document(currentEmail).collection("favorites")
+                                        .document(favAd.getAdSerialNo())
+                                        .set(favAd).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        view.findViewById(R.id.button_rec_favorite).setBackground(view.getResources()
+                                                .getDrawable(R.drawable.button__background_favorite_round));
+
+                                        ((Button) view.findViewById(R.id.button_rec_favorite)).setText("Undo Favorite");
+                                        Toast.makeText(mContext, "Added to Favorites!", Toast.LENGTH_SHORT).show();
+
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(mContext, "Could not add to Favorites, try again!", Toast.LENGTH_SHORT).show();
+                                        view.findViewById(R.id.button_rec_favorite).setBackground(view.getResources()
+                                                .getDrawable(R.drawable.button__background_unfavorite_round));
+                                    }
+                                });
+                            }else{
+
+                            }
+                        }
+                    });
+
+                }else{
+
+                    favAdReference.delete();
+                    Toast.makeText(mContext, "Undo Favorite succeeded!", Toast.LENGTH_SHORT).show();
+                    view.findViewById(R.id.button_rec_favorite).setBackground(view.getResources()
+                            .getDrawable(R.drawable.button__background_unfavorite_round));
+                    ((Button) view.findViewById(R.id.button_rec_favorite)).setText("Mark Favorite");
+                }
+//                    Toast.makeText(mContext, "Got Mark Favorite!", Toast.LENGTH_SHORT).show();
+
+//                Toast.makeText(mContext, "Button saus, "+textFav, Toast.LENGTH_SHORT).show();
                 
-                view.findViewById(R.id.button_rec_favorite).setBackground(view.getResources().getDrawable(R.drawable.button__background_favorite_round));
+
                 
 //                toggleButtonBackground(view);
-                Ad favAd = adArrayList.get(position);
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                String currentEmail = user.getEmail();
-                db = FirebaseFirestore.getInstance();
-                db.collection("favoriteAds").document(currentEmail).collection("favorites")
-                        .add(favAd).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                            @Override
-                            public void onSuccess(DocumentReference documentReference) {
-                                Toast.makeText(mContext, "Added to Favorites!", Toast.LENGTH_SHORT).show();
-                            }
-                        })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(mContext, "Could not add to Favorites, try again!", Toast.LENGTH_SHORT).show();
-                        view.findViewById(R.id.button_rec_favorite).setBackground(view.getResources().getDrawable(R.drawable.button__background_unfavorite_round));
-                    }
-                });
+
             }
 
             @Override
