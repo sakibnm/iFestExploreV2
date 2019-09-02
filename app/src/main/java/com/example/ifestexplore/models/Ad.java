@@ -7,9 +7,13 @@ import java.util.Objects;
 
 public class Ad {
     private String creatorEmail;
+    private String forwarderEmail;
     private String adSerialNo;
     private String userPhotoURL;
     private String itemPhotoURL;
+    private String title;
+    private String comment;
+    private ArrayList<String> usersForwarded;
 
     public Map<String, Object> getHashMap() {
         return hashMap;
@@ -33,9 +37,7 @@ public class Ad {
                 '}';
     }
 
-    private String title;
-    private String comment;
-    private ArrayList<String> usersForwarded;
+
 
     private Map<String, Object> hashMap;
 
@@ -44,8 +46,9 @@ public class Ad {
 
     }
 
-    public Ad(String creatorEmail, String adSerialNo, String userPhotoURL, String itemPhotoURL, String title, String comment, ArrayList<String> usersForwarded) {
+    public Ad(String creatorEmail, String forwarderEmail, String adSerialNo, String userPhotoURL, String itemPhotoURL, String title, String comment, ArrayList<String> usersForwarded) {
         this.creatorEmail = creatorEmail;
+        this.forwarderEmail = forwarderEmail;
         this.adSerialNo = adSerialNo;
         this.userPhotoURL = userPhotoURL;
         this.itemPhotoURL = itemPhotoURL;
@@ -56,6 +59,7 @@ public class Ad {
 
     public Ad(Map<String, Object> map){
         this.creatorEmail = (String) map.get("creator");
+        this.forwarderEmail = (String) map.get("fwdBy");
         this.adSerialNo = (String) map.get("adSerialNo");
         this.userPhotoURL = (String) map.get("userPhotoURL");
         this.itemPhotoURL = (String) map.get("itemPhotoURL");
@@ -133,6 +137,12 @@ public class Ad {
     public void setUsersForwarded(ArrayList<String> usersForwarded) {
         this.usersForwarded = usersForwarded;
     }
+    public String getForwarderEmail() {
+        return forwarderEmail;
+    }
+    public void setForwarderEmail(String forwarderEmail) {
+        this.forwarderEmail = forwarderEmail;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -142,6 +152,7 @@ public class Ad {
         return Objects.equals(creatorEmail, ad.creatorEmail) &&
                 Objects.equals(adSerialNo, ad.adSerialNo) &&
                 Objects.equals(title, ad.title) &&
+                Objects.equals(forwarderEmail, ad.forwarderEmail) &&
                 Objects.equals(comment, ad.comment);
     }
 
