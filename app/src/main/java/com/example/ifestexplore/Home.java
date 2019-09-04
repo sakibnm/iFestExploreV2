@@ -407,6 +407,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                                             }
                         Log.d(TAG, "REFRESHED LIST!!!"+ othersAdArrayList.toString());
 
+
 //                                            othersAdArrayList.clear();
 //                                            othersAdArrayList.addAll(tempAds);
 //                                            loadFragment(new ReceivedPosts());

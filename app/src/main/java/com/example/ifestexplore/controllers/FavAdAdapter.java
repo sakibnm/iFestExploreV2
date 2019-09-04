@@ -60,7 +60,7 @@ public class FavAdAdapter extends RecyclerView.Adapter<FavAdAdapter.AdHolder> {
         View view = layoutInflater.inflate(R.layout.favorite_posts_cell, parent, false);
         FavAdAdapter.AdHolder holder = new FavAdAdapter.AdHolder(view, new MyFavClickListener() {
             @Override
-            public void onRemove(int position, final View view) {
+            public void onRemove(final int position, final View view) {
                 final Ad favAd = favArrayList.get(position);
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 final String currentEmail = user.getEmail();
@@ -76,12 +76,13 @@ public class FavAdAdapter extends RecyclerView.Adapter<FavAdAdapter.AdHolder> {
                             favAdReference.delete();
                             Toast.makeText(mContext, "Removed from Favorites!", Toast.LENGTH_SHORT).show();
                             Bookmarks.adAdapter.notifyDataSetChanged();
+                            favArrayList.remove(position);
                         }else{
 
                         }
                     }
                 });
-                favArrayList.remove(position);
+
 
             }
         });

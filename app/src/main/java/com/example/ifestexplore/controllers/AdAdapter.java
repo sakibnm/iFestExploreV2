@@ -31,12 +31,14 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
 
     private static final String TAG = "demo";
     private ArrayList<Ad> adArrayList;
+    private ArrayList<Ad> favAdArrayList;
     private Context mContext;
     public MyClickListener myClickListener;
     FirebaseFirestore db;
 
-    public AdAdapter(ArrayList<Ad> adArrayList, Context mContext, MyClickListener myClickListener) {
+    public AdAdapter(ArrayList<Ad> adArrayList, ArrayList<Ad> favAdArrayList, Context mContext, MyClickListener myClickListener) {
         this.adArrayList = adArrayList;
+        this.favAdArrayList = favAdArrayList;
         this.mContext = mContext;
         this.myClickListener = myClickListener;
     }
@@ -142,6 +144,16 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
     @Override
     public void onBindViewHolder(@NonNull AdHolder holder, int position) {
         Ad ad = adArrayList.get(position);
+
+        for (Ad favAd: favAdArrayList){
+            Log.d(TAG, "FAV: "+favAd.toString());
+            if (ad.getAdSerialNo().equals(favAd.getAdSerialNo())){
+                Log.d(TAG, "FAVVVVVV: "+favAd.toString());
+                holder.button_rec_favorite.setText("Undo Favorite");
+                holder.button_rec_favorite.setBackgroundResource(R.drawable.button__background_favorite_round);
+            }
+        }
+
 //      TODO: FILTER FOR USERS NEEDED...
         // Set the data to the views here
         holder.tv_rec_comment.setText(ad.getComment());
@@ -172,6 +184,14 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
 
     public void setmContext(Context mContext) {
         this.mContext = mContext;
+    }
+
+    public ArrayList<Ad> getFavAdArrayList() {
+        return favAdArrayList;
+    }
+
+    public void setFavAdArrayList(ArrayList<Ad> favAdArrayList) {
+        this.favAdArrayList = favAdArrayList;
     }
 
     public class AdHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

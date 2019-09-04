@@ -20,6 +20,7 @@ import com.example.ifestexplore.models.Ad;
 import com.example.ifestexplore.controllers.AdAdapter;
 import com.example.ifestexplore.R;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 
@@ -46,6 +47,7 @@ public class ReceivedPosts extends Fragment implements SwipeRefreshLayout.OnRefr
     private static final String TAG = "demo";
     static AdAdapter adAdapter;
     private static ArrayList<Ad> adArrayList = new ArrayList<>();
+    private static ArrayList<Ad> favAdArrayList = new ArrayList<>();
     private RecyclerView rv_Ads;
     View view;
     static SwipeRefreshLayout swipeRefreshLayout;
@@ -95,7 +97,7 @@ public class ReceivedPosts extends Fragment implements SwipeRefreshLayout.OnRefr
         rv_Ads.setHasFixedSize(true);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this.getActivity());
         rv_Ads.setLayoutManager(linearLayoutManager);
-        adAdapter = new AdAdapter(adArrayList, getContext(), new AdAdapter.MyClickListener() {
+        adAdapter = new AdAdapter(adArrayList, favAdArrayList, getContext(), new AdAdapter.MyClickListener() {
 
             @Override
             public void onFavoriteClicked(int position, View view) {
@@ -113,6 +115,7 @@ public class ReceivedPosts extends Fragment implements SwipeRefreshLayout.OnRefr
 //        ___________________________________________________________________________________________
 //Fetching others' posts...
         adArrayList = mListener.getOtherAdsArrayList();
+        favAdArrayList = mListener.getFavAdsArrayList();
         Log.d(TAG, "Fetched From Fragment: "+adArrayList.toString());
         adAdapter.setAdArrayList(adArrayList);
         adAdapter.notifyDataSetChanged();
@@ -155,7 +158,9 @@ public class ReceivedPosts extends Fragment implements SwipeRefreshLayout.OnRefr
 
     public static void getUpdatedList() {
         if(mListener!=null)adArrayList = mListener.getOtherAdsArrayList();
+        if(mListener!=null)favAdArrayList = mListener.getFavAdsArrayList();
         adAdapter.setAdArrayList(adArrayList);
+        adAdapter.setFavAdArrayList(favAdArrayList);
         Log.d(TAG, "IN RECYCLER VIEW LIST: "+adArrayList.size()+" "+adArrayList);
         adAdapter.notifyDataSetChanged();
         swipeRefreshLayout.setRefreshing(false);
@@ -177,6 +182,7 @@ public class ReceivedPosts extends Fragment implements SwipeRefreshLayout.OnRefr
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
         ArrayList<Ad> getOtherAdsArrayList();
+        ArrayList<Ad> getFavAdsArrayList();
 
 //        void refreshList();
     }
