@@ -114,8 +114,8 @@ public class ReceivedPosts extends Fragment implements SwipeRefreshLayout.OnRefr
 
 //        ___________________________________________________________________________________________
 //Fetching others' posts...
-        adArrayList = mListener.getOtherAdsArrayList();
-        favAdArrayList = mListener.getFavAdsArrayList();
+        if(mListener!=null)adArrayList = mListener.getOtherAdsArrayList();
+        if (mListener!=null)favAdArrayList = mListener.getFavAdsArrayList();
         Log.d(TAG, "Fetched From Fragment: "+adArrayList.toString());
         adAdapter.setAdArrayList(adArrayList);
         adAdapter.notifyDataSetChanged();

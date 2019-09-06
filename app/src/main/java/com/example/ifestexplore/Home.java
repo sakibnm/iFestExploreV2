@@ -210,8 +210,11 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                         }
 //                        Log.d(TAG, "REFRESHED LIST!!!"+ tempAds.toString());
 
+
+
                         myAdArrayList.clear();
                         myAdArrayList.addAll(tempAds);
+                        MyPosts.getUpdatedList();
                     }
                 });
 
@@ -234,7 +237,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                         }
 
                     }
-                    Log.d(TAG, "FAVORITES: "+tempAds);
+//                    Log.d(TAG, "FAVORITES: "+tempAds);
 
                     myFavAdArrayList.clear();
                     myFavAdArrayList.addAll(tempAds);
@@ -363,14 +366,13 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 
                                             for (QueryDocumentSnapshot ad: queryDocumentSnapshots){
                                                 if (ad.contains("count"))continue;
-                                                Log.d(TAG, "EMAILS: "+ String.valueOf(ad.get("creator"))+" "+user.getEmail());
                                                 if (ad!=null && !String.valueOf(ad.get("creator")).equals(user.getEmail())){
                                                     tempAds.add(new Ad(ad.getData()));
                                                     adscount++;
                                                 }
                                             }
 
-                                            Log.d(TAG, "All TEMP ADS: "+tempAds.toString());
+                                            Log.d(TAG, "TempAds Size: "+tempAds.size());
 
                                             Collections.sort(tempAds, new Comparator<Ad>() {
                                                 @Override
@@ -383,29 +385,34 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 
                                             Log.d(TAG, "ADS COUNT"+adMap.get(emailRec)+" "+adscount);
 
-                                            if (adMap.get(emailRec)!=adscount){
+                                            Log.d(TAG, "HASHMAP "+adMap.toString());
+
+//                                            if (adMap.get(emailRec)!=adscount){
                                                 int differenceAdCount = adMap.get(emailRec.trim()) - adscount;
                                                 Log.d(TAG, "HASHMAP DIFFERENCE: "+differenceAdCount);
                                                 adMap.put(emailRec.trim(), adscount);
                                                 for (Ad ad: othersAdArrayList){
                                                     if(ad.getCreatorEmail().equals(emailRec)){
+                                                        Log.d(TAG, "OthersArrayList for "+emailRec+ " "+ ad.toString());
+
                                                         if (!tempAds.contains(ad)){
-                                                            tempAds.remove(ad);
+                                                            othersAdArrayList.remove(ad);
+                                                            Log.d(TAG, "Removing from TempArrayList "+ ad.toString());
                                                         }
                                                     }
                                                 }
 
-                                                Log.d(TAG, "Updated TEMP Ads"+ tempAds.size()+ " "+ tempAds);
+                                                Log.d(TAG, "Updated TEMP Ads, size: "+ tempAds.size()+ " "+ tempAds);
                                                 for (Ad ad: tempAds){
-
+                                                    Log.d(TAG, "TempArrayList for "+emailRec+ " "+ ad.toString());
                                                     if (!othersAdArrayList.contains(ad)){
                                                         othersAdArrayList.add(ad);
                                                         Log.d(TAG, "ADDING to LIST: "+ad.toString());
                                                     }
 
                                                 }
-                                            }
-                        Log.d(TAG, "REFRESHED LIST!!!"+ othersAdArrayList.toString());
+//                                            }
+//                        Log.d(TAG, "REFRESHED LIST!!!"+ othersAdArrayList.toString());
 
 
 //                                            othersAdArrayList.clear();
@@ -423,10 +430,10 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                     }
                 });
 
-                Log.d(TAG, "I see a beacon transmitting namespace id: " + namespaceId +
-                        " and instance id: " + instanceId +
-                        " approximately " + beacon.getDistance() + " meters away." + ", " + beacon.getExtraDataFields().toString());
-// __________________________________________________________________________________________________________
+////                Log.d(TAG, "I see a beacon transmitting namespace id: " + namespaceId +
+//                        " and instance id: " + instanceId +
+//                        " approximately " + beacon.getDistance() + " meters away." + ", " + beacon.getExtraDataFields().toString());
+//// __________________________________________________________________________________________________________
 
 
 //__________________________________________________________________________________________________________

@@ -51,17 +51,17 @@ public class MyPosts extends Fragment implements SwipeRefreshLayout.OnRefreshLis
     private String mParam1;
     private String mParam2;
 
-    private OnFragmentInteractionListener mListener;
+    private static OnFragmentInteractionListener mListener;
 
     private FirebaseFirestore db;
 
     private static final String TAG = "demo";
-    private MyAdAdapter myAdAdapter;
-    private ArrayList<Ad> adArrayList = new ArrayList<>();
+    private static MyAdAdapter myAdAdapter;
+    private static ArrayList<Ad> adArrayList = new ArrayList<>();
     private RecyclerView rv_MyPosts;
     private View view;
     CollectionReference adsReference;
-    SwipeRefreshLayout swipeRefreshLayout;
+    static SwipeRefreshLayout swipeRefreshLayout;
 
     public MyPosts() {
         // Required empty public constructor
@@ -107,7 +107,12 @@ public class MyPosts extends Fragment implements SwipeRefreshLayout.OnRefreshLis
         rv_MyPosts.setHasFixedSize(true);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         rv_MyPosts.setLayoutManager(linearLayoutManager);
-        myAdAdapter = new MyAdAdapter(adArrayList, getContext());
+        myAdAdapter = new MyAdAdapter(adArrayList, getContext(), new MyAdAdapter.MyPostsClickListener() {
+            @Override
+            public void onStopPostingClicked(int position, View view) {
+
+            }
+        });
         rv_MyPosts.setAdapter(myAdAdapter);
 //       Fetching my posts...
 //        ____________________________________________________________________________________
@@ -190,11 +195,11 @@ public class MyPosts extends Fragment implements SwipeRefreshLayout.OnRefreshLis
         getUpdatedList();
     }
 
-    private void getUpdatedList() {
-        adArrayList = mListener.getMyAdsArrayList();
-        myAdAdapter.setAdArrayList(adArrayList);
-        myAdAdapter.notifyDataSetChanged();
-        swipeRefreshLayout.setRefreshing(false);
+    public static void getUpdatedList() {
+        if (mListener!=null)adArrayList = mListener.getMyAdsArrayList();
+        if (myAdAdapter!=null)myAdAdapter.setAdArrayList(adArrayList);
+        if (myAdAdapter!=null)myAdAdapter.notifyDataSetChanged();
+        if (swipeRefreshLayout!=null)swipeRefreshLayout.setRefreshing(false);
     }
 
     /**

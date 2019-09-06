@@ -1,6 +1,8 @@
 package com.example.ifestexplore.controllers;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,14 +10,18 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ifestexplore.R;
 import com.example.ifestexplore.models.Ad;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -26,13 +32,16 @@ public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
     private Context mContext;
     private FirebaseAuth mAuth;
     private FirebaseUser user;
+    private MyPostsClickListener myPostsClickListener;
+    FirebaseFirestore db;
 
 
-    public MyAdAdapter(ArrayList<Ad> adArrayList, Context mContext) {
+    public MyAdAdapter(ArrayList<Ad> adArrayList, Context mContext, MyPostsClickListener myPostsClickListener) {
         this.adArrayList = adArrayList;
         this.mContext = mContext;
         this.mAuth = FirebaseAuth.getInstance();
         this.user = mAuth.getCurrentUser();
+        this.myPostsClickListener = myPostsClickListener;
     }
 
     public void clear(){
@@ -51,7 +60,48 @@ public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
         // Inflate the layout view you have created for the list rows here
         View view = layoutInflater.inflate(R.layout.my_posts_cell, parent, false);
-        return new MyAdAdapter.AdHolder(view);
+        MyAdAdapter.AdHolder holder = new MyAdAdapter.AdHolder(view, new MyPostsClickListener() {
+            @Override
+            public void onStopPostingClicked(int position, View view) {
+                final Ad clickedAd = adArrayList.get(position);
+                final String clickedAdSerial = clickedAd.getAdSerialNo();
+                db = FirebaseFirestore.getInstance();
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                builder.setTitle("Stop posting");
+                builder.setMessage("Are you sure want to stop posting this review?");
+
+                builder.setPositiveButton("Yes, stop posting!", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        db.collection("adsRepo").document(clickedAdSerial).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Toast.makeText(mContext, "The review is removed from your posts!", Toast.LENGTH_SHORT).show();
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.d(TAG, "onFailure: Could not remove the review: "+e.toString());
+                            }
+                        });
+
+                    }
+                });
+
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Toast.makeText(mContext, "The review is not removed!", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+
+//                db.collection("adsRepo").document(clickedAdSerial).delete();
+            }
+        });
+        return holder;
     }
 
     @Override
@@ -83,15 +133,16 @@ public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
     }
 
 
-    public class AdHolder extends RecyclerView.ViewHolder {
+    public class AdHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         private TextView tv_my_posts_comment;
         private TextView tv_my_posts_me;
         private TextView tv_my_posts_title;
         private ImageView iv_my_posts_image;
         private ImageView iv_my_photo_image;
         private Button button_my_posts_stop;
+        private  MyPostsClickListener myPostsClickListener;
 
-        public AdHolder(@NonNull View itemView) {
+        public AdHolder(@NonNull View itemView, MyPostsClickListener myPostsClickListener) {
             super(itemView);
             tv_my_posts_comment = itemView.findViewById(R.id.tv_my_comment);
             tv_my_posts_me = itemView.findViewById(R.id.tv_my_username);
@@ -99,7 +150,25 @@ public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
             iv_my_posts_image = itemView.findViewById(R.id.iv_my_userphoto);
             iv_my_photo_image = itemView.findViewById(R.id.iv_my_photo);
             button_my_posts_stop = itemView.findViewById(R.id.button_my_Stop_Posting);
+            this.myPostsClickListener = myPostsClickListener;
+
+            button_my_posts_stop.setOnClickListener(this);
         }
+
+        @Override
+        public void onClick(View view) {
+            switch (view.getId()){
+                case R.id.button_my_Stop_Posting:
+                    myPostsClickListener.onStopPostingClicked(this.getLayoutPosition(), view);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    public interface MyPostsClickListener{
+        void onStopPostingClicked(int position, View view);
     }
 
 }

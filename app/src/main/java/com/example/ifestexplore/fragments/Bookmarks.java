@@ -104,10 +104,10 @@ public class Bookmarks extends Fragment implements SwipeRefreshLayout.OnRefreshL
 
         //        ___________________________________________________________________________________________
 //Fetching favorite posts...
-        adArrayList = mListener.getFavAdsArrayList();
+        if (mListener!=null)adArrayList = mListener.getFavAdsArrayList();
 //        Log.d(TAG, "Fetched From Fragment: "+adArrayList.toString());
-        adAdapter.setFavArrayList(adArrayList);
-        adAdapter.notifyDataSetChanged();
+        if (adAdapter!=null)adAdapter.setFavArrayList(adArrayList);
+        if (adAdapter!=null)adAdapter.notifyDataSetChanged();
 
 //        ___________________________________________________________________________________________
 
@@ -141,10 +141,10 @@ public class Bookmarks extends Fragment implements SwipeRefreshLayout.OnRefreshL
 
     public static void getUpdatedList(){
         if(mListener!=null)adArrayList = mListener.getFavAdsArrayList();
-        adAdapter.setFavArrayList(adArrayList);
+        if (adAdapter!=null)adAdapter.setFavArrayList(adArrayList);
         Log.d(TAG, "IN RECYCLER VIEW LIST: "+adArrayList.size()+" "+adArrayList);
-        adAdapter.notifyDataSetChanged();
-        swipeRefreshLayout.setRefreshing(false);
+        if (adAdapter!=null)adAdapter.notifyDataSetChanged();
+        if (swipeRefreshLayout!=null)swipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
