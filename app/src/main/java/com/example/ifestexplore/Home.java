@@ -49,6 +49,7 @@ import com.example.ifestexplore.fragments.FragmentContainer;
 import com.example.ifestexplore.fragments.MyPosts;
 import com.example.ifestexplore.fragments.ReceivedPosts;
 import com.example.ifestexplore.models.Ad;
+import com.example.ifestexplore.utils.SharedPrefHashMap;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -94,6 +95,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
     private static final String TAG2 = "ble";
     private static final String CHANNEL_ID = "NotificationsChannel";
     private static final String GROUP_KEY_REVIEWS = "ReviewsKey";
+    private static final String KEY_SAVE_ADS_RECEIVED = "saveTOSP";
     private FirebaseAuth mAuth;
     private ImageView iv_userPhoto;
     private TextView tv_userName;
@@ -112,6 +114,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
     private ArrayList<Ad> othersAdArrayList = new ArrayList<>();
     private HashMap<String, Integer> adMap;
     private HashMap<String, Boolean> receivedAdMap;
+    private SharedPrefHashMap sharedPrefHashMap;
 
 
     BeaconManager beaconManager;
@@ -161,6 +164,8 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 
         adMap= new HashMap<>();
         receivedAdMap = new HashMap<>();
+        sharedPrefHashMap = new SharedPrefHashMap(getApplicationContext(), KEY_SAVE_ADS_RECEIVED);
+        if (sharedPrefHashMap.getHashMap()!=null)receivedAdMap = sharedPrefHashMap.getHashMap();
 
 
 
@@ -385,9 +390,12 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                                                 if (ad.contains("count"))continue; //adscounter...
                                                 if (ad!=null && !String.valueOf(ad.get("creator")).equals(user.getEmail())){
                                                     Ad gotAd = new Ad(ad.getData());
+
+//___________________________  NOTIFICATIONS!!!!!!!___________________________________________________________
                                                     if (!receivedAdMap.containsKey(gotAd.getAdSerialNo())){
                                                         createNotification(gotAd);
                                                         receivedAdMap.put(gotAd.getAdSerialNo(),true);
+                                                        sharedPrefHashMap.saveHashMap(receivedAdMap);
                                                     }
                                                     tempAds.add(gotAd);
                                                     adscount++;
