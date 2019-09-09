@@ -39,9 +39,9 @@ public class Login extends AppCompatActivity {
 
         if (currentUser!=null){
             Log.d(TAG, "onStart: "+ currentUser.getEmail()+" name: "+currentUser.getDisplayName());
-            FirebaseAuth.getInstance().signOut();
-//            Intent intent = new Intent(Login.this, Home.class);
-//            startActivity(intent);
+//            FirebaseAuth.getInstance().signOut();
+            Intent intent = new Intent(Login.this, Home.class);
+            startActivity(intent);
 
 
 

@@ -75,7 +75,12 @@ public class Register extends AppCompatActivity {
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
-        if(currentUser!=null)Log.d(TAG, "onStart: "+ currentUser.getEmail()+" name: "+currentUser.getDisplayName());
+        if(currentUser!=null){
+//            Log.d(TAG, "onStart: "+ currentUser.getEmail()+" name: "+currentUser.getDisplayName());
+            Intent intent = new Intent(Register.this, Home.class);
+            startActivity(intent);
+        }
+
     }
 
     @Override

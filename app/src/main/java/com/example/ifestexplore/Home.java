@@ -4,11 +4,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.Fragment;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.Application;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.AdvertiseCallback;
@@ -21,7 +28,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -67,6 +77,9 @@ import org.altbeacon.beacon.Identifier;
 import org.altbeacon.beacon.RangeNotifier;
 import org.altbeacon.beacon.Region;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -79,6 +92,8 @@ import javax.annotation.Nullable;
 public class Home extends AppCompatActivity implements BeaconConsumer, RangeNotifier, BottomNavigationView.OnNavigationItemSelectedListener, FragmentContainer.OnFragmentInteractionListener, ReceivedPosts.OnFragmentInteractionListener, MyPosts.OnFragmentInteractionListener, CreatePosts.OnFragmentInteractionListener, Bookmarks.OnFragmentInteractionListener {
 
     private static final String TAG2 = "ble";
+    private static final String CHANNEL_ID = "NotificationsChannel";
+    private static final String GROUP_KEY_REVIEWS = "ReviewsKey";
     private FirebaseAuth mAuth;
     private ImageView iv_userPhoto;
     private TextView tv_userName;
@@ -96,6 +111,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
     private ArrayList<Ad> myFavAdArrayList = new ArrayList<>();
     private ArrayList<Ad> othersAdArrayList = new ArrayList<>();
     private HashMap<String, Integer> adMap;
+    private HashMap<String, Boolean> receivedAdMap;
 
 
     BeaconManager beaconManager;
@@ -144,6 +160,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         adMap= new HashMap<>();
+        receivedAdMap = new HashMap<>();
 
 
 
@@ -365,9 +382,14 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                                             ArrayList<Ad> tempAds = new ArrayList<>();
 
                                             for (QueryDocumentSnapshot ad: queryDocumentSnapshots){
-                                                if (ad.contains("count"))continue;
+                                                if (ad.contains("count"))continue; //adscounter...
                                                 if (ad!=null && !String.valueOf(ad.get("creator")).equals(user.getEmail())){
-                                                    tempAds.add(new Ad(ad.getData()));
+                                                    Ad gotAd = new Ad(ad.getData());
+                                                    if (!receivedAdMap.containsKey(gotAd.getAdSerialNo())){
+                                                        createNotification(gotAd);
+                                                        receivedAdMap.put(gotAd.getAdSerialNo(),true);
+                                                    }
+                                                    tempAds.add(gotAd);
                                                     adscount++;
                                                 }
                                             }
@@ -561,6 +583,73 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 //        navigationView.setSelectedItemId(navigationView.getMenu().getItem(0).getItemId());
 
     }
+
+//    NOTIFICATIONS.........
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+    private void createNotification(final Ad ad){
+        createNotificationChannel();
+        Intent intent = new Intent(getApplicationContext(), Home.class);
+        intent.setAction(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addNextIntentWithParentStack(intent);
+        final PendingIntent pendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+
+
+
+        new AsyncTask<String, Void, Bitmap>() {
+            @Override
+            protected Bitmap doInBackground(String... strings) {
+                Bitmap notifBitmap = null;
+                try {
+                    URL bitmapURL = new URL(strings[0]);
+                    notifBitmap = BitmapFactory.decodeStream(bitmapURL.openConnection().getInputStream());
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return notifBitmap;
+            }
+
+            @Override
+            protected void onPostExecute(Bitmap bitmap) {
+                super.onPostExecute(bitmap);
+                NotificationCompat.Builder newReviewNotificationBuilder = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
+                        .setSmallIcon(R.drawable.new_notif)
+                        .setContentTitle(ad.getCreatorName()+" posted around you!")
+                        .setContentText(ad.getTitle())
+                        .setGroup(GROUP_KEY_REVIEWS)
+                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                        .setContentIntent(pendingIntent)
+                        .setAutoCancel(true);
+                if(bitmap==null)newReviewNotificationBuilder.setLargeIcon(BitmapFactory.decodeResource(getResources(),R.drawable.content_24dp));
+                else newReviewNotificationBuilder.setLargeIcon(bitmap);
+
+                Notification notification = newReviewNotificationBuilder.build();
+
+                NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(getApplicationContext());
+                notificationManagerCompat.notify(Integer.parseInt(ad.getAdSerialNo()), notification);
+            }
+        }.execute(ad.getItemPhotoURL());
+
+
+    }
+
 
 
 }

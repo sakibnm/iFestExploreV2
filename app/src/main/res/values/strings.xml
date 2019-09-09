@@ -31,4 +31,6 @@
     <string name="sign_in_string">Already have an account?</string>
     <string name="text_sign_in_clicker">login</string>
     <string name="remove_Fav">Remove</string>
+    <string name="channel_name">Notif Channel</string>
+    <string name="channel_description">Only Channel We have</string>
 </resources>

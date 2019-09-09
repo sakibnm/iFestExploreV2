@@ -7,8 +7,22 @@ import java.util.Objects;
 
 public class Ad {
     private String creatorEmail;
+    private String creatorName;
     private String forwarderEmail;
     private String adSerialNo;
+
+    public Ad(String creatorEmail, String creatorName, String forwarderEmail, String adSerialNo, String userPhotoURL, String itemPhotoURL, String title, String comment, ArrayList<String> usersForwarded) {
+        this.creatorEmail = creatorEmail;
+        this.creatorName = creatorName;
+        this.forwarderEmail = forwarderEmail;
+        this.adSerialNo = adSerialNo;
+        this.userPhotoURL = userPhotoURL;
+        this.itemPhotoURL = itemPhotoURL;
+        this.title = title;
+        this.comment = comment;
+        this.usersForwarded = usersForwarded;
+    }
+
     private String userPhotoURL;
     private String itemPhotoURL;
     private String title;
@@ -20,6 +34,19 @@ public class Ad {
     }
 
     public void setHashMap(Map<String, Object> hashMap) {
+        this.hashMap = hashMap;
+    }
+
+    public Ad(String creatorEmail, String creatorName, String forwarderEmail, String adSerialNo, String userPhotoURL, String itemPhotoURL, String title, String comment, ArrayList<String> usersForwarded, Map<String, Object> hashMap) {
+        this.creatorEmail = creatorEmail;
+        this.creatorName = creatorName;
+        this.forwarderEmail = forwarderEmail;
+        this.adSerialNo = adSerialNo;
+        this.userPhotoURL = userPhotoURL;
+        this.itemPhotoURL = itemPhotoURL;
+        this.title = title;
+        this.comment = comment;
+        this.usersForwarded = usersForwarded;
         this.hashMap = hashMap;
     }
 
@@ -46,19 +73,11 @@ public class Ad {
 
     }
 
-    public Ad(String creatorEmail, String forwarderEmail, String adSerialNo, String userPhotoURL, String itemPhotoURL, String title, String comment, ArrayList<String> usersForwarded) {
-        this.creatorEmail = creatorEmail;
-        this.forwarderEmail = forwarderEmail;
-        this.adSerialNo = adSerialNo;
-        this.userPhotoURL = userPhotoURL;
-        this.itemPhotoURL = itemPhotoURL;
-        this.title = title;
-        this.comment = comment;
-        this.usersForwarded = usersForwarded;
-    }
+
 
     public Ad(Map<String, Object> map){
         this.creatorEmail = (String) map.get("creator");
+        this.creatorName = (String) map.get("creatorName");
         this.forwarderEmail = (String) map.get("fwdBy");
         this.adSerialNo = (String) map.get("adSerialNo");
         this.userPhotoURL = (String) map.get("userPhotoURL");
@@ -81,6 +100,7 @@ public class Ad {
         this.hashMap = new HashMap<>();
 
         this.hashMap.put("creator", this.creatorEmail);
+        this.hashMap.put("creatorName", this.creatorName);
         this.hashMap.put("adSerialNo", this.adSerialNo);
         this.hashMap.put("itemPhotoURL", this.itemPhotoURL);
         this.hashMap.put("title", this.title);
@@ -88,6 +108,14 @@ public class Ad {
         this.hashMap.put("userPhotoURL", this.userPhotoURL);
 
         return this.hashMap;
+    }
+
+    public String getCreatorName() {
+        return creatorName;
+    }
+
+    public void setCreatorName(String creatorName) {
+        this.creatorName = creatorName;
     }
 
     public String getCreatorEmail() {
