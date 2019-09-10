@@ -168,7 +168,7 @@ public class CreatePosts extends Fragment implements View.OnClickListener {
 
             if(takenPhoto && titleGiven && commentGiven){
                 displayProgressBar();
-                this.createdAd = new Ad(user.getEmail(), user.getDisplayName(), null, "",user.getPhotoUrl().toString(),"", title, comment,null);
+                this.createdAd = new Ad(user.getEmail(), user.getDisplayName(),user.getEmail(), "", user.getPhotoUrl().toString(),"", title, comment,"");
                 uploadImage(bitmap);
             }
 

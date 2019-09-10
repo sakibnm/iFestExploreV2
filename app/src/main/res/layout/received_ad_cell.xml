@@ -72,7 +72,7 @@
                     android:textStyle="bold|italic"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/card_imageItem"
-                    app:layout_constraintTop_toBottomOf="@+id/cardView8" />
+                    app:layout_constraintTop_toBottomOf="@+id/cv_fwd_image" />
 
                 <TextView
                     android:id="@+id/textView7"
@@ -83,6 +83,18 @@
                     android:text="@string/textShared"
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tv_fwded_by"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="8dp"
+                    android:text="@string/fwded_by"
+                    android:textStyle="bold"
+                    android:visibility="invisible"
+                    app:layout_constraintEnd_toStartOf="@+id/cv_fwd_image"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <androidx.cardview.widget.CardView
@@ -139,14 +151,15 @@
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
-                    android:id="@+id/cardView8"
+                    android:id="@+id/cv_fwd_image"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:visibility="invisible"
                     app:cardBackgroundColor="#EEF3F4"
                     app:cardCornerRadius="16dp"
-                    app:layout_constraintStart_toEndOf="@+id/cardView7"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>

@@ -22,7 +22,7 @@
     <string name="buttoon_rec_txt_view">View</string>
     <string name="creator_Text" >"Shared by "</string>
     <string name="forwardText">and Forwarded by</string>
-    <string name="textShared">Shared by</string>
+    <string name="textShared">Posted by</string>
     <string name="fav_button">Mark Favorite</string>
     <string name="fwd_button">Re Share</string>
     <string name="hint_title">Title</string>
@@ -33,4 +33,6 @@
     <string name="remove_Fav">Remove</string>
     <string name="channel_name">Notif Channel</string>
     <string name="channel_description">Only Channel We have</string>
+    <string name="new_review_received">New Reviews Received!</string>
+    <string name="fwded_by">forwarded by</string>
 </resources>

@@ -200,6 +200,8 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
         private ImageView iv_rec_image;
         private Button button_rec_favorite;
         private Button button_rec_Forward;
+
+
         MyClickListener myClickListener;
         public AdHolder(@NonNull View itemView, MyClickListener myClickListener) {
             super(itemView);

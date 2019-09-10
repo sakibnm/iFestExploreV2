@@ -34,6 +34,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.Menu;
@@ -375,7 +376,8 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                             //______________________________________________________________________________________________________________________________________
 //        Fetching Others' ads...
 //                            final int[] adscount = {0};
-                            db.collection("adsRepo").whereEqualTo("creator",emailRec.trim())
+                            db.collection("adsRepo")
+//                                    .whereEqualTo("creator",emailRec.trim())
                                     .addSnapshotListener(new EventListener<QuerySnapshot>() {
                                         @Override
                                         public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
@@ -388,28 +390,25 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 
                                             for (QueryDocumentSnapshot ad: queryDocumentSnapshots){
                                                 if (ad.contains("count"))continue; //adscounter...
-                                                if (ad!=null && !String.valueOf(ad.get("creator")).equals(user.getEmail())){
-                                                    Ad gotAd = new Ad(ad.getData());
+                                                if (ad.get("creator").equals(emailRec)) {
+                                                    if (ad != null && !String.valueOf(ad.get("creator")).equals(user.getEmail())) {
+                                                        Ad gotAd = new Ad(ad.getData());
 
 //___________________________  NOTIFICATIONS!!!!!!!___________________________________________________________
-                                                    if (!receivedAdMap.containsKey(gotAd.getAdSerialNo())){
-                                                        createNotification(gotAd);
-                                                        receivedAdMap.put(gotAd.getAdSerialNo(),true);
-                                                        sharedPrefHashMap.saveHashMap(receivedAdMap);
+                                                        if (!receivedAdMap.containsKey(gotAd.getAdSerialNo())) {
+                                                            createNotification(gotAd);
+                                                            showNewReviewSign();
+                                                            receivedAdMap.put(gotAd.getAdSerialNo(), true);
+                                                            sharedPrefHashMap.saveHashMap(receivedAdMap);
+                                                        }
+                                                        tempAds.add(0, gotAd);
+                                                        adscount++;
                                                     }
-                                                    tempAds.add(gotAd);
-                                                    adscount++;
                                                 }
                                             }
 
                                             Log.d(TAG, "TempAds Size: "+tempAds.size());
 
-                                            Collections.sort(tempAds, new Comparator<Ad>() {
-                                                @Override
-                                                public int compare(Ad t1, Ad t2) {
-                                                    return Integer.parseInt(t2.getAdSerialNo().trim()) - Integer.parseInt(t1.getAdSerialNo().trim());
-                                                }
-                                            });
 
                                             Log.d(TAG, "RECEIVED ADS ALL: "+tempAds.toString());
 
@@ -471,6 +470,20 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 
         }
 
+    }
+
+    private void showNewReviewSign() {
+        findViewById(R.id.cv_new_Review).setVisibility(View.VISIBLE);
+        Runnable mRunnable;
+        Handler mHandler = new Handler();
+        mRunnable = new Runnable() {
+            @Override
+            public void run() {
+                findViewById(R.id.cv_new_Review).setVisibility(View.GONE);
+            }
+        };
+
+        mHandler.postDelayed(mRunnable, 20*1000);
     }
 //______________________________________________________________________________________________________________________________________
 
@@ -560,11 +573,25 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 
     @Override
     public ArrayList<Ad> getFavAdsArrayList() {
+
+        Collections.sort(myFavAdArrayList, new Comparator<Ad>() {
+            @Override
+            public int compare(Ad t1, Ad t2) {
+                return Integer.parseInt(t2.getAdSerialNo().trim()) - Integer.parseInt(t1.getAdSerialNo().trim());
+            }
+        });
         return myFavAdArrayList;
     }
 
     @Override
     public ArrayList<Ad> getOtherAdsArrayList() {
+        Collections.sort(othersAdArrayList, new Comparator<Ad>() {
+            @Override
+            public int compare(Ad t1, Ad t2) {
+                return Integer.parseInt(t2.getAdSerialNo().trim()) - Integer.parseInt(t1.getAdSerialNo().trim());
+            }
+        });
+
         return othersAdArrayList;
     }
 
