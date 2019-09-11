@@ -51,6 +51,7 @@ import com.example.ifestexplore.fragments.MyPosts;
 import com.example.ifestexplore.fragments.ReceivedPosts;
 import com.example.ifestexplore.models.Ad;
 import com.example.ifestexplore.utils.SharedPrefHashMap;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -190,7 +191,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         logoutCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                FirebaseAuth.getInstance().signOut();
+                mAuth.signOut();
                 beaconManager.unbind(Home.this );
                 finish();
             }

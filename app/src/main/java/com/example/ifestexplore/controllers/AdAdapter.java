@@ -197,6 +197,8 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
             holder.tv_fwd.setVisibility(View.VISIBLE);
             if (urlCreatorPhoto!=null && !urlCreatorPhoto.equals(""))Picasso.get().load(urlCreatorPhoto).into(holder.iv_creator_photo);
             if (urlForwarderPhoto!=null && !urlForwarderPhoto.equals(""))Picasso.get().load(urlForwarderPhoto).into(holder.iv_forwarder_photo);
+        }else{
+            if (urlCreatorPhoto!=null && !urlCreatorPhoto.equals(""))Picasso.get().load(urlCreatorPhoto).into(holder.iv_creator_photo);
         }
         if (urlPhoto!=null && !urlPhoto.equals(""))Picasso.get().load(urlPhoto).into(holder.iv_rec_image);
 

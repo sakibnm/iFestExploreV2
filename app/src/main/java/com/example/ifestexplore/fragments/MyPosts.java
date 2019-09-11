@@ -116,7 +116,7 @@ public class MyPosts extends Fragment implements SwipeRefreshLayout.OnRefreshLis
         rv_MyPosts.setAdapter(myAdAdapter);
 //       Fetching my posts...
 //        ____________________________________________________________________________________
-        adArrayList = mListener.getMyAdsArrayList();
+        if (mListener!=null)adArrayList = mListener.getMyAdsArrayList();
         Log.d(TAG, "Fetched From Fragment: "+adArrayList.toString());
         myAdAdapter.setAdArrayList(adArrayList);
         myAdAdapter.notifyDataSetChanged();
