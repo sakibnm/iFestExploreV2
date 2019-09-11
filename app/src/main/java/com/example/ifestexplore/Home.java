@@ -402,6 +402,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                                                             showNewReviewSign();
                                                             receivedAdMap.put(gotAd.getAdSerialNo(), true);
                                                             sharedPrefHashMap.saveHashMap(receivedAdMap);
+
                                                         }
                                                         tempAds.add(0, gotAd);
                                                         adscount++;
@@ -413,15 +414,20 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                                                 int differenceAdCount = adMap.get(emailRec.trim()) - adscount;
                                                 Log.d(TAG, "HASHMAP DIFFERENCE: "+differenceAdCount);
                                                 adMap.put(emailRec.trim(), adscount);
+                                                ArrayList<Ad> toBeDeletedAds = new ArrayList<>();
                                                 for (Ad ad: othersAdArrayList){
                                                     if(ad.getCreatorEmail().equals(emailRec)){
                                                         Log.d(TAG, "OthersArrayList for "+emailRec+ " "+ ad.toString());
 
                                                         if (!tempAds.contains(ad)){
-                                                            othersAdArrayList.remove(ad);
+//                                                            othersAdArrayList.remove(ad);
+                                                            toBeDeletedAds.add(ad);
                                                             Log.d(TAG, "Removing from TempArrayList "+ ad.toString());
                                                         }
                                                     }
+                                                }
+                                                for (Ad ad: toBeDeletedAds){
+                                                    othersAdArrayList.remove(ad);
                                                 }
 
                                                 Log.d(TAG, "Updated TEMP Ads, size: "+ tempAds.size()+ " "+ tempAds);
