@@ -391,7 +391,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                                             for (QueryDocumentSnapshot ad: queryDocumentSnapshots){
                                                 if (ad.contains("count"))continue; //adscounter...
                                                 if (ad.get("creator").equals(emailRec)) {
-                                                    if (ad != null && !String.valueOf(ad.get("creator")).equals(user.getEmail())) {
+                                                    if (ad != null && !String.valueOf(ad.get("creator")).equals(user.getEmail()) && !String.valueOf(ad.get("forwarder")).equals(user.getEmail())) {
                                                         Ad gotAd = new Ad(ad.getData());
 
 //___________________________  NOTIFICATIONS!!!!!!!___________________________________________________________

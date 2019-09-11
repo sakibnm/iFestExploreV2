@@ -35,4 +35,5 @@
     <string name="channel_description">Only Channel We have</string>
     <string name="new_review_received">New Reviews Received!</string>
     <string name="fwded_by">forwarded by</string>
+    <string name="fwd_review_text">Forwarding review!</string>
 </resources>

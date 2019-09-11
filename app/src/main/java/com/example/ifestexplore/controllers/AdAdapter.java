@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ifestexplore.R;
@@ -35,6 +36,7 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
     private Context mContext;
     public MyClickListener myClickListener;
     FirebaseFirestore db;
+    FirebaseUser user;
 
     public AdAdapter(ArrayList<Ad> adArrayList, ArrayList<Ad> favAdArrayList, Context mContext, MyClickListener myClickListener) {
         this.adArrayList = adArrayList;
@@ -127,8 +129,37 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
             }
 
             @Override
-            public void onForwardClicked(int position, View view) {
+            public void onForwardClicked(int position, final View view) {
+//                DisplayProgressBar.......
+//                view.getParent().findViewById(R.id.cv_forwarding).setVisibility(View.VISIBLE);
 
+
+                final Ad fwdAd = adArrayList.get(position);
+                user = FirebaseAuth.getInstance().getCurrentUser();
+                fwdAd.setForwarderEmail(user.getEmail());
+                fwdAd.setFwdPhotoURL(user.getPhotoUrl().toString());
+
+                FirebaseFirestore getDB = FirebaseFirestore.getInstance();
+                final FirebaseFirestore saveDB = FirebaseFirestore.getInstance();
+                getDB.collection("adsRepo").document("adscounter").get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        final long current_count = (long) documentSnapshot.get("count");
+                        fwdAd.setAdSerialNo(String.valueOf(current_count));
+                        saveDB.collection("adsRepo").document(fwdAd.getAdSerialNo()).set(fwdAd.toHashMap())
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        saveDB.collection("adsRepo").document("adscounter").update("count", current_count+1);
+
+//                                        view.findViewById(R.id.cv_forwarding).setVisibility(View.INVISIBLE);
+//                                        getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
+
+                                    }
+                                });
+                    }
+                });
             }
 
         });
@@ -159,8 +190,16 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
         holder.tv_rec_comment.setText(ad.getComment());
         holder.tv_rec_title.setText(ad.getTitle());
         String urlPhoto = String.valueOf(ad.getItemPhotoURL());
-
+        String urlCreatorPhoto = String.valueOf(ad.getUserPhotoURL());
+        String urlForwarderPhoto = String.valueOf(ad.getFwdPhotoURL());
+        if (!ad.getCreatorEmail().equals(ad.getForwarderEmail())){
+            holder.cv_fwd_photo.setVisibility(View.VISIBLE);
+            holder.tv_fwd.setVisibility(View.VISIBLE);
+            if (urlCreatorPhoto!=null && !urlCreatorPhoto.equals(""))Picasso.get().load(urlCreatorPhoto).into(holder.iv_creator_photo);
+            if (urlForwarderPhoto!=null && !urlForwarderPhoto.equals(""))Picasso.get().load(urlForwarderPhoto).into(holder.iv_forwarder_photo);
+        }
         if (urlPhoto!=null && !urlPhoto.equals(""))Picasso.get().load(urlPhoto).into(holder.iv_rec_image);
+
 //        if (urlPhoto!=null && !urlPhoto.equals(""))Picasso.get().load(urlPhoto).into(holder.iv_rec_image);
         Log.d(TAG, "onBindViewHolder: "+ad.toString());
 
@@ -200,7 +239,10 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
         private ImageView iv_rec_image;
         private Button button_rec_favorite;
         private Button button_rec_Forward;
-
+        private ImageView iv_creator_photo;
+        private ImageView iv_forwarder_photo;
+        private CardView cv_fwd_photo;
+        private TextView tv_fwd;
 
         MyClickListener myClickListener;
         public AdHolder(@NonNull View itemView, MyClickListener myClickListener) {
@@ -208,6 +250,10 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
             tv_rec_comment = itemView.findViewById(R.id.tv_rec_item_comment);
             tv_rec_title = itemView.findViewById(R.id.tv_rec_title);
             iv_rec_image = itemView.findViewById(R.id.iv_rec_item_image);
+            iv_creator_photo = itemView.findViewById(R.id.iv_creator_photo);
+            iv_forwarder_photo = itemView.findViewById(R.id.iv_forwarder_photo);
+            cv_fwd_photo = itemView.findViewById(R.id.cv_fwd_image);
+            tv_fwd = itemView.findViewById(R.id.tv_fwded_by);
             button_rec_favorite = itemView.findViewById(R.id.button_rec_favorite);
             button_rec_Forward = itemView.findViewById(R.id.button_rec_forward);
             this.myClickListener = myClickListener;
@@ -231,6 +277,7 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
             }
         }
     }
+
 
     public interface MyClickListener{
         void onFavoriteClicked(int position, View view);
