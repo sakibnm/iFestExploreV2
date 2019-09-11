@@ -141,7 +141,9 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
 
                 FirebaseFirestore getDB = FirebaseFirestore.getInstance();
                 final FirebaseFirestore saveDB = FirebaseFirestore.getInstance();
-                getDB.collection("adsRepo").document("adscounter").get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                getDB.collection("adsRepo")
+                        .document("adscounter").get()
+                        .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         final long current_count = (long) documentSnapshot.get("count");

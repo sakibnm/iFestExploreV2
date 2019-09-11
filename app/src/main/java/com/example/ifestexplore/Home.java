@@ -219,7 +219,8 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 //        Fetching MYADS................
         db.collection("adsRepo")
                 .whereEqualTo("creator", user.getEmail())
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                .whereEqualTo("forwarder", user.getEmail())
+                                .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
                         if(e!=null){
@@ -408,15 +409,6 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                                                 }
                                             }
 
-                                            Log.d(TAG, "TempAds Size: "+tempAds.size());
-
-
-                                            Log.d(TAG, "RECEIVED ADS ALL: "+tempAds.toString());
-
-                                            Log.d(TAG, "ADS COUNT"+adMap.get(emailRec)+" "+adscount);
-
-                                            Log.d(TAG, "HASHMAP "+adMap.toString());
-
 //                                            if (adMap.get(emailRec)!=adscount){
                                                 int differenceAdCount = adMap.get(emailRec.trim()) - adscount;
                                                 Log.d(TAG, "HASHMAP DIFFERENCE: "+differenceAdCount);
@@ -494,6 +486,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         btLeScanner = btAdapter.getBluetoothLeScanner();
 
         beaconManager = BeaconManager.getInstanceForApplication(this);
+        beaconManager.setBackgroundMode(true);
         beaconManager.getBeaconParsers().add(new BeaconParser().
                 setBeaconLayout(BeaconParser.EDDYSTONE_UID_LAYOUT));
 // Detect the telemetry (TLM) frame:
