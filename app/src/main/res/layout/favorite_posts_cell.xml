@@ -9,22 +9,26 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="#EEF3F4">
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:padding="4dp"
+            android:layout_margin="1dp"
+            android:background="#EEF3F4"
+            android:padding="1dp"
             app:cardBackgroundColor="#D8EBEE"
-            app:cardCornerRadius="16dp"
+            app:cardCornerRadius="2dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:background="#EEF3F4">
 
                 <Button
                     android:id="@+id/button_fav_delete"
@@ -43,66 +47,56 @@
                     app:layout_constraintTop_toBottomOf="@+id/card_fav_comment" />
 
                 <TextView
-                    android:id="@+id/textView6"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="16dp"
-                    android:text="@string/textShared"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
                     android:id="@+id/tv_fav_Title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:text="TextView"
+                    android:textStyle="bold|italic"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/cardView6" />
+
+                <TextView
+                    android:id="@+id/tv_fav_place"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="16dp"
                     android:text="TextView"
-                    android:textStyle="bold|italic"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/card_fav_ImageItem"
-                    app:layout_constraintTop_toBottomOf="@+id/cardView9" />
-
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/cardView9"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="8dp"
-                    app:cardBackgroundColor="#EEF3F4"
-                    app:cardCornerRadius="16dp"
-                    app:layout_constraintStart_toEndOf="@+id/cardView6"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toBottomOf="@+id/cardView6" />
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/card_fav_ImageItem"
-                    android:layout_width="160dp"
-                    android:layout_height="160dp"
+                    android:layout_width="124dp"
+                    android:layout_height="124dp"
                     android:layout_marginStart="8dp"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="4dp"
                     app:cardBackgroundColor="#EEF3F4"
-                    app:cardCornerRadius="16dp"
+                    app:cardCornerRadius="2dp"
+                    app:cardElevation="1dp"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/cardView6">
+                    app:layout_constraintTop_toBottomOf="@+id/tv_fav_Title">
 
                     <ImageView
                         android:id="@+id/iv_fav_item_image"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
                         app:srcCompat="@drawable/content_24dp" />
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/card_fav_comment"
                     android:layout_width="0dp"
-                    android:layout_height="136dp"
+                    android:layout_height="124dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="4dp"
                     android:layout_marginEnd="16dp"
                     app:cardBackgroundColor="#EEF3F4"
-                    app:cardCornerRadius="16dp"
+                    app:cardCornerRadius="2dp"
+                    app:cardElevation="1dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/card_fav_ImageItem"
                     app:layout_constraintTop_toBottomOf="@+id/tv_fav_Title">
@@ -118,16 +112,55 @@
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardView6"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
-                    app:cardBackgroundColor="#EEF3F4"
-                    app:cardCornerRadius="16dp"
-                    app:layout_constraintStart_toEndOf="@+id/textView6"
+                    android:background="#EEF3F4"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="2dp"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="#EEF3F4"
+                        android:padding="2dp">
+
+                        <ImageView
+                            android:id="@+id/iv_fav_creator"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_marginStart="8dp"
+                            android:scaleType="centerCrop"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toEndOf="@+id/textView6"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:srcCompat="@drawable/content_24dp" />
+
+                        <TextView
+                            android:id="@+id/textView6"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/textShared"
+                            android:textStyle="bold"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <TextView
+                            android:id="@+id/tv_fav_creator_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:text="TextView"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toEndOf="@+id/iv_fav_creator"
+                            app:layout_constraintTop_toTopOf="parent" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
                 </androidx.cardview.widget.CardView>
+
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
     </androidx.constraintlayout.widget.ConstraintLayout>

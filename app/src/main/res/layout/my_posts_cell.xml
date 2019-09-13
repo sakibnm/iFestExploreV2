@@ -4,20 +4,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="6dp">
+    android:paddingTop="0dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#EEF3F4">
+        android:background="#E2E1E1"
+        android:persistentDrawingCache="animation">
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:padding="4dp"
-            app:cardBackgroundColor="#D8EBEE"
-            app:cardCornerRadius="16dp"
+            android:layout_margin="1dp"
+            android:padding="0dp"
+            app:cardBackgroundColor="#F1F3F3"
+            app:cardCornerRadius="2dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -36,12 +37,23 @@
                     android:layout_marginBottom="8dp"
                     android:background="@drawable/button_round_cancel"
                     android:drawableLeft="@drawable/ic_stop_posting"
-                    android:drawablePadding="8dp"
-                    android:padding="8dp"
+                    android:drawablePadding="2dp"
+                    android:includeFontPadding="false"
+                    android:padding="4dp"
                     android:text="@string/button_text_stop_posting"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/card_comment" />
+
+                <TextView
+                    android:id="@+id/tv_my_place"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="TextView"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/tv_my_Title"
@@ -49,11 +61,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="16dp"
-                    android:layout_marginEnd="16dp"
                     android:text="TextView"
                     android:textStyle="bold|italic"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/card_image"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
@@ -72,14 +82,16 @@
                 <androidx.cardview.widget.CardView
                     android:id="@+id/card_comment"
                     android:layout_width="0dp"
-                    android:layout_height="136dp"
+                    android:layout_height="124dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="4dp"
                     android:layout_marginEnd="16dp"
-                    app:cardCornerRadius="16dp"
+                    app:cardBackgroundColor="#F1F3F3"
+                    app:cardCornerRadius="4dp"
+                    app:cardElevation="1dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/card_image"
-                    app:layout_constraintTop_toBottomOf="@+id/tv_my_Title" >
+                    app:layout_constraintTop_toBottomOf="@+id/tv_my_Title">
 
                     <TextView
                         android:id="@+id/tv_my_comment"
@@ -96,7 +108,7 @@
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
-                    app:cardCornerRadius="16dp"
+                    app:cardCornerRadius="4dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/card_image">
@@ -105,18 +117,21 @@
                         android:id="@+id/iv_my_photo"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
                         app:srcCompat="@drawable/ic_username" />
                 </androidx.cardview.widget.CardView>
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/card_image"
-                    android:layout_width="160dp"
-                    android:layout_height="160dp"
+                    android:layout_width="124dp"
+                    android:layout_height="124dp"
                     android:layout_marginStart="16dp"
-                    android:layout_marginTop="16dp"
-                    app:cardCornerRadius="16dp"
+                    android:layout_marginTop="4dp"
+                    app:cardBackgroundColor="#EEF3F4"
+                    app:cardCornerRadius="4dp"
+                    app:cardElevation="1dp"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
+                    app:layout_constraintTop_toBottomOf="@+id/tv_my_Title">
 
                     <ImageView
                         android:id="@+id/iv_my_userphoto"

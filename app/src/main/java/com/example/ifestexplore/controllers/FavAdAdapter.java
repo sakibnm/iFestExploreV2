@@ -95,10 +95,14 @@ public class FavAdAdapter extends RecyclerView.Adapter<FavAdAdapter.AdHolder> {
 
         holder.tv_fav_title.setText(ad.getTitle());
         holder.tv_fav_comment.setText(ad.getComment());
+        holder.tv_fav_creator.setText(ad.getCreatorName());
 
         String urlPhoto = String.valueOf(ad.getItemPhotoURL());
 
         if (urlPhoto!=null && !urlPhoto.equals("")) Picasso.get().load(urlPhoto).into(holder.iv_fav_image);
+        String urlPhotoCreator = String.valueOf(ad.getItemPhotoURL());
+
+        if (urlPhotoCreator!=null && !urlPhoto.equals("")) Picasso.get().load(urlPhotoCreator).into(holder.iv_fav_creator);
 //        if (urlPhoto!=null && !urlPhoto.equals(""))Picasso.get().load(urlPhoto).into(holder.iv_rec_image);
 //        Log.d(TAG, "onBindViewHolder: "+ad.toString());
     }
@@ -134,16 +138,20 @@ public class FavAdAdapter extends RecyclerView.Adapter<FavAdAdapter.AdHolder> {
 
 
     public class AdHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+        private TextView tv_fav_creator;
         private TextView tv_fav_comment;
         private TextView tv_fav_title;
         private ImageView iv_fav_image;
+        private ImageView iv_fav_creator;
         private Button button_fav_unfavorite;
         MyFavClickListener myClickListener;
         public AdHolder(@NonNull View itemView, MyFavClickListener myClickListener) {
             super(itemView);
+            tv_fav_creator = itemView.findViewById(R.id.tv_fav_creator_name);
             tv_fav_comment = itemView.findViewById(R.id.tv_fav_comment);
             tv_fav_title = itemView.findViewById(R.id.tv_fav_Title);
             iv_fav_image = itemView.findViewById(R.id.iv_fav_item_image);
+            iv_fav_creator = itemView.findViewById(R.id.iv_fav_creator);
             button_fav_unfavorite = itemView.findViewById(R.id.button_fav_delete);
             this.myClickListener = myClickListener;
 

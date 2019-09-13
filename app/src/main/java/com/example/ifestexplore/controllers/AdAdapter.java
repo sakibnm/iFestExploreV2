@@ -16,6 +16,8 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ifestexplore.R;
+import com.example.ifestexplore.fragments.Bookmarks;
+import com.example.ifestexplore.fragments.ReceivedPosts;
 import com.example.ifestexplore.models.Ad;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -63,7 +65,7 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
         View view = layoutInflater.inflate(R.layout.received_ad_cell, parent, false);
         AdAdapter.AdHolder holder = new AdAdapter.AdHolder(view, new MyClickListener() {
             @Override
-            public void onFavoriteClicked(int position, final View view) {
+            public void onFavoriteClicked(final int position, final View view) {
 //                Toast.makeText(view.getContext(), "Favorite clicked: from "+view.getResources().get, Toast.LENGTH_SHORT).show();
 
                 String textFav = ((Button)view.findViewById(R.id.button_rec_favorite)).getText().toString().trim();
@@ -73,7 +75,7 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
                 final String currentEmail = user.getEmail();
                 db = FirebaseFirestore.getInstance();
 
-                DocumentReference favAdReference = db.collection("favoriteAds").document(currentEmail)
+                final DocumentReference favAdReference = db.collection("favoriteAds").document(currentEmail)
                         .collection("favorites").document(favAd.getAdSerialNo());
 
                 if (textFav.equals("Mark Favorite")){
@@ -112,11 +114,29 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
 
                 }else{
 
-                    favAdReference.delete();
-                    Toast.makeText(mContext, "Undo Favorite succeeded!", Toast.LENGTH_SHORT).show();
-                    view.findViewById(R.id.button_rec_favorite).setBackground(view.getResources()
-                            .getDrawable(R.drawable.button__background_unfavorite_round));
-                    ((Button) view.findViewById(R.id.button_rec_favorite)).setText("Mark Favorite");
+                    favAdReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            if (documentSnapshot.exists()){
+                                favAdReference.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Bookmarks.getUpdatedList();
+                                        Toast.makeText(mContext, "Removed from Favorites!", Toast.LENGTH_SHORT).show();
+                                        ReceivedPosts.getUpdatedList();
+
+                                        ((Button) view.findViewById(R.id.button_rec_favorite)).setText("Mark Favorite");
+                                        view.findViewById(R.id.button_rec_favorite).setBackground(view.getResources()
+                                                .getDrawable(R.drawable.button__background_unfavorite_round));
+                                    }
+                                });
+
+                            }else{
+
+                            }
+                        }
+                    });
+
                 }
 //                    Toast.makeText(mContext, "Got Mark Favorite!", Toast.LENGTH_SHORT).show();
 
@@ -181,7 +201,7 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
         for (Ad favAd: favAdArrayList){
             Log.d(TAG, "FAV: "+favAd.toString());
             if (ad.getAdSerialNo().equals(favAd.getAdSerialNo())){
-                Log.d(TAG, "FAVVVVVV: "+favAd.toString());
+//                Log.d(TAG, "FAVVVVVV: "+favAd.toString());
                 holder.button_rec_favorite.setText("Undo Favorite");
                 holder.button_rec_favorite.setBackgroundResource(R.drawable.button__background_favorite_round);
             }
@@ -189,6 +209,7 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
 
 //      TODO: FILTER FOR USERS NEEDED...
         // Set the data to the views here
+        holder.tv_rec_creator.setText(ad.getCreatorName());
         holder.tv_rec_comment.setText(ad.getComment());
         holder.tv_rec_title.setText(ad.getTitle());
         String urlPhoto = String.valueOf(ad.getItemPhotoURL());
@@ -238,6 +259,7 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
     }
 
     public class AdHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        private TextView tv_rec_creator;
         private TextView tv_rec_comment;
         private TextView tv_rec_title;
         private ImageView iv_rec_image;
@@ -251,6 +273,7 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
         MyClickListener myClickListener;
         public AdHolder(@NonNull View itemView, MyClickListener myClickListener) {
             super(itemView);
+            tv_rec_creator = itemView.findViewById(R.id.tv_creator_name);
             tv_rec_comment = itemView.findViewById(R.id.tv_rec_item_comment);
             tv_rec_title = itemView.findViewById(R.id.tv_rec_title);
             iv_rec_image = itemView.findViewById(R.id.iv_rec_item_image);

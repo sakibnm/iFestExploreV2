@@ -2,6 +2,7 @@ package com.example.ifestexplore;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.NotificationCompat;
@@ -30,6 +31,8 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -163,8 +166,8 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
-
+        ActionBar bar = getSupportActionBar();
+        bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#042529")));
         adMap= new HashMap<>();
         receivedAdMap = new HashMap<>();
         sharedPrefHashMap = new SharedPrefHashMap(getApplicationContext(), KEY_SAVE_ADS_RECEIVED);
@@ -254,7 +257,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                     Log.w(TAG, "Listen failed.", e);
                     return;
                 }
-
+                Log.d(TAG, "FAVORITES: triggered!");
                 if (queryDocumentSnapshots!=null && !queryDocumentSnapshots.isEmpty()){
                     ArrayList<Ad> tempAds = new ArrayList<>();
                     for (QueryDocumentSnapshot ad: queryDocumentSnapshots){
@@ -263,10 +266,12 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                         }
 
                     }
-//                    Log.d(TAG, "FAVORITES: "+tempAds);
+
 
                     myFavAdArrayList.clear();
                     myFavAdArrayList.addAll(tempAds);
+                }else{
+                    myFavAdArrayList.clear();
                 }
             }
         });
