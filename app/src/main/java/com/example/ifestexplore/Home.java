@@ -223,8 +223,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 //        Fetching MYADS................
         db.collection("adsRepo")
                 .whereEqualTo("creator", user.getEmail())
-                .whereEqualTo("forwarder", user.getEmail())
-                                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
                         if(e!=null){
@@ -234,6 +233,8 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                         ArrayList<Ad> tempAds = new ArrayList<>();
                         for (QueryDocumentSnapshot ad: queryDocumentSnapshots){
                             if (ad!=null){
+                                Ad tads = new Ad(ad.getData());
+                                Log.d(TAG, "MYADS ARRAY: "+tads.toString());
                                 tempAds.add(new Ad(ad.getData()));
                             }
                         }
@@ -261,7 +262,9 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                 if (queryDocumentSnapshots!=null && !queryDocumentSnapshots.isEmpty()){
                     ArrayList<Ad> tempAds = new ArrayList<>();
                     for (QueryDocumentSnapshot ad: queryDocumentSnapshots){
+
                         if(ad!=null){
+
                             tempAds.add(new Ad(ad.getData()));
                         }
 
@@ -270,6 +273,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 
                     myFavAdArrayList.clear();
                     myFavAdArrayList.addAll(tempAds);
+                    Bookmarks.getUpdatedList();
                 }else{
                     myFavAdArrayList.clear();
                 }

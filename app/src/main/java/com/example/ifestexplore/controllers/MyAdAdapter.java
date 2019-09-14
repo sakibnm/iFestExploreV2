@@ -111,6 +111,8 @@ public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
         holder.tv_my_posts_comment.setText(ad.getComment());
         holder.tv_my_posts_title.setText(ad.getTitle());
         holder.tv_my_posts_me.setText(user.getDisplayName());
+        holder.tv_my_posts_booth_name.setText("At booth "+ad.getBoothName());
+        holder.iv_my_posts_booth_flag.setImageDrawable(mContext.getResources().getDrawable(Integer.parseInt(ad.getBoothFlag()), null));
         String urlPhoto = String.valueOf(ad.getItemPhotoURL());
         String urlMyPhoto = String.valueOf(ad.getUserPhotoURL());
 //        holder.tv_my_posts_users.setText(ad.getUsersForwarded().toString());
@@ -140,6 +142,8 @@ public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
         private ImageView iv_my_posts_image;
         private ImageView iv_my_photo_image;
         private Button button_my_posts_stop;
+        private TextView tv_my_posts_booth_name;
+        private ImageView iv_my_posts_booth_flag;
         private  MyPostsClickListener myPostsClickListener;
 
         public AdHolder(@NonNull View itemView, MyPostsClickListener myPostsClickListener) {
@@ -149,6 +153,8 @@ public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
             tv_my_posts_title = itemView.findViewById(R.id.tv_my_Title);
             iv_my_posts_image = itemView.findViewById(R.id.iv_my_userphoto);
             iv_my_photo_image = itemView.findViewById(R.id.iv_my_photo);
+            tv_my_posts_booth_name = itemView.findViewById(R.id.tv_my_place);
+            iv_my_posts_booth_flag = itemView.findViewById(R.id.iv_my_flag);
             button_my_posts_stop = itemView.findViewById(R.id.button_my_Stop_Posting);
             this.myPostsClickListener = myPostsClickListener;
 

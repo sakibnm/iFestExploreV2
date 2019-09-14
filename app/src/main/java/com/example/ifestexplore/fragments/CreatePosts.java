@@ -2,6 +2,7 @@ package com.example.ifestexplore.fragments;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -79,9 +80,12 @@ public class CreatePosts extends Fragment implements View.OnClickListener {
     private Button button_createAdClear;
     private EditText et_Title;
     private EditText et_Comment;
+    private String booth_Name;
+    private String booth_Flag;
     private Button button_searchCountry;
     private Boolean takenPhoto = false;
     private Boolean commentGiven = false;
+    private Boolean boothSelected = false;
 
     private Ad createdAd;
     private boolean titleGiven;
@@ -175,9 +179,9 @@ public class CreatePosts extends Fragment implements View.OnClickListener {
             FirebaseUser user = mAuth.getCurrentUser();
 
 
-            if(takenPhoto && titleGiven && commentGiven){
+            if(takenPhoto && titleGiven && commentGiven && boothSelected){
                 displayProgressBar();
-                this.createdAd = new Ad(user.getEmail(), user.getDisplayName(),user.getEmail(), "", user.getPhotoUrl().toString(),"", title, comment,"");
+                this.createdAd = new Ad(user.getEmail(), user.getDisplayName(),"", user.getPhotoUrl().toString(),"",et_Title.getText().toString(),et_Comment.getText().toString(), booth_Name, booth_Flag);
                 uploadImage(bitmap);
             }
 
@@ -193,8 +197,11 @@ public class CreatePosts extends Fragment implements View.OnClickListener {
             @Override
             public void onSelectCountry(Country country) {
 //                Log.d(TAG, "onSelectCountry: "+country.getName()+" clicked!");
-                button_searchCountry.setText(country.getName());
-                button_searchCountry.setCompoundDrawablesRelativeWithIntrinsicBounds(view.getResources().getDrawable(country.getFlag(), null),null,null,null);
+                booth_Name = country.getName();
+                booth_Flag = String.valueOf(country.getFlag());
+                button_searchCountry.setText(booth_Name);
+                button_searchCountry.setCompoundDrawablesRelativeWithIntrinsicBounds(view.getResources().getDrawable(Integer.parseInt(booth_Flag), null),null,null,null);
+                boothSelected = true;
 
             }
         }).sortBy(CountryPicker.SORT_BY_NAME);
@@ -210,6 +217,7 @@ public class CreatePosts extends Fragment implements View.OnClickListener {
         @Override
         public void onClick(View v) {
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            intent.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             startActivityForResult(intent, CAM_REQ);
         }
     }

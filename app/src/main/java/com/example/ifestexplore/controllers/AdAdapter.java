@@ -154,34 +154,34 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
 //                view.getParent().findViewById(R.id.cv_forwarding).setVisibility(View.VISIBLE);
 
 
-                final Ad fwdAd = adArrayList.get(position);
-                user = FirebaseAuth.getInstance().getCurrentUser();
-                fwdAd.setForwarderEmail(user.getEmail());
-                fwdAd.setFwdPhotoURL(user.getPhotoUrl().toString());
-
-                FirebaseFirestore getDB = FirebaseFirestore.getInstance();
-                final FirebaseFirestore saveDB = FirebaseFirestore.getInstance();
-                getDB.collection("adsRepo")
-                        .document("adscounter").get()
-                        .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        final long current_count = (long) documentSnapshot.get("count");
-                        fwdAd.setAdSerialNo(String.valueOf(current_count));
-                        saveDB.collection("adsRepo").document(fwdAd.getAdSerialNo()).set(fwdAd.toHashMap())
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        saveDB.collection("adsRepo").document("adscounter").update("count", current_count+1);
-
-//                                        view.findViewById(R.id.cv_forwarding).setVisibility(View.INVISIBLE);
-//                                        getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-
-
-                                    }
-                                });
-                    }
-                });
+//                final Ad fwdAd = adArrayList.get(position);
+//                user = FirebaseAuth.getInstance().getCurrentUser();
+//                fwdAd.setForwarderEmail(user.getEmail());
+//                fwdAd.setFwdPhotoURL(user.getPhotoUrl().toString());
+//
+//                FirebaseFirestore getDB = FirebaseFirestore.getInstance();
+//                final FirebaseFirestore saveDB = FirebaseFirestore.getInstance();
+//                getDB.collection("adsRepo")
+//                        .document("adscounter").get()
+//                        .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+//                    @Override
+//                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+//                        final long current_count = (long) documentSnapshot.get("count");
+//                        fwdAd.setAdSerialNo(String.valueOf(current_count));
+//                        saveDB.collection("adsRepo").document(fwdAd.getAdSerialNo()).set(fwdAd.toHashMap())
+//                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                    @Override
+//                                    public void onSuccess(Void aVoid) {
+//                                        saveDB.collection("adsRepo").document("adscounter").update("count", current_count+1);
+//
+////                                        view.findViewById(R.id.cv_forwarding).setVisibility(View.INVISIBLE);
+////                                        getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+//
+//
+//                                    }
+//                                });
+//                    }
+//                });
             }
 
         });
@@ -212,17 +212,19 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
         holder.tv_rec_creator.setText(ad.getCreatorName());
         holder.tv_rec_comment.setText(ad.getComment());
         holder.tv_rec_title.setText(ad.getTitle());
+        holder.tv_booth_name.setText("At booth "+ad.getBoothName());
+        holder.iv_booth_flag.setImageDrawable(mContext.getResources().getDrawable(Integer.parseInt(ad.getBoothFlag()), null));
         String urlPhoto = String.valueOf(ad.getItemPhotoURL());
         String urlCreatorPhoto = String.valueOf(ad.getUserPhotoURL());
-        String urlForwarderPhoto = String.valueOf(ad.getFwdPhotoURL());
-        if (!ad.getCreatorEmail().equals(ad.getForwarderEmail())){
-            holder.cv_fwd_photo.setVisibility(View.VISIBLE);
-            holder.tv_fwd.setVisibility(View.VISIBLE);
-            if (urlCreatorPhoto!=null && !urlCreatorPhoto.equals(""))Picasso.get().load(urlCreatorPhoto).into(holder.iv_creator_photo);
-            if (urlForwarderPhoto!=null && !urlForwarderPhoto.equals(""))Picasso.get().load(urlForwarderPhoto).into(holder.iv_forwarder_photo);
-        }else{
-            if (urlCreatorPhoto!=null && !urlCreatorPhoto.equals(""))Picasso.get().load(urlCreatorPhoto).into(holder.iv_creator_photo);
-        }
+//        String urlForwarderPhoto = String.valueOf(ad.getFwdPhotoURL());
+//        if (!ad.getCreatorEmail().equals(ad.getForwarderEmail())){
+//            holder.cv_fwd_photo.setVisibility(View.VISIBLE);
+//            holder.tv_fwd.setVisibility(View.VISIBLE);
+//            if (urlCreatorPhoto!=null && !urlCreatorPhoto.equals(""))Picasso.get().load(urlCreatorPhoto).into(holder.iv_creator_photo);
+//            if (urlForwarderPhoto!=null && !urlForwarderPhoto.equals(""))Picasso.get().load(urlForwarderPhoto).into(holder.iv_forwarder_photo);
+//        }else{
+//            if (urlCreatorPhoto!=null && !urlCreatorPhoto.equals(""))Picasso.get().load(urlCreatorPhoto).into(holder.iv_creator_photo);
+//        }
         if (urlPhoto!=null && !urlPhoto.equals(""))Picasso.get().load(urlPhoto).into(holder.iv_rec_image);
 
 //        if (urlPhoto!=null && !urlPhoto.equals(""))Picasso.get().load(urlPhoto).into(holder.iv_rec_image);
@@ -264,13 +266,11 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
         private TextView tv_rec_title;
         private ImageView iv_rec_image;
         private Button button_rec_favorite;
-        private Button button_rec_Forward;
         private ImageView iv_creator_photo;
-        private ImageView iv_forwarder_photo;
-        private CardView cv_fwd_photo;
-        private TextView tv_fwd;
-
+        private ImageView iv_booth_flag;
+        private TextView tv_booth_name;
         MyClickListener myClickListener;
+
         public AdHolder(@NonNull View itemView, MyClickListener myClickListener) {
             super(itemView);
             tv_rec_creator = itemView.findViewById(R.id.tv_creator_name);
@@ -278,15 +278,18 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
             tv_rec_title = itemView.findViewById(R.id.tv_rec_title);
             iv_rec_image = itemView.findViewById(R.id.iv_rec_item_image);
             iv_creator_photo = itemView.findViewById(R.id.iv_creator_photo);
-            iv_forwarder_photo = itemView.findViewById(R.id.iv_forwarder_photo);
-            cv_fwd_photo = itemView.findViewById(R.id.cv_fwd_image);
-            tv_fwd = itemView.findViewById(R.id.tv_fwded_by);
+            iv_booth_flag = itemView.findViewById(R.id.iv_rec_flag);
+            tv_booth_name = itemView.findViewById(R.id.tv_rec_place);
+//            iv_forwarder_photo = itemView.findViewById(R.id.iv_forwarder_photo);
+//            cv_fwd_photo = itemView.findViewById(R.id.cv_fwd_image);
+//            tv_fwd = itemView.findViewById(R.id.tv_fwded_by);
+//            button_rec_Forward = itemView.findViewById(R.id.button_rec_forward);
             button_rec_favorite = itemView.findViewById(R.id.button_rec_favorite);
-            button_rec_Forward = itemView.findViewById(R.id.button_rec_forward);
+
             this.myClickListener = myClickListener;
 
             button_rec_favorite.setOnClickListener(this);
-            button_rec_Forward.setOnClickListener(this);
+//            button_rec_Forward.setOnClickListener(this);
         }
 
         @Override
@@ -295,9 +298,9 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
                 case R.id.button_rec_favorite:
                     myClickListener.onFavoriteClicked(this.getLayoutPosition(), view);
                     break;
-                case R.id.button_rec_forward:
-                    myClickListener.onForwardClicked(this.getLayoutPosition(), view);
-                    break;
+//                case R.id.button_rec_forward:
+//                    myClickListener.onForwardClicked(this.getLayoutPosition(), view);
+//                    break;
                 default:
                     break;
 

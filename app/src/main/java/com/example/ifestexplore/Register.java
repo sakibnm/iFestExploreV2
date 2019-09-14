@@ -193,6 +193,7 @@ public class Register extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            intent.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             startActivityForResult(intent, CAM_REQ);
         }
     }
