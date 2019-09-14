@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
@@ -20,9 +21,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.SearchView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.ifestexplore.Home;
 import com.example.ifestexplore.R;
 import com.example.ifestexplore.models.Ad;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -34,6 +38,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.mukesh.countrypicker.Country;
+import com.mukesh.countrypicker.CountryPicker;
+import com.mukesh.countrypicker.listeners.OnCountryPickerListener;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
@@ -72,7 +79,7 @@ public class CreatePosts extends Fragment implements View.OnClickListener {
     private Button button_createAdClear;
     private EditText et_Title;
     private EditText et_Comment;
-
+    private Button button_searchCountry;
     private Boolean takenPhoto = false;
     private Boolean commentGiven = false;
 
@@ -120,8 +127,10 @@ public class CreatePosts extends Fragment implements View.OnClickListener {
         button_createAdClear = view.findViewById(R.id.button_createAdClearAll);
         cardViewTakePhoto = view.findViewById(R.id.card_addPhoto);
         cardViewTakePhoto.setOnClickListener(new TakePhoto());
+        button_searchCountry = view.findViewById(R.id.button_addCountry);
 
         button_createAd.setOnClickListener(this);
+        button_searchCountry.setOnClickListener(this);
         button_createAdClear.setOnClickListener(this);
 
         return view;
@@ -174,7 +183,26 @@ public class CreatePosts extends Fragment implements View.OnClickListener {
 
         }else if (view.getId() == R.id.button_createAdClearAll){
             clearAll();
+        }else if (view.getId() == R.id.button_addCountry){
+            searchAndAddCountry();
         }
+    }
+
+    private void searchAndAddCountry() {
+        CountryPicker.Builder builder = new CountryPicker.Builder().with(getContext()).listener(new OnCountryPickerListener() {
+            @Override
+            public void onSelectCountry(Country country) {
+//                Log.d(TAG, "onSelectCountry: "+country.getName()+" clicked!");
+                button_searchCountry.setText(country.getName());
+                button_searchCountry.setCompoundDrawablesRelativeWithIntrinsicBounds(view.getResources().getDrawable(country.getFlag(), null),null,null,null);
+
+            }
+        }).sortBy(CountryPicker.SORT_BY_NAME);
+
+        CountryPicker picker = builder.build();
+
+        picker.showBottomSheet((AppCompatActivity) getActivity());
+
     }
 
     class TakePhoto implements ImageButton.OnClickListener {
@@ -301,4 +329,5 @@ public class CreatePosts extends Fragment implements View.OnClickListener {
         void onClearAllPressedFromCreatePosts();
         void onCreatePressedFromCreatePosts();
     }
+
 }

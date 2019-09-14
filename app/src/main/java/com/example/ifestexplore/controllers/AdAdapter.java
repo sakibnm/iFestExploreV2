@@ -199,7 +199,7 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
         Ad ad = adArrayList.get(position);
 
         for (Ad favAd: favAdArrayList){
-            Log.d(TAG, "FAV: "+favAd.toString());
+//            Log.d(TAG, "FAV: "+favAd.toString());
             if (ad.getAdSerialNo().equals(favAd.getAdSerialNo())){
 //                Log.d(TAG, "FAVVVVVV: "+favAd.toString());
                 holder.button_rec_favorite.setText("Undo Favorite");

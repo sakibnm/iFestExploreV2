@@ -492,6 +492,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
     }
 //______________________________________________________________________________________________________________________________________
 
+
     void setupBluetooth(){
         btManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         btAdapter = btManager.getAdapter();

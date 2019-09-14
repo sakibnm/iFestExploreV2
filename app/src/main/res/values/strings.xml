@@ -37,4 +37,5 @@
     <string name="fwded_by">forwarded by</string>
     <string name="fwd_review_text">Forwarding review!</string>
     <string name="text_logout">Logout</string>
+    <string name="spinner_Text">Search and Select the Booth (Country)</string>
 </resources>

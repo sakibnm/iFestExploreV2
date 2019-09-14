@@ -38,6 +38,6 @@ dependencies {
     implementation 'org.altbeacon:android-beacon-library:2+'
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.+'
-
+    implementation 'com.github.madappstechnologies:country-picker-android:2.0.1'
 }
 apply plugin: 'com.google.gms.google-services'
