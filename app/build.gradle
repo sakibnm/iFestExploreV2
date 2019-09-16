@@ -35,7 +35,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth:18.1.0'
     implementation 'com.google.android.gms:play-services-auth:17.0.0'
     implementation 'com.google.firebase:firebase-storage:18.1.1'
-    implementation 'com.github.p4sI:android-beacon-library:2.9.2'
+    implementation 'org.altbeacon:android-beacon-library:2.16.2'
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.+'
     implementation 'com.github.madappstechnologies:country-picker-android:2.0.1'

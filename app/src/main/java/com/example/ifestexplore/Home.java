@@ -134,12 +134,15 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
     protected void onResume() {
         super.onResume();
         beaconManager = BeaconManager.getInstanceForApplication(this.getApplicationContext());
+//        beaconManager.setEnableScheduledScanJobs(true);
         // Detect the main Eddystone-UID frame:
         beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(BeaconParser.EDDYSTONE_UID_LAYOUT));
         // Detect the telemetry Eddystone-TLM frame:
         beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(BeaconParser.EDDYSTONE_TLM_LAYOUT));
         beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(BeaconParser.EDDYSTONE_URL_LAYOUT));
+
         beaconManager.bind(this);
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -375,7 +378,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 
             if (String.valueOf(masterUUID).equals(String.valueOf(namespaceId)) && beacon.getServiceUuid() == 0xfeaa && beacon.getBeaconTypeCode() == 0x00 ) {
                 // This is a Eddystone-UID frame
-
+                Log.d(TAG, "New Beacon found: " + beacon.getBluetoothName()+", "+beacon.getBluetoothAddress()+", "+beacon.getServiceUuid());
                 db.collection("mapIDtoemail").document(String.valueOf(instanceId)).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -503,9 +506,41 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         btLeScanner = btAdapter.getBluetoothLeScanner();
 
         beaconManager = BeaconManager.getInstanceForApplication(this);
+        beaconManager.setEnableScheduledScanJobs(true);
         beaconManager.setBackgroundMode(true);
-        beaconManager.getBeaconParsers().add(new BeaconParser().
-                setBeaconLayout(BeaconParser.EDDYSTONE_UID_LAYOUT));
+
+//        ANDROID 8+.....
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            Notification.Builder builder = new Notification.Builder(this);
+            builder.setSmallIcon(R.drawable.new_notif);
+            builder.setContentTitle("Scanning for Beacons");
+            Intent intent = new Intent();
+            PendingIntent pendingIntent = PendingIntent.getActivity(
+                    this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT
+            );
+            builder.setContentIntent(pendingIntent);
+
+            NotificationChannel channel = new NotificationChannel("My Notification Channel ID",
+                    "My Notification Name", NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setDescription("My Notification Channel Description");
+            NotificationManager notificationManager = (NotificationManager) getSystemService(
+                    Context.NOTIFICATION_SERVICE);
+            notificationManager.createNotificationChannel(channel);
+            builder.setChannelId(channel.getId());
+
+            beaconManager.enableForegroundServiceScanning(builder.build(), 456);
+            // For the above foreground scanning service to be useful, you need to disable
+            // JobScheduler-based scans (used on Android 8+) and set a fast background scan
+            // cycle that would otherwise be disallowed by the operating system.
+            //
+            beaconManager.setEnableScheduledScanJobs(false);
+        }
+
+
+        beaconManager.setBackgroundBetweenScanPeriod(500);
+        beaconManager.setBackgroundScanPeriod(1000);
+        beaconManager.getBeaconParsers().add(new BeaconParser()
+                .setBeaconLayout(BeaconParser.EDDYSTONE_UID_LAYOUT));
 // Detect the telemetry (TLM) frame:
         beaconManager.getBeaconParsers().add(new BeaconParser().
                 setBeaconLayout(BeaconParser.EDDYSTONE_TLM_LAYOUT));
@@ -516,6 +551,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         beaconManager.getBeaconParsers().add(new BeaconParser().
                 setBeaconLayout("m:0-3=4c000215,i:4-19,i:20-21,i:22-23,p:24-24"));
         beaconManager.bind(this);
+
 
 
         //Bluetooth permission check...
