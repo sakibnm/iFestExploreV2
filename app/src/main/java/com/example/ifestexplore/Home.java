@@ -66,6 +66,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -92,6 +93,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.annotation.Nullable;
 
@@ -157,8 +159,9 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch(item.getItemId()){
             case R.id.action_logout:
-                FirebaseAuth.getInstance().signOut();
-                beaconManager.unbind(this);
+                mAuth.signOut();
+                beaconManager.unbind(Home.this );
+                sharedPrefHashMap.saveHashMap(new HashMap<String, Boolean>());
                 finish();
         }
         return super.onOptionsItemSelected(item);
@@ -171,17 +174,28 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         ActionBar bar = getSupportActionBar();
         bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#042529")));
+
+        db = FirebaseFirestore.getInstance();
+
         adMap= new HashMap<>();
         receivedAdMap = new HashMap<>();
         sharedPrefHashMap = new SharedPrefHashMap(getApplicationContext(), KEY_SAVE_ADS_RECEIVED);
         if (sharedPrefHashMap.getHashMap()!=null)receivedAdMap = sharedPrefHashMap.getHashMap();
 
+//        ___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+//        setTimerForBackupAds........
+        getBackUpAds();
 
-
+//        othersAdArrayList = receivedAdMap;
+//        ___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
+//        LOADING Prefetched ads...
+        getPrefetchedAds(receivedAdMap);
+//        Log.d(TAG, "onCreate: SAVED RECIVED ADS COUNT: "+othersAdArrayList.size()+" "+othersAdArrayList.toString());
+//        ___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
 //        ___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
 //        Navigation menus and fragments...
         loadFragment(new ReceivedPosts());
-
+//        ReceivedPosts.getUpdatedList();
         navigationView = findViewById(R.id.home_nav);
         navigationView.setOnNavigationItemSelectedListener(this);
         navigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_LABELED);
@@ -200,11 +214,12 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
             public void onClick(View view) {
                 mAuth.signOut();
                 beaconManager.unbind(Home.this );
+                sharedPrefHashMap.saveHashMap(new HashMap<String, Boolean>());
                 finish();
             }
         });
         
-        db = FirebaseFirestore.getInstance();
+
 
         //Getting the masterKey....
         db.collection("uABmaster").document("master").get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -290,6 +305,31 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 //                    }
 //                });
 
+
+    }
+
+    private void getPrefetchedAds(final HashMap<String, Boolean> currentAdsMap) {
+        final ArrayList<Ad> adArrayList = new ArrayList<>();
+        final HashMap<String, Boolean> newAdsMap = new HashMap<>();
+//        List<String> currentAds = new ArrayList<>(currentAdsMap.keySet());
+
+        db.collection("adsRepo").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                for (QueryDocumentSnapshot docSnap: queryDocumentSnapshots){
+                    Ad ad = new Ad(docSnap.getData());
+                    if (currentAdsMap.containsKey(ad.getAdSerialNo())){
+                        adArrayList.add(ad);
+                        newAdsMap.put(ad.getAdSerialNo(),true);
+                    }
+                }
+                othersAdArrayList = adArrayList;
+                Log.d(TAG, "onCreate: SAVED RECIVED ADS COUNT: "+othersAdArrayList.size()+" "+othersAdArrayList.toString());
+                sharedPrefHashMap.saveHashMap(newAdsMap);
+                loadFragment(new ReceivedPosts());
+                ReceivedPosts.getUpdatedList();
+            }
+        });
 
     }
 
@@ -484,19 +524,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 
     }
 
-    private void showNewReviewSign() {
-        findViewById(R.id.cv_new_Review).setVisibility(View.VISIBLE);
-        Runnable mRunnable;
-        Handler mHandler = new Handler();
-        mRunnable = new Runnable() {
-            @Override
-            public void run() {
-                findViewById(R.id.cv_new_Review).setVisibility(View.GONE);
-            }
-        };
 
-        mHandler.postDelayed(mRunnable, 20*1000);
-    }
 //______________________________________________________________________________________________________________________________________
 
 
@@ -733,7 +761,35 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 
 
     }
+//    _____________________________________________________________________________________________________________________________________________
+//    SHOW NEW AD
+    private void showNewReviewSign() {
+        findViewById(R.id.cv_new_Review).setVisibility(View.VISIBLE);
+        Runnable mRunnable;
+        Handler mHandler = new Handler();
+        mRunnable = new Runnable() {
+            @Override
+            public void run() {
+                findViewById(R.id.cv_new_Review).setVisibility(View.GONE);
+            }
+        };
 
+        mHandler.postDelayed(mRunnable, 20*1000);
+    }
 
+    private void getBackUpAds() {
+        Runnable mRunnable;
+        Handler mHandler = new Handler();
+        mRunnable = new Runnable() {
+            @Override
+            public void run() {
 
+            }
+        };
+    }
+
+    @Override
+    public void onBackPressed() {
+
+    }
 }
