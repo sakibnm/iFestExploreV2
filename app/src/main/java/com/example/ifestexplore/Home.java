@@ -11,7 +11,6 @@ import androidx.fragment.app.Fragment;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -22,11 +21,10 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.AdvertiseCallback;
 import android.bluetooth.le.AdvertiseSettings;
 import android.bluetooth.le.BluetoothLeScanner;
-import android.bluetooth.le.ScanCallback;
-import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -45,7 +43,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.ifestexplore.fragments.Bookmarks;
 import com.example.ifestexplore.fragments.CreatePosts;
@@ -53,26 +50,24 @@ import com.example.ifestexplore.fragments.FragmentContainer;
 import com.example.ifestexplore.fragments.MyPosts;
 import com.example.ifestexplore.fragments.ReceivedPosts;
 import com.example.ifestexplore.models.Ad;
+import com.example.ifestexplore.models.NotificationBundle;
 import com.example.ifestexplore.utils.SharedPrefHashMap;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.bottomnavigation.BottomNavigationMenu;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomnavigation.LabelVisibilityMode;
-import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.squareup.picasso.Picasso;
 
 import org.altbeacon.beacon.Beacon;
@@ -85,6 +80,7 @@ import org.altbeacon.beacon.RangeNotifier;
 import org.altbeacon.beacon.Region;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -93,7 +89,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.annotation.Nullable;
 
@@ -103,6 +100,10 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
     private static final String CHANNEL_ID = "NotificationsChannel";
     private static final String GROUP_KEY_REVIEWS = "ReviewsKey";
     private static final String KEY_SAVE_ADS_RECEIVED = "saveTOSP";
+    private static final String KEY_NOTIF_PREF = "saveNOTIF";
+    private static final String NOTIF_TAG = "savedNotifBundle";
+    private static final int NOTIFY_ID = 0x00023;
+    private static final String GROUP_NOTIF_KEY = "groupNotif";
     private FirebaseAuth mAuth;
     private ImageView iv_userPhoto;
     private TextView tv_userName;
@@ -122,6 +123,8 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
     private HashMap<String, Integer> adMap;
     private HashMap<String, Boolean> receivedAdMap;
     private SharedPrefHashMap sharedPrefHashMap;
+
+    private SharedPreferences notifBundlePrefs;
 
 
     BeaconManager beaconManager;
@@ -144,6 +147,14 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(BeaconParser.EDDYSTONE_URL_LAYOUT));
 
         beaconManager.bind(this);
+
+//        Flushing notifications....
+        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.cancelAll();
+        notifBundlePrefs = this.getSharedPreferences(KEY_NOTIF_PREF, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = notifBundlePrefs.edit();
+        editor.remove(NOTIF_TAG);
+        editor.apply();
 
     }
 
@@ -176,6 +187,8 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#042529")));
 
         db = FirebaseFirestore.getInstance();
+
+        notifBundlePrefs = this.getSharedPreferences(KEY_NOTIF_PREF, Context.MODE_PRIVATE);
 
         adMap= new HashMap<>();
         receivedAdMap = new HashMap<>();
@@ -446,12 +459,29 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                                             for (QueryDocumentSnapshot ad: queryDocumentSnapshots){
                                                 if (ad.contains("count"))continue; //adscounter...
                                                 if (ad.get("creator").equals(emailRec)) {
-                                                    if (ad != null && !String.valueOf(ad.get("creator")).equals(user.getEmail()) && !String.valueOf(ad.get("forwarder")).equals(user.getEmail())) {
+                                                    if (ad != null && !String.valueOf(ad.get("creator")).equals(user.getEmail())) {
                                                         Ad gotAd = new Ad(ad.getData());
 
 //___________________________  NOTIFICATIONS!!!!!!!___________________________________________________________
                                                         if (!receivedAdMap.containsKey(gotAd.getAdSerialNo())) {
-                                                            createNotification(gotAd);
+//                                                            Reading current notifications.....
+                                                            ArrayList<NotificationBundle> notificationBundle =  new ArrayList<>();
+                                                            Gson gson = new Gson();
+                                                            String json = notifBundlePrefs.getString(NOTIF_TAG, "");
+                                                            Type type = new TypeToken<ArrayList<NotificationBundle>>(){}.getType();
+                                                            notificationBundle = gson.fromJson(json, type);
+
+                                                            if (notificationBundle==null)notificationBundle = new ArrayList<>();
+
+                                                            notificationBundle.add(new NotificationBundle(gotAd.getTitle()+" - "+gotAd.getCreatorName()));
+
+//                                                            Saving the list of notifications....
+                                                            json = gson.toJson(notificationBundle);
+                                                            SharedPreferences.Editor editor = notifBundlePrefs.edit();
+                                                            editor.putString(NOTIF_TAG, json);
+                                                            editor.commit();
+
+                                                            createNotification(gotAd, notificationBundle);
                                                             showNewReviewSign();
                                                             receivedAdMap.put(gotAd.getAdSerialNo(), true);
                                                             sharedPrefHashMap.saveHashMap(receivedAdMap);
@@ -534,7 +564,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         btLeScanner = btAdapter.getBluetoothLeScanner();
 
         beaconManager = BeaconManager.getInstanceForApplication(this);
-        beaconManager.setEnableScheduledScanJobs(true);
+//        beaconManager.setEnableScheduledScanJobs(true);
         beaconManager.setBackgroundMode(true);
 
 //        ANDROID 8+.....
@@ -565,8 +595,9 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         }
 
 
-        beaconManager.setBackgroundBetweenScanPeriod(500);
-        beaconManager.setBackgroundScanPeriod(1000);
+//        beaconManager.setBackgroundBetweenScanPeriod(500);
+//        beaconManager.setBackgroundScanPeriod(1000);beaconManager.setBackgroundBetweenScanPeriod(500);
+//        beaconManager.setBackgroundScanPeriod(1000);
         beaconManager.getBeaconParsers().add(new BeaconParser()
                 .setBeaconLayout(BeaconParser.EDDYSTONE_UID_LAYOUT));
 // Detect the telemetry (TLM) frame:
@@ -709,7 +740,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         }
     }
 
-    private void createNotification(final Ad ad){
+    private void createNotification(final Ad ad, ArrayList<NotificationBundle> notificationBun){
         createNotificationChannel();
         Intent intent = new Intent(getApplicationContext(), Home.class);
         intent.setAction("REFRESH_HOME");
@@ -722,42 +753,60 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 //        final PendingIntent pendingIntent = PendingIntent.getService(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 
-
-        new AsyncTask<String, Void, Bitmap>() {
-            @Override
-            protected Bitmap doInBackground(String... strings) {
-                Bitmap notifBitmap = null;
-                try {
-                    URL bitmapURL = new URL(strings[0]);
-                    notifBitmap = BitmapFactory.decodeStream(bitmapURL.openConnection().getInputStream());
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
+        if (notificationBun.size()<2){
+            new AsyncTask<String, Void, Bitmap>() {
+                @Override
+                protected Bitmap doInBackground(String... strings) {
+                    Bitmap notifBitmap = null;
+                    try {
+                        URL bitmapURL = new URL(strings[0]);
+                        notifBitmap = BitmapFactory.decodeStream(bitmapURL.openConnection().getInputStream());
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return notifBitmap;
                 }
-                return notifBitmap;
-            }
 
-            @Override
-            protected void onPostExecute(Bitmap bitmap) {
-                super.onPostExecute(bitmap);
-                NotificationCompat.Builder newReviewNotificationBuilder = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
-                        .setSmallIcon(R.drawable.new_notif)
-                        .setContentTitle(ad.getCreatorName()+" posted around you!")
-                        .setContentText(ad.getTitle())
-                        .setGroup(GROUP_KEY_REVIEWS)
-                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                        .setContentIntent(pendingIntent)
-                        .setAutoCancel(true);
-                if(bitmap==null)newReviewNotificationBuilder.setLargeIcon(BitmapFactory.decodeResource(getResources(),R.drawable.content_24dp));
-                else newReviewNotificationBuilder.setLargeIcon(bitmap);
+                @Override
+                protected void onPostExecute(Bitmap bitmap) {
+                    super.onPostExecute(bitmap);
+                    NotificationCompat.Builder newReviewNotificationBuilder = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
+                            .setSmallIcon(R.drawable.new_notif)
+                            .setContentTitle(ad.getCreatorName()+" posted around you!")
+                            .setContentText(ad.getTitle())
+                            .setGroup(GROUP_KEY_REVIEWS)
+                            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                            .setTimeoutAfter(50000)
+                            .setContentIntent(pendingIntent)
+                            .setAutoCancel(true);
+                    if(bitmap==null)newReviewNotificationBuilder.setLargeIcon(BitmapFactory.decodeResource(getResources(),R.drawable.content_24dp));
+                    else newReviewNotificationBuilder.setLargeIcon(bitmap);
 
-                Notification notification = newReviewNotificationBuilder.build();
+                    Notification notification = newReviewNotificationBuilder.build();
 
-                NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(getApplicationContext());
-                notificationManagerCompat.notify(Integer.parseInt(ad.getAdSerialNo()), notification);
-            }
-        }.execute(ad.getItemPhotoURL());
+                    NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(getApplicationContext());
+                    notificationManagerCompat.notify(NOTIFY_ID, notification);
+                }
+            }.execute(ad.getItemPhotoURL());
+        }else{
+            Notification summaryNotification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
+                    .setSmallIcon(R.drawable.ble_notif)
+                    .setContentTitle("iFestExplore: New Posts Around!!")
+                    .setContentText(notificationBun.size()+" posts received!")
+                    .setStyle(new NotificationCompat.InboxStyle()
+                            .addLine(notificationBun.get(notificationBun.size()-1).getmText())
+                            .addLine(notificationBun.get(notificationBun.size()-2).getmText())
+                    )
+
+                    .setGroup(GROUP_NOTIF_KEY)
+                    .setGroupSummary(true)
+                    .build();
+            NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(getApplicationContext());
+            notificationManagerCompat.notify(NOTIFY_ID, summaryNotification);
+        }
+
 
 
     }
@@ -777,19 +826,190 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         mHandler.postDelayed(mRunnable, 20*1000);
     }
 
+
     private void getBackUpAds() {
         Runnable mRunnable;
-        Handler mHandler = new Handler();
-        mRunnable = new Runnable() {
+        final Handler mHandler = new Handler();
+        Timer timer = new Timer();
+        TimerTask getBackUpAsyncScheduler = new TimerTask() {
             @Override
             public void run() {
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        final ArrayList<Ad> arrayLists;
+                        arrayLists = othersAdArrayList;
+                        final Ad[] ad = {new Ad()};
+                        db.collection("adsRepo").get()
+                            .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                                @Override
+                                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                    Ad tempAd;
+                                    for (QueryDocumentSnapshot queryDocumentSnapshot: queryDocumentSnapshots){
+                                        if (queryDocumentSnapshot.contains("count"))continue;
+//                                        if (queryDocumentSnapshot.contains(user.getEmail()))continue;
+                                        tempAd = new Ad(queryDocumentSnapshot.getData());
+                                        if (tempAd.getCreatorEmail().equals(user.getEmail())){
+                                            Log.d(TAG, "MY AD FOUND!!!!!");
+                                            continue;
+                                        }
+                                        Log.d(TAG, "THREAD BACKUP In Snap: "+tempAd.toString());
 
+                                        if (arrayLists.size()==0) {
+                                            Log.d(TAG, "THREAD BACKUP others size=0: "+tempAd.toString());
+                                            ad[0] = tempAd;
+                                            othersAdArrayList.add(ad[0]);
+                                            ReceivedPosts.getUpdatedList();
+                                            if (!receivedAdMap.containsKey(ad[0].getAdSerialNo())) {
+//                                                Reading current notifications.....
+                                                ArrayList<NotificationBundle> notificationBundle = new ArrayList<NotificationBundle>();
+                                                Gson gson = new Gson();
+                                                String json = notifBundlePrefs.getString(NOTIF_TAG, "");
+                                                Type type = new TypeToken<ArrayList<NotificationBundle>>(){}.getType();
+                                                notificationBundle = gson.fromJson(json, type);
+
+                                                if (notificationBundle==null)notificationBundle = new ArrayList<>();
+
+                                                notificationBundle.add(new NotificationBundle(ad[0].getTitle()+" - "+ad[0].getCreatorName()));
+
+//                                                 Saving the list of notifications....
+                                                json = gson.toJson(notificationBundle);
+                                                SharedPreferences.Editor editor = notifBundlePrefs.edit();
+                                                editor.putString(NOTIF_TAG, json);
+                                                editor.commit();
+                                                createNotification(ad[0], notificationBundle);
+                                                showNewReviewSign();
+                                                receivedAdMap.put(ad[0].getAdSerialNo(), true);
+                                                sharedPrefHashMap.saveHashMap(receivedAdMap);
+                                                String adEmail = ad[0].getCreatorEmail();
+                                                if (adMap.containsKey(adEmail)) {
+                                                    int count = adMap.get(adEmail);
+                                                    adMap.put(adEmail, count + 1);
+                                                } else {
+                                                    adMap.put(adEmail, 1);
+                                                }
+
+                                            }
+                                            break;
+                                        }
+                                        Boolean containsAd = false;
+                                        for (int i=0;i<arrayLists.size();i++){
+
+                                            if (tempAd.equals(arrayLists.get(i))){
+                                                containsAd = true;
+                                            }
+                                        }
+                                        if (!containsAd){
+                                            ad[0] = tempAd;
+                                            othersAdArrayList.add(ad[0]);
+                                            ReceivedPosts.getUpdatedList();
+                                            if (!receivedAdMap.containsKey(ad[0].getAdSerialNo())) {
+//                                                Reading current notifications.....
+                                                ArrayList<NotificationBundle> notificationBundle = new ArrayList<>();
+                                                Gson gson = new Gson();
+                                                String json = notifBundlePrefs.getString(NOTIF_TAG, "");
+                                                Type type = new TypeToken<ArrayList<NotificationBundle>>(){}.getType();
+                                                notificationBundle = gson.fromJson(json, type);
+
+                                                if (notificationBundle==null)notificationBundle = new ArrayList<>();
+
+                                                notificationBundle.add(new NotificationBundle(ad[0].getTitle()+" - "+ad[0].getCreatorName()));
+
+//                                                Saving the list of notifications....
+                                                json = gson.toJson(notificationBundle);
+                                                SharedPreferences.Editor editor = notifBundlePrefs.edit();
+                                                editor.putString(NOTIF_TAG, json);
+                                                editor.commit();
+                                                createNotification(ad[0], notificationBundle);
+                                                showNewReviewSign();
+                                                receivedAdMap.put(ad[0].getAdSerialNo(), true);
+                                                sharedPrefHashMap.saveHashMap(receivedAdMap);
+                                                String adEmail = ad[0].getCreatorEmail();
+                                                if (adMap.containsKey(adEmail)) {
+                                                    int count = adMap.get(adEmail);
+                                                    adMap.put(adEmail, count + 1);
+                                                } else {
+                                                    adMap.put(adEmail, 1);
+                                                }
+
+                                            }
+                                            break;
+                                        }
+                                    }
+                                }
+                            });
+                    }
+                });
             }
         };
+        timer.schedule(getBackUpAsyncScheduler, 60000, 1*60*1000);
+//        TODO: change the timer from 1 minute to 23...
     }
 
     @Override
     public void onBackPressed() {
 
     }
+
+//    private class PerformGetBackUpAds extends AsyncTask<Void, Void, Ad>{
+//        @Override
+//        protected Ad doInBackground(Void... voids) {
+//            final ArrayList<Ad> arrayLists;
+//            arrayLists = othersAdArrayList;
+//            final Ad[] ad = {new Ad()};
+//            db.collection("adsRepo").get()
+//                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+//                        @Override
+//                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+//                            Ad tempAd;
+//                            for (QueryDocumentSnapshot queryDocumentSnapshot: queryDocumentSnapshots){
+//                                if (queryDocumentSnapshot.contains("count"))continue;
+//                                tempAd = new Ad(queryDocumentSnapshot.getData());
+//                                Log.d(TAG, "THREAD BACKUP In Snap: "+tempAd.toString());
+////                            Log.d(TAG, "THREAD BACKUP OTHERS: "+tempAd.toString());
+//                                if (arrayLists.size()==0) {
+//                                    Log.d(TAG, "THREAD BACKUP others size=0: "+tempAd.toString());
+//                                    ad[0] = tempAd;
+//                                    break;
+//                                }
+//                                for (int i=0;i<arrayLists.size();i++){
+//                                    if (!tempAd.equals(arrayLists.get(i))){
+//                                        ad[0] = tempAd;
+//                                        break;
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    });
+//            Log.d(TAG, "THREAD BACKUP OTHERS: "+ad[0].toString());
+//            if (ad[0].getAdSerialNo()==null){
+//                return null;
+//            }else
+//                return ad[0];
+//        }
+//
+//        @Override
+//        protected void onPostExecute(Ad ad) {
+//            super.onPostExecute(ad);
+//            if (ad != null) {
+//                othersAdArrayList.add(ad);
+//                ReceivedPosts.getUpdatedList();
+//                if (!receivedAdMap.containsKey(ad.getAdSerialNo())) {
+//                    createNotification(ad);
+//                    showNewReviewSign();
+//                    receivedAdMap.put(ad.getAdSerialNo(), true);
+//                    sharedPrefHashMap.saveHashMap(receivedAdMap);
+//                    String adEmail = ad.getCreatorEmail();
+//                    if (adMap.containsKey(adEmail)) {
+//                        int count = adMap.get(adEmail);
+//                        adMap.put(adEmail, count + 1);
+//                    } else {
+//                        adMap.put(adEmail, 1);
+//                    }
+//
+//                }
+//
+//            }
+//        }
+//    }
 }
