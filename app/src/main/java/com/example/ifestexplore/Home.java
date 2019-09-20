@@ -121,6 +121,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
     BluetoothLeScanner btLeScanner;
     public static BottomNavigationView navigationView;
     private ArrayList<Ad> myAdArrayList = new ArrayList<>();
+    private ArrayList<Ad> myDeletedAdArrayList = new ArrayList<>();
     private ArrayList<Ad> myFavAdArrayList = new ArrayList<>();
     private ArrayList<Ad> othersAdArrayList = new ArrayList<>();
     private HashMap<String, Integer> adMap;
@@ -294,6 +295,30 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 
                         myAdArrayList.clear();
                         myAdArrayList.addAll(tempAds);
+                        MyPosts.getUpdatedList();
+                    }
+                });
+//______________________________________________________________________________________________________________________________________
+//        Fetching MY DELETED ADS................
+        db.collection("deletedAds")
+                .document(user.getEmail()).collection("deleted")
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                        if(e!=null){
+                            Log.e(TAG, "Failed reloading Data: ", e);
+                            return;
+                        }
+                        ArrayList<Ad> tempAds = new ArrayList<>();
+                        for (QueryDocumentSnapshot ad: queryDocumentSnapshots){
+                            if (ad!=null){
+                                Ad tads = new Ad(ad.getData());
+                                Log.d(TAG, "MY DELETED ADS ARRAY: "+tads.toString());
+                                tempAds.add(new Ad(ad.getData()));
+                            }
+                        }
+                        myDeletedAdArrayList.clear();
+                        myDeletedAdArrayList.addAll(tempAds);
                         MyPosts.getUpdatedList();
                     }
                 });
@@ -729,6 +754,11 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
     @Override
     public ArrayList<Ad> getMyAdsArrayList() {
         return myAdArrayList;
+    }
+
+    @Override
+    public ArrayList<Ad> getMyDeletedAdsArrayList() {
+        return myDeletedAdArrayList;
     }
 
     @Override

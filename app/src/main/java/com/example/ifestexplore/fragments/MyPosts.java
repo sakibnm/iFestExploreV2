@@ -29,6 +29,8 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import javax.annotation.Nullable;
 
@@ -47,6 +49,7 @@ public class MyPosts extends Fragment implements SwipeRefreshLayout.OnRefreshLis
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
+
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
@@ -57,7 +60,8 @@ public class MyPosts extends Fragment implements SwipeRefreshLayout.OnRefreshLis
 
     private static final String TAG = "demo";
     private static MyAdAdapter myAdAdapter;
-    private static ArrayList<Ad> adArrayList = new ArrayList<>();
+    private static ArrayList<Ad> adArrayList;
+    private static ArrayList<Ad> adDeletedArrayList;
     private RecyclerView rv_MyPosts;
     private View view;
     CollectionReference adsReference;
@@ -101,6 +105,8 @@ public class MyPosts extends Fragment implements SwipeRefreshLayout.OnRefreshLis
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_my_posts, container, false);
+        adArrayList = new ArrayList<>();
+        adDeletedArrayList = new ArrayList<>();
         swipeRefreshLayout = view.findViewById(R.id.swipe_myposts);
         swipeRefreshLayout.setOnRefreshListener(MyPosts.this);
         rv_MyPosts = view.findViewById(R.id.rv_my_posts);
@@ -117,7 +123,21 @@ public class MyPosts extends Fragment implements SwipeRefreshLayout.OnRefreshLis
 //       Fetching my posts...
 //        ____________________________________________________________________________________
         if (mListener!=null)adArrayList = mListener.getMyAdsArrayList();
+        if (mListener!=null)adDeletedArrayList = mListener.getMyDeletedAdsArrayList();
         Log.d(TAG, "Fetched From Fragment: "+adArrayList.toString());
+
+        adArrayList.removeAll(adDeletedArrayList);
+        adArrayList.addAll(adDeletedArrayList);
+        Collections.sort(adArrayList, new Comparator<Ad>() {
+            @Override
+            public int compare(Ad ad1, Ad ad2) {
+                if (ad1.getActiveFlag().equals("active"))
+                    return -1;
+                else
+                    return 1;
+            }
+        });
+
         myAdAdapter.setAdArrayList(adArrayList);
         myAdAdapter.notifyDataSetChanged();
 //        adsReference.get()
@@ -197,6 +217,21 @@ public class MyPosts extends Fragment implements SwipeRefreshLayout.OnRefreshLis
 
     public static void getUpdatedList() {
         if (mListener!=null)adArrayList = mListener.getMyAdsArrayList();
+        if (mListener!=null)adDeletedArrayList = mListener.getMyDeletedAdsArrayList();
+        if (adArrayList==null)adArrayList = new ArrayList<>();
+        if (adDeletedArrayList==null)adDeletedArrayList = new ArrayList<>();
+        adArrayList.removeAll(adDeletedArrayList);
+        adArrayList.addAll(adDeletedArrayList);
+        Collections.sort(adArrayList, new Comparator<Ad>() {
+            @Override
+            public int compare(Ad ad1, Ad ad2) {
+                if (ad1.getActiveFlag().equals("active"))
+                    return -1;
+                else
+                    return 1;
+            }
+        });
+
         if (myAdAdapter!=null)myAdAdapter.setAdArrayList(adArrayList);
         if (myAdAdapter!=null)myAdAdapter.notifyDataSetChanged();
         if (swipeRefreshLayout!=null)swipeRefreshLayout.setRefreshing(false);
@@ -216,6 +251,7 @@ public class MyPosts extends Fragment implements SwipeRefreshLayout.OnRefreshLis
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
         ArrayList<Ad> getMyAdsArrayList();
+        ArrayList<Ad> getMyDeletedAdsArrayList();
 
     }
 }

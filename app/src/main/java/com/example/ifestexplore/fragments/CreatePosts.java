@@ -22,12 +22,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.SearchView;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.ifestexplore.Home;
 import com.example.ifestexplore.R;
 import com.example.ifestexplore.models.Ad;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -181,7 +178,8 @@ public class CreatePosts extends Fragment implements View.OnClickListener {
 
             if(takenPhoto && titleGiven && commentGiven && boothSelected){
                 displayProgressBar();
-                this.createdAd = new Ad(user.getEmail(), user.getDisplayName(),"", user.getPhotoUrl().toString(),"",et_Title.getText().toString(),et_Comment.getText().toString(), booth_Name, booth_Flag);
+                String activeFlag = "active";
+                this.createdAd = new Ad(user.getEmail(), user.getDisplayName(),"", user.getPhotoUrl().toString(),"",et_Title.getText().toString(),et_Comment.getText().toString(), booth_Name, booth_Flag, activeFlag);
                 uploadImage(bitmap);
             }
 

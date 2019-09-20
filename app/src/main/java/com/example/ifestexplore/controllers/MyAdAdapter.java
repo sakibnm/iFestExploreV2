@@ -67,36 +67,89 @@ public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
                 final String clickedAdSerial = clickedAd.getAdSerialNo();
                 db = FirebaseFirestore.getInstance();
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-                builder.setTitle("Stop posting");
-                builder.setMessage("Are you sure want to stop posting this review?");
+                if (clickedAd.getActiveFlag().equals("active")){
+                    AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                    builder.setTitle("Stop posting");
+                    builder.setMessage("Are you sure want to stop posting this review?");
 
-                builder.setPositiveButton("Yes, stop posting!", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        db.collection("adsRepo").document(clickedAdSerial).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Toast.makeText(mContext, "The review is removed from your posts!", Toast.LENGTH_SHORT).show();
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.d(TAG, "onFailure: Could not remove the review: "+e.toString());
-                            }
-                        });
+                    builder.setPositiveButton("Yes, stop posting!", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            clickedAd.setActiveFlag("deleted");
+                            db.collection("deletedAds")
+                                    .document(clickedAd.getCreatorEmail())
+                                    .collection("deleted")
+                                    .document(clickedAdSerial).set(clickedAd)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            db.collection("adsRepo")
+                                                    .document(clickedAdSerial)
+                                                    .delete()
+                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                        @Override
+                                                        public void onSuccess(Void aVoid) {
+                                                            Toast.makeText(mContext, "The review is removed from your posts!", Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    }).addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Log.d(TAG, "onFailure: Could not remove the review: "+e.toString());
+                                                }
+                                            });
+                                        }
+                                    });
+                        }
+                    });
 
-                    }
-                });
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            Toast.makeText(mContext, "The review is not removed!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }else{
+                    Log.d(TAG, "ELSE Clicked!!");
+                    AlertDialog.Builder builder2 = new AlertDialog.Builder(mContext);
+                    builder2.setTitle("Resume posting");
+                    builder2.setMessage("Are you sure want to resume posting this review?");
 
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Toast.makeText(mContext, "The review is not removed!", Toast.LENGTH_SHORT).show();
-                    }
-                });
-                AlertDialog dialog = builder.create();
-                dialog.show();
+                    builder2.setPositiveButton("Yes, resume posting!", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            clickedAd.setActiveFlag("active");
+
+                            db.collection("deletedAds")
+                                    .document(clickedAd.getCreatorEmail())
+                                    .collection("deleted")
+                                    .document(clickedAdSerial)
+                                    .delete()
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            db.collection("adsRepo")
+                                                    .document(clickedAdSerial)
+                                                    .set(clickedAd)
+                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+                                                    Toast.makeText(mContext, "The review is resumed again!", Toast.LENGTH_SHORT).show();
+                                                }
+                                            }).addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+
+                                                }
+                                            });
+                                        }
+                                    });
+
+                        }
+                    });
+                }
+
 
 //                db.collection("adsRepo").document(clickedAdSerial).delete();
             }
@@ -113,6 +166,11 @@ public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
         holder.tv_my_posts_me.setText(user.getDisplayName());
         holder.tv_my_posts_booth_name.setText("At booth "+ad.getBoothName());
         holder.iv_my_posts_booth_flag.setImageDrawable(mContext.getResources().getDrawable(Integer.parseInt(ad.getBoothFlag()), null));
+        if (ad.getActiveFlag().equals("deleted")){
+            holder.button_my_posts_stop.setText("Resume Posting");
+            holder.button_my_posts_stop.setBackgroundResource(R.drawable.button_round);
+
+        }
         String urlPhoto = String.valueOf(ad.getItemPhotoURL());
         String urlMyPhoto = String.valueOf(ad.getUserPhotoURL());
 //        holder.tv_my_posts_users.setText(ad.getUsersForwarded().toString());

@@ -14,9 +14,10 @@ public class Ad {
     private String comment;
     private String boothName;
     private String boothFlag;
+    private String activeFlag;
 //    private ArrayList<String> usersForwarded;
 
-    public Ad(String creatorEmail, String creatorName, String adSerialNo, String userPhotoURL, String itemPhotoURL, String title, String comment, String boothName, String boothFlag) {
+    public Ad(String creatorEmail, String creatorName, String adSerialNo, String userPhotoURL, String itemPhotoURL, String title, String comment, String boothName, String boothFlag, String activeFlag) {
         this.creatorEmail = creatorEmail;
         this.creatorName = creatorName;
         this.adSerialNo = adSerialNo;
@@ -27,6 +28,7 @@ public class Ad {
         this.boothName = boothName;
         this.boothFlag = boothFlag;
 //        this.usersForwarded = usersForwarded;
+        this.activeFlag = activeFlag;
     }
 
 
@@ -39,7 +41,7 @@ public class Ad {
         this.hashMap = hashMap;
     }
 
-    public Ad(String creatorEmail, String creatorName, String adSerialNo, String userPhotoURL, String itemPhotoURL, String title, String comment, String boothName, String boothFlag, Map<String, Object> hashMap) {
+    public Ad(String creatorEmail, String creatorName, String adSerialNo, String userPhotoURL, String itemPhotoURL, String title, String comment, String boothName, String boothFlag, String activeFlag, Map<String, Object> hashMap) {
         this.creatorEmail = creatorEmail;
         this.creatorName = creatorName;
         this.adSerialNo = adSerialNo;
@@ -49,6 +51,7 @@ public class Ad {
         this.comment = comment;
         this.boothName = boothName;
         this.boothFlag = boothFlag;
+        this.activeFlag = activeFlag;
         this.hashMap = hashMap;
     }
 
@@ -87,6 +90,7 @@ public class Ad {
         this.itemPhotoURL = (String) map.get("itemPhotoURL");
         this.title = (String) map.get("title");
         this.comment = (String) map.get("comment");
+        this.activeFlag = (String) map.get("activeFlag");
 //        TODO: change null to list.
 
     }
@@ -112,6 +116,7 @@ public class Ad {
         this.hashMap.put("comment", this.comment);
         this.hashMap.put("userPhotoURL", this.userPhotoURL);
         this.hashMap.put("boothFlag", this.boothFlag);
+        this.hashMap.put("activeFlag", this.activeFlag);
 
         return this.hashMap;
     }
@@ -178,6 +183,14 @@ public class Ad {
 
     public void setBoothFlag(String boothFlag) {
         this.boothFlag = boothFlag;
+    }
+
+    public String getActiveFlag() {
+        return activeFlag;
+    }
+
+    public void setActiveFlag(String activeFlag) {
+        this.activeFlag = activeFlag;
     }
 
     @Override
