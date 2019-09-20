@@ -212,7 +212,7 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
         holder.tv_rec_creator.setText(ad.getCreatorName());
         holder.tv_rec_comment.setText(ad.getComment());
         holder.tv_rec_title.setText(ad.getTitle());
-        holder.tv_booth_name.setText("At booth "+ad.getBoothName());
+        holder.tv_booth_name.setText(ad.getBoothName());
         holder.iv_booth_flag.setImageDrawable(mContext.getResources().getDrawable(Integer.parseInt(ad.getBoothFlag()), null));
         String urlPhoto = String.valueOf(ad.getItemPhotoURL());
         String urlPhotoUser = String.valueOf(ad.getUserPhotoURL());

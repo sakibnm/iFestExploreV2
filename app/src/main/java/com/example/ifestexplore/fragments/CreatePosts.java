@@ -198,6 +198,12 @@ public class CreatePosts extends Fragment implements View.OnClickListener {
             public void onSelectCountry(Country country) {
 //                Log.d(TAG, "onSelectCountry: "+country.getName()+" clicked!");
                 booth_Name = country.getName();
+                String countryWords[]  = booth_Name.split(" ", 2);
+                String firstWord = countryWords[0];
+                if (firstWord.contains(",")){
+                    booth_Name = firstWord.substring(0,firstWord.length()-1);
+                }
+
                 booth_Flag = String.valueOf(country.getFlag());
                 button_searchCountry.setText(booth_Name);
                 button_searchCountry.setCompoundDrawablesRelativeWithIntrinsicBounds(view.getResources().getDrawable(Integer.parseInt(booth_Flag), null),null,null,null);

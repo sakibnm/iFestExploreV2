@@ -39,4 +39,5 @@
     <string name="text_logout">Logout</string>
     <string name="spinner_Text">Search and Select the Booth (Country)</string>
     <string name="take_survey">Take Survey</string>
+    <string name="at_booth">At Booth</string>
 </resources>

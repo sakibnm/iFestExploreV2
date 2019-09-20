@@ -117,34 +117,44 @@
                             app:srcCompat="@drawable/content_24dp" />
 
                         <TextView
+                            android:id="@+id/textView12"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginEnd="4dp"
+                            android:text="@string/at_booth"
+                            app:layout_constraintEnd_toStartOf="@+id/iv_rec_flag"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <TextView
                             android:id="@+id/tv_rec_place"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="4dp"
+                            android:layout_marginBottom="8dp"
                             android:text="TextView"
                             android:textStyle="bold"
                             app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toStartOf="@+id/iv_rec_flag"
-                            app:layout_constraintTop_toTopOf="parent" />
+                            app:layout_constraintEnd_toStartOf="@+id/iv_rec_flag" />
 
                         <TextView
                             android:id="@+id/tv_creator_name"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="4dp"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginBottom="8dp"
                             android:text="TextView"
                             android:textColor="#043612"
                             android:textStyle="bold|italic"
-                            app:layout_constraintStart_toEndOf="@+id/cardView8"
-                            app:layout_constraintTop_toBottomOf="@+id/textView7" />
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toEndOf="@+id/cardView8" />
 
                         <TextView
                             android:id="@+id/textView7"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="4dp"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="8dp"
                             android:text="@string/textShared"
                             app:layout_constraintStart_toEndOf="@+id/cardView8"
                             app:layout_constraintTop_toTopOf="parent" />
