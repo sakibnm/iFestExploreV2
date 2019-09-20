@@ -7,6 +7,12 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
+    <View
+        android:id="@+id/view2"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="#5B113F08" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -15,9 +21,7 @@
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="1dp"
             android:background="#EEF3F4"
-            android:padding="1dp"
             app:cardBackgroundColor="#D8EBEE"
             app:cardCornerRadius="2dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -135,16 +139,6 @@
                             app:layout_constraintTop_toTopOf="parent"
                             app:srcCompat="@drawable/content_24dp" />
 
-                        <TextView
-                            android:id="@+id/tv_fav_place"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="4dp"
-                            android:text="TextView"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toStartOf="@+id/iv_fav_flag"
-                            app:layout_constraintTop_toTopOf="parent" />
-
                         <ImageView
                             android:id="@+id/iv_fav_flag"
                             android:layout_width="32dp"
@@ -155,6 +149,16 @@
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
                             app:srcCompat="@drawable/content_24dp" />
+
+                        <TextView
+                            android:id="@+id/tv_fav_place"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="4dp"
+                            android:text="TextView"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/iv_fav_flag"
+                            app:layout_constraintTop_toTopOf="parent" />
 
                         <TextView
                             android:id="@+id/textView6"

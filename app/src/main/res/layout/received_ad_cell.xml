@@ -21,7 +21,7 @@
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="1dp"
+            android:layout_margin="0dp"
             android:padding="0dp"
             app:cardBackgroundColor="#F1F3F3"
             app:cardCornerRadius="2dp"
@@ -108,21 +108,9 @@
                         android:padding="2dp">
 
                         <ImageView
-                            android:id="@+id/iv_creator_photo"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_marginStart="8dp"
-                            android:scaleType="centerCrop"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toStartOf="@+id/tv_creator_name"
-                            app:layout_constraintStart_toEndOf="@+id/textView7"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:srcCompat="@drawable/content_24dp" />
-
-                        <ImageView
                             android:id="@+id/iv_rec_flag"
-                            android:layout_width="32dp"
-                            android:layout_height="24dp"
+                            android:layout_width="48dp"
+                            android:layout_height="36dp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
@@ -134,6 +122,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="4dp"
                             android:text="TextView"
+                            android:textStyle="bold"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toStartOf="@+id/iv_rec_flag"
                             app:layout_constraintTop_toTopOf="parent" />
@@ -143,20 +132,42 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="4dp"
+                            android:layout_marginTop="4dp"
                             android:text="TextView"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintStart_toEndOf="@+id/iv_creator_photo"
-                            app:layout_constraintTop_toTopOf="parent" />
+                            android:textColor="#043612"
+                            android:textStyle="bold|italic"
+                            app:layout_constraintStart_toEndOf="@+id/cardView8"
+                            app:layout_constraintTop_toBottomOf="@+id/textView7" />
 
                         <TextView
                             android:id="@+id/textView7"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:layout_marginTop="4dp"
                             android:text="@string/textShared"
-                            android:textStyle="bold"
+                            app:layout_constraintStart_toEndOf="@+id/cardView8"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <androidx.cardview.widget.CardView
+                            android:id="@+id/cardView8"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="2dp"
+                            android:layout_marginTop="2dp"
+                            android:layout_marginBottom="2dp"
+                            app:cardCornerRadius="24dp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <ImageView
+                                android:id="@+id/iv_creator_photo"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:scaleType="centerCrop"
+                                app:srcCompat="@drawable/content_24dp" />
+                        </androidx.cardview.widget.CardView>
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                 </androidx.cardview.widget.CardView>
@@ -166,7 +177,7 @@
                     android:layout_width="0dp"
                     android:layout_height="108dp"
                     android:layout_marginStart="8dp"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="4dp"
                     android:layout_marginEnd="16dp"
                     android:background="#F1F3F3"
                     android:padding="8dp"

@@ -10,6 +10,7 @@ import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.hardware.Camera;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -17,6 +18,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.util.Patterns;
+import android.view.Surface;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -27,6 +29,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.metadata.Metadata;
 import com.example.ifestexplore.models.Ad;
 import com.example.ifestexplore.models.User;
 import com.example.ifestexplore.models.UsersData;
@@ -88,8 +92,8 @@ public class Register extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        ActionBar bar = getSupportActionBar();
-        bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#042529")));
+//        ActionBar bar = getSupportActionBar();
+//        bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#042529")));
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         
         if(!isNetworkAvailable()) Log.d(TAG, "onCreate: Internet not Available!!!");
@@ -192,18 +196,22 @@ public class Register extends AppCompatActivity {
 
         @Override
         public void onClick(View v) {
-            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            intent.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE_SECURE);
+            intent.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION, ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT);
             startActivityForResult(intent, CAM_REQ);
         }
     }
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == CAM_REQ) {
+        if (requestCode == CAM_REQ && resultCode==RESULT_OK) {
             bitmap = (Bitmap) data.getExtras().get("data");
             ivUserPhoto.setImageBitmap(bitmap);
             tvInstr.setText("");
+
+
+
         }else if(requestCode == REQ_CODE){
             finish();
         }

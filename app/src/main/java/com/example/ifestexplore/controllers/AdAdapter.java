@@ -215,6 +215,7 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
         holder.tv_booth_name.setText("At booth "+ad.getBoothName());
         holder.iv_booth_flag.setImageDrawable(mContext.getResources().getDrawable(Integer.parseInt(ad.getBoothFlag()), null));
         String urlPhoto = String.valueOf(ad.getItemPhotoURL());
+        String urlPhotoUser = String.valueOf(ad.getUserPhotoURL());
         String urlCreatorPhoto = String.valueOf(ad.getUserPhotoURL());
 //        String urlForwarderPhoto = String.valueOf(ad.getFwdPhotoURL());
 //        if (!ad.getCreatorEmail().equals(ad.getForwarderEmail())){
@@ -226,6 +227,7 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
 //            if (urlCreatorPhoto!=null && !urlCreatorPhoto.equals(""))Picasso.get().load(urlCreatorPhoto).into(holder.iv_creator_photo);
 //        }
         if (urlPhoto!=null && !urlPhoto.equals(""))Picasso.get().load(urlPhoto).into(holder.iv_rec_image);
+        if (urlPhotoUser!=null && !urlPhotoUser.equals(""))Picasso.get().load(urlPhotoUser).into(holder.iv_creator_photo);
 
 //        if (urlPhoto!=null && !urlPhoto.equals(""))Picasso.get().load(urlPhoto).into(holder.iv_rec_image);
         Log.d(TAG, "onBindViewHolder: "+ad.toString());

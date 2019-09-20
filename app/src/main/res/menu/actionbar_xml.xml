@@ -5,5 +5,10 @@
 
         android:icon="@drawable/ic_logout_24dp"
         android:title="Logout" />
+    <item
+        android:id="@+id/action_survey"
+
+        android:icon="@drawable/ic_logout_24dp"
+        android:title="Complete Survey" />
 
 </menu>

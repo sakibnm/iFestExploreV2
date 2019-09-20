@@ -1,6 +1,8 @@
 package com.example.ifestexplore.controllers;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -69,19 +71,40 @@ public class FavAdAdapter extends RecyclerView.Adapter<FavAdAdapter.AdHolder> {
                 final DocumentReference favAdReference = db.collection("favoriteAds").document(currentEmail)
                         .collection("favorites").document(favAd.getAdSerialNo());
 
-                favAdReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        if (documentSnapshot.exists()){
-                            favAdReference.delete();
-                            Toast.makeText(mContext, "Removed from Favorites!", Toast.LENGTH_SHORT).show();
-                            Bookmarks.adAdapter.notifyDataSetChanged();
-                            favArrayList.remove(position);
-                        }else{
+                AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                builder.setTitle("Stop posting");
+                builder.setMessage("Are you sure want remove the review from your favorites?");
 
-                        }
+                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        favAdReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                            @Override
+                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                if (documentSnapshot.exists()){
+                                    favAdReference.delete();
+                                    Toast.makeText(mContext, "Removed from Favorites!", Toast.LENGTH_SHORT).show();
+                                    Bookmarks.adAdapter.notifyDataSetChanged();
+                                    favArrayList.remove(position);
+                                }else{
+
+                                }
+                            }
+                        });
+
                     }
                 });
+
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Toast.makeText(mContext, "Not removed!", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+
+
 
 
             }
@@ -103,7 +126,7 @@ public class FavAdAdapter extends RecyclerView.Adapter<FavAdAdapter.AdHolder> {
         String urlPhoto = String.valueOf(ad.getItemPhotoURL());
 
         if (urlPhoto!=null && !urlPhoto.equals("")) Picasso.get().load(urlPhoto).into(holder.iv_fav_image);
-        String urlPhotoCreator = String.valueOf(ad.getItemPhotoURL());
+        String urlPhotoCreator = String.valueOf(ad.getUserPhotoURL());
 
         if (urlPhotoCreator!=null && !urlPhoto.equals("")) Picasso.get().load(urlPhotoCreator).into(holder.iv_fav_creator);
 //        if (urlPhoto!=null && !urlPhoto.equals(""))Picasso.get().load(urlPhoto).into(holder.iv_rec_image);

@@ -41,8 +41,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toolbar;
 
 import com.example.ifestexplore.fragments.Bookmarks;
 import com.example.ifestexplore.fragments.CreatePosts;
@@ -94,7 +96,7 @@ import java.util.TimerTask;
 
 import javax.annotation.Nullable;
 
-public class Home extends AppCompatActivity implements BeaconConsumer, RangeNotifier, BottomNavigationView.OnNavigationItemSelectedListener, FragmentContainer.OnFragmentInteractionListener, ReceivedPosts.OnFragmentInteractionListener, MyPosts.OnFragmentInteractionListener, CreatePosts.OnFragmentInteractionListener, Bookmarks.OnFragmentInteractionListener {
+public class Home extends AppCompatActivity implements BeaconConsumer, RangeNotifier, BottomNavigationView.OnNavigationItemSelectedListener, FragmentContainer.OnFragmentInteractionListener, ReceivedPosts.OnFragmentInteractionListener, MyPosts.OnFragmentInteractionListener, CreatePosts.OnFragmentInteractionListener, Bookmarks.OnFragmentInteractionListener, View.OnClickListener {
 
     private static final String TAG2 = "ble";
     private static final String CHANNEL_ID = "NotificationsChannel";
@@ -104,6 +106,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
     private static final String NOTIF_TAG = "savedNotifBundle";
     private static final int NOTIFY_ID = 0x00023;
     private static final String GROUP_NOTIF_KEY = "groupNotif";
+    private static final String SURVEY_URL = "https://forms.gle/UQQcDG3YzewXR5LK7";
     private FirebaseAuth mAuth;
     private ImageView iv_userPhoto;
     private TextView tv_userName;
@@ -123,6 +126,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
     private HashMap<String, Integer> adMap;
     private HashMap<String, Boolean> receivedAdMap;
     private SharedPrefHashMap sharedPrefHashMap;
+    private Button button_survey;
 
     private SharedPreferences notifBundlePrefs;
 
@@ -158,33 +162,44 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.actionbar_xml, menu);
+//    @RequiresApi(api = Build.VERSION_CODES.M)
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        getMenuInflater().inflate(R.menu.actionbar_xml, menu);
+//
+//        return true;
+//    }
 
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch(item.getItemId()){
-            case R.id.action_logout:
-                mAuth.signOut();
-                beaconManager.unbind(Home.this );
-                sharedPrefHashMap.saveHashMap(new HashMap<String, Boolean>());
-                finish();
-        }
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+//        switch(item.getItemId()){
+//            case R.id.action_logout:
+//                mAuth.signOut();
+//                beaconManager.unbind(Home.this );
+//                sharedPrefHashMap.saveHashMap(new HashMap<String, Boolean>());
+//                finish();
+//                break;
+//            case R.id.action_survey:
+//                Intent browserIntent = new Intent(Intent.ACTION_VIEW);
+//                browserIntent.setData(Uri.parse(SURVEY_URL));
+//                startActivity(browserIntent);
+//                break;
+//            default:
+//                break;
+//        }
+//        return super.onOptionsItemSelected(item);
+//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        ActionBar bar = getSupportActionBar();
-        bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#042529")));
+//        ActionBar bar = getSupportActionBar();
+//        bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#042529")));
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setActionBar(toolbar);
+//        getActionBar().setDisplayHomeAsUpEnabled(true);
 
         db = FirebaseFirestore.getInstance();
 
@@ -194,6 +209,10 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         receivedAdMap = new HashMap<>();
         sharedPrefHashMap = new SharedPrefHashMap(getApplicationContext(), KEY_SAVE_ADS_RECEIVED);
         if (sharedPrefHashMap.getHashMap()!=null)receivedAdMap = sharedPrefHashMap.getHashMap();
+
+//        SURVEY!!!!!..........
+        button_survey = findViewById(R.id.button_Survey);
+        button_survey.setOnClickListener(this);
 
 //        ___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________
 //        setTimerForBackupAds........
@@ -320,6 +339,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 
 
     }
+
 
     private void getPrefetchedAds(final HashMap<String, Boolean> currentAdsMap) {
         final ArrayList<Ad> adArrayList = new ArrayList<>();
@@ -749,9 +769,9 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         intent.setFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         stackBuilder.addNextIntentWithParentStack(intent);
-        final PendingIntent pendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+//        final PendingIntent pendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 //        final PendingIntent pendingIntent = PendingIntent.getService(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
+        final PendingIntent pendingIntent = PendingIntent.getActivity(this, 1, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         if (notificationBun.size()<2){
             new AsyncTask<String, Void, Bitmap>() {
@@ -776,7 +796,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                             .setSmallIcon(R.drawable.new_notif)
                             .setContentTitle(ad.getCreatorName()+" posted around you!")
                             .setContentText(ad.getTitle())
-                            .setGroup(GROUP_KEY_REVIEWS)
+                            .setGroup(GROUP_NOTIF_KEY)
                             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                             .setTimeoutAfter(50000)
                             .setContentIntent(pendingIntent)
@@ -799,9 +819,10 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                             .addLine(notificationBun.get(notificationBun.size()-1).getmText())
                             .addLine(notificationBun.get(notificationBun.size()-2).getmText())
                     )
-
                     .setGroup(GROUP_NOTIF_KEY)
                     .setGroupSummary(true)
+                    .setContentIntent(pendingIntent)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .build();
             NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(getApplicationContext());
             notificationManagerCompat.notify(NOTIFY_ID, summaryNotification);
@@ -949,6 +970,19 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
     @Override
     public void onBackPressed() {
 
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch(view.getId()){
+            case R.id.button_Survey:
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW);
+                browserIntent.setData(Uri.parse(SURVEY_URL));
+                startActivity(browserIntent);
+                break;
+            default:
+                break;
+        }
     }
 
 //    private class PerformGetBackUpAds extends AsyncTask<Void, Void, Ad>{

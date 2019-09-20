@@ -57,8 +57,8 @@ public class Login extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        ActionBar bar = getSupportActionBar();
-        bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#042529")));
+//        ActionBar bar = getSupportActionBar();
+//        bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#042529")));
 
         mAuth = FirebaseAuth.getInstance();
 
