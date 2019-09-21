@@ -95,6 +95,7 @@ public class MyPosts extends Fragment implements SwipeRefreshLayout.OnRefreshLis
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
+            db = FirebaseFirestore.getInstance();
             adsReference = db.collection("adsRepo");
             getUpdatedList();
         }
@@ -231,6 +232,8 @@ public class MyPosts extends Fragment implements SwipeRefreshLayout.OnRefreshLis
                     return 1;
             }
         });
+
+        Log.d(TAG, "TRIGGERED MYLIST: "+ adArrayList.toString());
 
         if (myAdAdapter!=null)myAdAdapter.setAdArrayList(adArrayList);
         if (myAdAdapter!=null)myAdAdapter.notifyDataSetChanged();

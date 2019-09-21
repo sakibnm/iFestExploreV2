@@ -19,6 +19,7 @@ import com.example.ifestexplore.R;
 import com.example.ifestexplore.fragments.Bookmarks;
 import com.example.ifestexplore.fragments.ReceivedPosts;
 import com.example.ifestexplore.models.Ad;
+import com.example.ifestexplore.models.Events;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -28,7 +29,9 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
 
@@ -80,6 +83,12 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
 
                 if (textFav.equals("Mark Favorite")){
 
+//                    LOGGING DATA....EVENT.....
+                    SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                    Date date = new Date();
+                    String datetime = formatter.format(date);
+                    Events event = new Events(datetime, "Favorited ad: "+favAd.getAdSerialNo()+" "+favAd.getTitle());
+                    db.collection("users").document(user.getEmail()).collection("events").add(event);
 
                     favAdReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
@@ -113,6 +122,13 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
                     });
 
                 }else{
+
+                    //                    LOGGING DATA....EVENT.....
+                    SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                    Date date = new Date();
+                    String datetime = formatter.format(date);
+                    Events event = new Events(datetime, "UnFavorited ad: "+favAd.getAdSerialNo()+" "+favAd.getTitle());
+                    db.collection("users").document(user.getEmail()).collection("events").add(event);
 
                     favAdReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override

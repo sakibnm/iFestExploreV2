@@ -16,11 +16,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.ifestexplore.models.Events;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Login extends AppCompatActivity {
     private static final String TAG = "demo";
@@ -81,6 +86,15 @@ public class Login extends AppCompatActivity {
                                     // Sign in success, update UI with the signed-in user's information
                                     Log.d(TAG, "signInWithEmail:success");
                                     FirebaseUser user = mAuth.getCurrentUser();
+
+                                    //                    LOGGING DATA....EVENT.....
+                                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                                    SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                                    Date date = new Date();
+                                    String datetime = formatter.format(date);
+                                    Events event = new Events(datetime, "Logged In");
+                                    db.collection("users").document(user.getEmail()).collection("events").add(event);
+
 
                                     Log.d(TAG, "onComplete: "+ user.getDisplayName()+user.getEmail());
                                     Intent intent = new Intent(Login.this, Home.class);

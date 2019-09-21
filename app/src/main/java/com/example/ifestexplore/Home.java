@@ -52,6 +52,7 @@ import com.example.ifestexplore.fragments.FragmentContainer;
 import com.example.ifestexplore.fragments.MyPosts;
 import com.example.ifestexplore.fragments.ReceivedPosts;
 import com.example.ifestexplore.models.Ad;
+import com.example.ifestexplore.models.Events;
 import com.example.ifestexplore.models.NotificationBundle;
 import com.example.ifestexplore.utils.SharedPrefHashMap;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -85,11 +86,13 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -160,6 +163,14 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         SharedPreferences.Editor editor = notifBundlePrefs.edit();
         editor.remove(NOTIF_TAG);
         editor.apply();
+
+        //                    LOGGING DATA....EVENT.....
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        Date date = new Date();
+        String datetime = formatter.format(date);
+        Events event = new Events(datetime, "Resumed App");
+        db.collection("users").document(user.getEmail()).collection("events").add(event);
 
     }
 
@@ -245,6 +256,15 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         logoutCard.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                //                    LOGGING DATA....EVENT.....
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                Date date = new Date();
+                String datetime = formatter.format(date);
+                Events event = new Events(datetime, "Logging Out");
+                db.collection("users").document(user.getEmail()).collection("events").add(event);
+
                 mAuth.signOut();
                 beaconManager.unbind(Home.this );
                 sharedPrefHashMap.saveHashMap(new HashMap<String, Boolean>());
@@ -273,7 +293,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 //______________________________________________________________________________________________________________________________________
 //        Fetching MYADS................
         db.collection("adsRepo")
-                .whereEqualTo("creator", user.getEmail())
+                .whereEqualTo("creatorEmail", user.getEmail())
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
@@ -503,8 +523,8 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 
                                             for (QueryDocumentSnapshot ad: queryDocumentSnapshots){
                                                 if (ad.contains("count"))continue; //adscounter...
-                                                if (ad.get("creator").equals(emailRec)) {
-                                                    if (ad != null && !String.valueOf(ad.get("creator")).equals(user.getEmail())) {
+                                                if (ad.get("creatorEmail").equals(emailRec)) {
+                                                    if (ad != null && !String.valueOf(ad.get("creatorEmail")).equals(user.getEmail())) {
                                                         Ad gotAd = new Ad(ad.getData());
 
 //___________________________  NOTIFICATIONS!!!!!!!___________________________________________________________
@@ -702,15 +722,35 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         switch(menuItem.getItemId()){
             case R.id.navigation_received_posts:
                 fragment = new ReceivedPosts();
+                SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                Date date = new Date();
+                String datetime = formatter.format(date);
+                Events event = new Events(datetime, "Fragment Loaded: Received_Posts");
+                db.collection("users").document(user.getEmail()).collection("events").add(event);
                 break;
             case R.id.navigation_new_post:
                 fragment = new CreatePosts();
+                formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                date = new Date();
+                datetime = formatter.format(date);
+                event = new Events(datetime, "Fragment Loaded: New_Posts");
+                db.collection("users").document(user.getEmail()).collection("events").add(event);
                 break;
             case R.id.nav_my_posts:
                 fragment = new MyPosts();
+                formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                date = new Date();
+                datetime = formatter.format(date);
+                event = new Events(datetime, "Fragment Loaded: My_Posts");
+                db.collection("users").document(user.getEmail()).collection("events").add(event);
                 break;
             case R.id.nav_bookmarks:
                 fragment = new Bookmarks();
+                formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                date = new Date();
+                datetime = formatter.format(date);
+                event = new Events(datetime, "Fragment Loaded: Favorites");
+                db.collection("users").document(user.getEmail()).collection("events").add(event);
                 break;
         }
 
@@ -1076,4 +1116,18 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 //            }
 //        }
 //    }
+
+    @Override
+    protected void onStop() {
+        //                    LOGGING DATA....EVENT.....
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        Date date = new Date();
+        String datetime = formatter.format(date);
+        Events event = new Events(datetime, "App stopped");
+        db.collection("users").document(user.getEmail()).collection("events").add(event);
+        super.onStop();
+
+    }
+
 }

@@ -276,7 +276,7 @@ public class CreatePosts extends Fragment implements View.OnClickListener {
                             public void onSuccess(DocumentSnapshot documentSnapshot) {
                                 final long current_count = (long) documentSnapshot.get("count");
                                 createdAd.setAdSerialNo(String.valueOf(current_count));
-                                saveDB.collection("adsRepo").document(createdAd.getAdSerialNo()).set(createdAd.toHashMap())
+                                saveDB.collection("adminCheck").document(createdAd.getAdSerialNo()).set(createdAd.toHashMap())
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {

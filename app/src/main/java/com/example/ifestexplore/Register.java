@@ -32,6 +32,7 @@ import android.widget.Toast;
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.metadata.Metadata;
 import com.example.ifestexplore.models.Ad;
+import com.example.ifestexplore.models.Events;
 import com.example.ifestexplore.models.User;
 import com.example.ifestexplore.models.UsersData;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -51,7 +52,9 @@ import org.altbeacon.beacon.Identifier;
 
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -354,7 +357,20 @@ public class Register extends AppCompatActivity {
                     String partInstanceID2 = usersData.getInstanceID().substring(9, 13);
                     String partInstanceID = "0x"+partInstanceID1+partInstanceID2;
                     Log.d(TAG, "PART INSTANCE ID: "+ partInstanceID1+" "+partInstanceID2+" "+partInstanceID);
-                    saveDB.collection("mapIDtoemail").document(partInstanceID).set(idToEmail);
+                    saveDB.collection("mapIDtoemail").document(partInstanceID).set(idToEmail)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            //                    LOGGING DATA....EVENT.....
+                            FirebaseFirestore db = FirebaseFirestore.getInstance();
+                            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                            Date date = new Date();
+                            String datetime = formatter.format(date);
+                            Events event = new Events(datetime, "Registered and Logged In");
+                            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                            db.collection("users").document(user.getEmail()).collection("events").add(event);
+                        }
+                    });
                 }
             })
         .addOnFailureListener(new OnFailureListener() {

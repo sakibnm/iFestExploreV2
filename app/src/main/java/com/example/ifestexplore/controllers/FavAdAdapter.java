@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.ifestexplore.R;
 import com.example.ifestexplore.fragments.Bookmarks;
 import com.example.ifestexplore.models.Ad;
+import com.example.ifestexplore.models.Events;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -27,7 +28,9 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class FavAdAdapter extends RecyclerView.Adapter<FavAdAdapter.AdHolder> {
 
@@ -36,6 +39,7 @@ public class FavAdAdapter extends RecyclerView.Adapter<FavAdAdapter.AdHolder> {
     private Context mContext;
     public FavAdAdapter.MyFavClickListener myClickListener;
     FirebaseFirestore db;
+    FirebaseUser user;
 
     public FavAdAdapter(ArrayList<Ad> favArrayList, Context mContext, MyFavClickListener myClickListener) {
         this.favArrayList = favArrayList;
@@ -57,6 +61,7 @@ public class FavAdAdapter extends RecyclerView.Adapter<FavAdAdapter.AdHolder> {
     @NonNull
     @Override
     public AdHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        user = FirebaseAuth.getInstance().getCurrentUser();
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
         // Inflate the layout view you have created for the list rows here
         View view = layoutInflater.inflate(R.layout.favorite_posts_cell, parent, false);
@@ -64,9 +69,20 @@ public class FavAdAdapter extends RecyclerView.Adapter<FavAdAdapter.AdHolder> {
             @Override
             public void onRemove(final int position, final View view) {
                 final Ad favAd = favArrayList.get(position);
+
+
+                //                    LOGGING DATA....EVENT.....
+                SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                Date date = new Date();
+                String datetime = formatter.format(date);
+                Events event = new Events(datetime, "Removed From Favorites: "+favAd.getAdSerialNo()+" "+favAd.getTitle());
+                db = FirebaseFirestore.getInstance();
+                db.collection("users").document(user.getEmail()).collection("events").add(event);
+
+
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 final String currentEmail = user.getEmail();
-                db = FirebaseFirestore.getInstance();
+
 
                 final DocumentReference favAdReference = db.collection("favoriteAds").document(currentEmail)
                         .collection("favorites").document(favAd.getAdSerialNo());

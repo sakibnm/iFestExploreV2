@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ifestexplore.R;
 import com.example.ifestexplore.models.Ad;
+import com.example.ifestexplore.models.Events;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -24,7 +25,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
     private static final String TAG = "demo";
@@ -65,10 +68,23 @@ public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
             public void onStopPostingClicked(int position, View view) {
                 final Ad clickedAd = adArrayList.get(position);
                 final String clickedAdSerial = clickedAd.getAdSerialNo();
-                db = FirebaseFirestore.getInstance();
 
+
+
+
+                db = FirebaseFirestore.getInstance();
+                AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
                 if (clickedAd.getActiveFlag().equals("active")){
-                    AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+
+                    //                    LOGGING DATA....EVENT.....
+                    SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                    Date date = new Date();
+                    String datetime = formatter.format(date);
+                    Events event = new Events(datetime, "Stopped posting ad: "+clickedAd.getAdSerialNo()+" "+clickedAd.getTitle());
+                    db.collection("users").document(user.getEmail()).collection("events").add(event);
+
+                    Log.d(TAG, "CLICKED AD: "+clickedAd.toString());
+
                     builder.setTitle("Stop posting");
                     builder.setMessage("Are you sure want to stop posting this review?");
 
@@ -89,7 +105,7 @@ public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
                                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                         @Override
                                                         public void onSuccess(Void aVoid) {
-                                                            Toast.makeText(mContext, "The review is removed from your posts!", Toast.LENGTH_SHORT).show();
+                                                            Toast.makeText(mContext, "The post is stopped!", Toast.LENGTH_SHORT).show();
                                                         }
                                                     }).addOnFailureListener(new OnFailureListener() {
                                                 @Override
@@ -111,14 +127,21 @@ public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
                     AlertDialog dialog = builder.create();
                     dialog.show();
                 }else{
-                    Log.d(TAG, "ELSE Clicked!!");
-                    AlertDialog.Builder builder2 = new AlertDialog.Builder(mContext);
-                    builder2.setTitle("Resume posting");
-                    builder2.setMessage("Are you sure want to resume posting this review?");
 
-                    builder2.setPositiveButton("Yes, resume posting!", new DialogInterface.OnClickListener() {
+                    //                    LOGGING DATA....EVENT.....
+                    SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                    Date date = new Date();
+                    String datetime = formatter.format(date);
+                    Events event = new Events(datetime, "Resumed posting ad: "+clickedAd.getAdSerialNo()+" "+clickedAd.getTitle());
+                    db.collection("users").document(user.getEmail()).collection("events").add(event);
+
+                    builder.setTitle("Resume posting");
+                    builder.setMessage("Are you sure want to resume posting this review?");
+
+                    builder.setPositiveButton("Yes, resume posting!", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
+                        Log.d(TAG, "CLICKED AD: "+clickedAd.toString());
                             clickedAd.setActiveFlag("active");
 
                             db.collection("deletedAds")
@@ -148,6 +171,14 @@ public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
 
                         }
                     });
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            Toast.makeText(mContext, "The review is not resumed!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
                 }
 
 
@@ -169,6 +200,10 @@ public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
         if (ad.getActiveFlag().equals("deleted")){
             holder.button_my_posts_stop.setText("Resume Posting");
             holder.button_my_posts_stop.setBackgroundResource(R.drawable.button_round);
+
+        }else{
+            holder.button_my_posts_stop.setText("Stop Posting");
+            holder.button_my_posts_stop.setBackgroundResource(R.drawable.button_round_cancel);
 
         }
         String urlPhoto = String.valueOf(ad.getItemPhotoURL());

@@ -66,7 +66,8 @@ public class Ad {
                 ", title='" + title + '\'' +
                 ", comment='" + comment + '\'' +
                 ", boothName='" + boothName + '\'' +
-                ", boothFlag=" + boothFlag +
+                ", boothFlag='" + boothFlag + '\'' +
+                ", activeFlag='" + activeFlag + '\'' +
                 ", hashMap=" + hashMap +
                 '}';
     }
@@ -81,7 +82,7 @@ public class Ad {
 
 
     public Ad(Map<String, Object> map){
-        this.creatorEmail = (String) map.get("creator");
+        this.creatorEmail = (String) map.get("creatorEmail");
         this.creatorName = (String) map.get("creatorName");
         this.boothName = (String) map.get("boothName");
         this.adSerialNo = (String) map.get("adSerialNo");
@@ -107,7 +108,7 @@ public class Ad {
     public Map toHashMap(){
         this.hashMap = new HashMap<>();
 
-        this.hashMap.put("creator", this.creatorEmail);
+        this.hashMap.put("creatorEmail", this.creatorEmail);
         this.hashMap.put("creatorName", this.creatorName);
         this.hashMap.put("boothName", this.boothName);
         this.hashMap.put("adSerialNo", this.adSerialNo);
