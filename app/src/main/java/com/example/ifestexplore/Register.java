@@ -28,9 +28,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.drew.imaging.ImageMetadataReader;
-import com.drew.metadata.Metadata;
 import com.example.ifestexplore.models.Ad;
 import com.example.ifestexplore.models.Events;
 import com.example.ifestexplore.models.User;
