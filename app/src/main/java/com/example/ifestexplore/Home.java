@@ -207,6 +207,8 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+//        Log.d(TAG, "DEFAULT ICON ID: "+R.drawable.ic_front);
 //        ActionBar bar = getSupportActionBar();
 //        bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#042529")));
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -214,6 +216,8 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 //        getActionBar().setDisplayHomeAsUpEnabled(true);
 
         db = FirebaseFirestore.getInstance();
+
+        getDefaultAd();
 
         notifBundlePrefs = this.getSharedPreferences(KEY_NOTIF_PREF, Context.MODE_PRIVATE);
 
@@ -382,6 +386,28 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 //                    }
 //                });
 
+
+    }
+
+    private void getDefaultAd() {
+        Runnable mRunnable;
+        Handler mHandler = new Handler();
+        mRunnable = new Runnable() {
+            @Override
+            public void run() {
+                db.collection("adDefault").document("1").get()
+                        .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                            @Override
+                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                Ad defaultAd = new Ad(documentSnapshot.getData());
+                                othersAdArrayList.add(defaultAd);
+                                ReceivedPosts.getUpdatedList();
+                            }
+                        });
+            }
+        };
+
+        mHandler.postDelayed(mRunnable, 20*1000);
 
     }
 
@@ -1033,7 +1059,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                 });
             }
         };
-        timer.schedule(getBackUpAsyncScheduler, 60000, 1*60*1000);
+        timer.schedule(getBackUpAsyncScheduler, 60000, 15*60*1000);
 //        TODO: change the timer from 1 minute to 23...
     }
 

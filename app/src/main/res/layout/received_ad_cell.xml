@@ -56,11 +56,13 @@
                     android:id="@+id/tv_rec_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
                     android:layout_marginTop="6dp"
                     android:layout_marginEnd="16dp"
                     android:text="TextView"
                     android:textStyle="bold|italic"
                     app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/card_imageItem"
                     app:layout_constraintTop_toBottomOf="@+id/cardView7" />
 
                 <androidx.cardview.widget.CardView
