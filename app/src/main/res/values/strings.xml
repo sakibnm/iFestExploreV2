@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">iFestExplore</string>
-    <string name="txt_photo">Click to take photo</string>
+    <string name="txt_photo">Click to set your profile picture</string>
     <string name="title_activity_home_screen">HomeScreen</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
@@ -40,4 +40,12 @@
     <string name="spinner_Text">Search and Select the Booth (Country)</string>
     <string name="take_survey">Take Survey</string>
     <string name="at_booth">At Booth</string>
+    <string name="getting_you_in">Getting you in!!!</string>
+    <string name="create_account">Create Account</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="repeat_password">Repeat password</string>
+    <string name="name">Name</string>
+    <string name="todo">TODO</string>
+    <string name="login">Login</string>
 </resources>

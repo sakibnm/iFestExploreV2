@@ -93,7 +93,7 @@ public class Login extends AppCompatActivity {
                                     Date date = new Date();
                                     String datetime = formatter.format(date);
                                     Events event = new Events(datetime, "Logged In");
-                                    db.collection("users").document(user.getEmail()).collection("events").add(event);
+                                    db.collection("v2users").document(user.getEmail()).collection("events").add(event);
 
 
                                     Log.d(TAG, "onComplete: "+ user.getDisplayName()+user.getEmail());

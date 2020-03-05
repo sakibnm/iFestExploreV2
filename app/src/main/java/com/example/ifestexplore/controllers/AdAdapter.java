@@ -1,6 +1,7 @@
 package com.example.ifestexplore.controllers;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -78,7 +79,7 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
                 final String currentEmail = user.getEmail();
                 db = FirebaseFirestore.getInstance();
 
-                final DocumentReference favAdReference = db.collection("favoriteAds").document(currentEmail)
+                final DocumentReference favAdReference = db.collection("v2favoriteAds").document(currentEmail)
                         .collection("favorites").document(favAd.getAdSerialNo());
 
                 if (textFav.equals("Mark Favorite")){
@@ -88,19 +89,18 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
                     Date date = new Date();
                     String datetime = formatter.format(date);
                     Events event = new Events(datetime, "Favorited ad: "+favAd.getAdSerialNo()+" "+favAd.getTitle());
-                    db.collection("users").document(user.getEmail()).collection("events").add(event);
+                    db.collection("v2users").document(user.getEmail()).collection("events").add(event);
 
                     favAdReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
                             if (!documentSnapshot.exists()){
-                                db.collection("favoriteAds").document(currentEmail).collection("favorites")
+                                db.collection("v2favoriteAds").document(currentEmail).collection("favorites")
                                         .document(favAd.getAdSerialNo())
                                         .set(favAd).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
-                                        view.findViewById(R.id.button_rec_favorite).setBackground(view.getResources()
-                                                .getDrawable(R.drawable.button__background_favorite_round));
+                                        view.findViewById(R.id.button_rec_favorite).setBackgroundColor(Color.parseColor("#FFCDD2"));
 
                                         ((Button) view.findViewById(R.id.button_rec_favorite)).setText("Undo Favorite");
                                         Toast.makeText(mContext, "Added to Favorites!", Toast.LENGTH_SHORT).show();
@@ -111,8 +111,7 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
                                     @Override
                                     public void onFailure(@NonNull Exception e) {
                                         Toast.makeText(mContext, "Could not add to Favorites, try again!", Toast.LENGTH_SHORT).show();
-                                        view.findViewById(R.id.button_rec_favorite).setBackground(view.getResources()
-                                                .getDrawable(R.drawable.button__background_unfavorite_round));
+                                        view.findViewById(R.id.button_rec_favorite).setBackgroundColor(Color.parseColor("#DA0E6D"));
                                     }
                                 });
                             }else{
@@ -128,7 +127,7 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
                     Date date = new Date();
                     String datetime = formatter.format(date);
                     Events event = new Events(datetime, "UnFavorited ad: "+favAd.getAdSerialNo()+" "+favAd.getTitle());
-                    db.collection("users").document(user.getEmail()).collection("events").add(event);
+                    db.collection("v2users").document(user.getEmail()).collection("events").add(event);
 
                     favAdReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
@@ -142,8 +141,7 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
                                         ReceivedPosts.getUpdatedList();
 
                                         ((Button) view.findViewById(R.id.button_rec_favorite)).setText("Mark Favorite");
-                                        view.findViewById(R.id.button_rec_favorite).setBackground(view.getResources()
-                                                .getDrawable(R.drawable.button__background_unfavorite_round));
+                                        view.findViewById(R.id.button_rec_favorite).setBackgroundColor(Color.parseColor("#DA0E6D"));
                                     }
                                 });
 
@@ -219,7 +217,7 @@ public class AdAdapter extends RecyclerView.Adapter<AdAdapter.AdHolder> {
             if (ad.getAdSerialNo().equals(favAd.getAdSerialNo())){
 //                Log.d(TAG, "FAVVVVVV: "+favAd.toString());
                 holder.button_rec_favorite.setText("Undo Favorite");
-                holder.button_rec_favorite.setBackgroundResource(R.drawable.button__background_favorite_round);
+                holder.button_rec_favorite.setBackgroundColor(Color.parseColor("#FFCDD2"));
             }
         }
 

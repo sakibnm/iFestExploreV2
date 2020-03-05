@@ -4,14 +4,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -41,7 +45,11 @@ import com.mukesh.countrypicker.CountryPicker;
 import com.mukesh.countrypicker.listeners.OnCountryPickerListener;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Random;
 
 
@@ -72,6 +80,7 @@ public class CreatePosts extends Fragment implements View.OnClickListener {
     private OnFragmentInteractionListener mListener;
     private View view;
     private CardView cardViewTakePhoto;
+    private ImageView iv_createAdPhoto;
     private Bitmap bitmap;
     private Button button_createAd;
     private Button button_createAdClear;
@@ -83,6 +92,8 @@ public class CreatePosts extends Fragment implements View.OnClickListener {
     private Boolean takenPhoto = false;
     private Boolean commentGiven = false;
     private Boolean boothSelected = false;
+    String currentPhotoPath;
+
 
     private Ad createdAd;
     private boolean titleGiven;
@@ -127,7 +138,13 @@ public class CreatePosts extends Fragment implements View.OnClickListener {
         button_createAd = view.findViewById(R.id.button_createAd_share);
         button_createAdClear = view.findViewById(R.id.button_createAdClearAll);
         cardViewTakePhoto = view.findViewById(R.id.card_addPhoto);
-        cardViewTakePhoto.setOnClickListener(new TakePhoto());
+        iv_createAdPhoto = view.findViewById(R.id.iv_createAdPhoto);
+        cardViewTakePhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dispatchTakePictureIntent();
+            }
+        });
         button_searchCountry = view.findViewById(R.id.button_addCountry);
 
         button_createAd.setOnClickListener(this);
@@ -137,12 +154,12 @@ public class CreatePosts extends Fragment implements View.OnClickListener {
         return view;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
+//    // TODO: Rename method, update argument and hook method into UI event
+//    public void onButtonPressed(Uri uri) {
+//        if (mListener != null) {
+//            mListener.onFragmentInteraction(uri);
+//        }
+//    }
 
     @Override
     public void onAttach(Context context) {
@@ -168,9 +185,15 @@ public class CreatePosts extends Fragment implements View.OnClickListener {
             et_Comment = this.view.findViewById(R.id.et_Comment);
             String title = et_Title.getText().toString().trim();
             String comment = et_Comment.getText().toString().trim();
-            if(comment.equals(""))commentGiven =false;
+            if(comment.equals("")){
+                commentGiven =false;
+                et_Comment.setError("Can't be empty!");
+            }
             else commentGiven =true;
-            if(title.equals(""))titleGiven =false;
+            if(title.equals("")){
+                et_Title.setError("Can't be empty!");
+                titleGiven =false;
+            }
             else titleGiven =true;
             mAuth = FirebaseAuth.getInstance();
             FirebaseUser user = mAuth.getCurrentUser();
@@ -181,6 +204,8 @@ public class CreatePosts extends Fragment implements View.OnClickListener {
                 String activeFlag = "active";
                 this.createdAd = new Ad(user.getEmail(), user.getDisplayName(),"", user.getPhotoUrl().toString(),"",et_Title.getText().toString(),et_Comment.getText().toString(), booth_Name, booth_Flag, activeFlag);
                 uploadImage(bitmap);
+            } else {
+                Toast.makeText(getContext(), "Please check everything!", Toast.LENGTH_SHORT).show();
             }
 
         }else if (view.getId() == R.id.button_createAdClearAll){
@@ -216,27 +241,96 @@ public class CreatePosts extends Fragment implements View.OnClickListener {
 
     }
 
-    class TakePhoto implements ImageButton.OnClickListener {
 
-        @Override
-        public void onClick(View v) {
-            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            intent.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-            startActivityForResult(intent, CAM_REQ);
+
+//    Taking photo____________________________________________________________________________________________________________________________________________
+
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//        takePictureIntent.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION, ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE);
+        // Ensure that there's a camera activity to handle the intent
+        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File photoFile = null;
+            photoFile = createImageFile();
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(getContext(),
+                        "com.example.android.fileprovider",
+                        photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(takePictureIntent, CAM_REQ);
+            }
         }
     }
+
+    private File createImageFile() {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = null;
+        try {
+            image = File.createTempFile(
+                    imageFileName,  /* prefix */
+                    ".jpg",         /* suffix */
+                    storageDir      /* directory */
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Save a file: path for use with ACTION_VIEW intents
+        currentPhotoPath = image.getAbsolutePath();
+        return image;
+    }
+
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == CAM_REQ) {
-            bitmap = (Bitmap) data.getExtras().get("data");
-            ImageView iv_createAdPhoto = view.findViewById(R.id.iv_createAdPhoto);
-            iv_createAdPhoto.setImageBitmap(bitmap);
-//            cardViewTakePhoto.setBackground(new BitmapDrawable(getResources(), bitmap));
-            ((TextView) view.findViewById(R.id.textView2)).setText("");
-            takenPhoto = true;
-        }
+        galleryAddPic();
     }
+
+    private void galleryAddPic() {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f = new File(currentPhotoPath);
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        getActivity().sendBroadcast(mediaScanIntent);
+
+        setPic();
+    }
+
+    private void setPic() {
+        // Get the dimensions of the View
+        int targetW = iv_createAdPhoto.getMaxWidth();
+        int targetH = iv_createAdPhoto.getMaxHeight();
+
+        // Get the dimensions of the bitmap
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        bmOptions.inJustDecodeBounds = true;
+
+        int photoW = bmOptions.outWidth;
+        int photoH = bmOptions.outHeight;
+
+        // Determine how much to scale down the image
+        int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+
+        // Decode the image file into a Bitmap sized to fill the View
+        bmOptions.inJustDecodeBounds = false;
+        bmOptions.inSampleSize = scaleFactor;
+//        bmOptions.inPurgeable = true;
+
+        this.bitmap = BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
+        this.bitmap = Bitmap.createScaledBitmap(this.bitmap, 1280, 960,false);
+//        Log.d("demo", "setPic: "+ this.bitmap.getWidth()+" "+this.bitmap.getHeight());
+        Log.d("demo", "setPic: "+ this.bitmap.getByteCount()/1000);
+        iv_createAdPhoto.setImageBitmap(this.bitmap);
+        takenPhoto = true;
+    }
+
+    //    ____________________________________________________________________________________________________________________________________________
+
 
     private void uploadImage(Bitmap bitmap) {
         Log.d(TAG, "uploading Ad Image");
@@ -248,7 +342,8 @@ public class CreatePosts extends Fragment implements View.OnClickListener {
         byte[] array = new byte[12]; // length is bounded by 7
         new Random().nextBytes(array);
         String key = new String(array, Charset.forName("UTF-8"));
-        final StorageReference userPhotoReference = storage.getReference().child("adsImages/"+key+".png");
+        key.replace("/","_");
+        final StorageReference userPhotoReference = storage.getReference().child("v2adsImages/"+key+".png");
         UploadTask uploadTask = userPhotoReference.putBytes(bytes);
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
@@ -271,7 +366,7 @@ public class CreatePosts extends Fragment implements View.OnClickListener {
                         getDB = FirebaseFirestore.getInstance();
                         saveDB = FirebaseFirestore.getInstance();
                         Log.d(TAG, "onSuccess: Saving Ad First");
-                        getDB.collection("adsRepo").document("adscounter").get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        getDB.collection("v2adsRepo").document("adscounter").get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                             @Override
                             public void onSuccess(DocumentSnapshot documentSnapshot) {
                                 final long current_count = (long) documentSnapshot.get("count");
@@ -280,7 +375,7 @@ public class CreatePosts extends Fragment implements View.OnClickListener {
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
-                                        saveDB.collection("adsRepo").document("adscounter").update("count", current_count+1);
+                                        saveDB.collection("v2adsRepo").document("adscounter").update("count", current_count+1);
 
                                         view.findViewById(R.id.progress_createAd).setVisibility(View.GONE);
 //                                        getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);

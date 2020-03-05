@@ -81,7 +81,7 @@ public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
                     Date date = new Date();
                     String datetime = formatter.format(date);
                     Events event = new Events(datetime, "Stopped posting ad: "+clickedAd.getAdSerialNo()+" "+clickedAd.getTitle());
-                    db.collection("users").document(user.getEmail()).collection("events").add(event);
+                    db.collection("v2users").document(user.getEmail()).collection("events").add(event);
 
                     Log.d(TAG, "CLICKED AD: "+clickedAd.toString());
 
@@ -92,14 +92,14 @@ public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             clickedAd.setActiveFlag("deleted");
-                            db.collection("deletedAds")
+                            db.collection("v2deletedAds")
                                     .document(clickedAd.getCreatorEmail())
                                     .collection("deleted")
                                     .document(clickedAdSerial).set(clickedAd)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
-                                            db.collection("adsRepo")
+                                            db.collection("v2adsRepo")
                                                     .document(clickedAdSerial)
                                                     .delete()
                                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -133,7 +133,7 @@ public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
                     Date date = new Date();
                     String datetime = formatter.format(date);
                     Events event = new Events(datetime, "Resumed posting ad: "+clickedAd.getAdSerialNo()+" "+clickedAd.getTitle());
-                    db.collection("users").document(user.getEmail()).collection("events").add(event);
+                    db.collection("v2users").document(user.getEmail()).collection("events").add(event);
 
                     builder.setTitle("Resume posting");
                     builder.setMessage("Are you sure want to resume posting this review?");
@@ -144,7 +144,7 @@ public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
                         Log.d(TAG, "CLICKED AD: "+clickedAd.toString());
                             clickedAd.setActiveFlag("active");
 
-                            db.collection("deletedAds")
+                            db.collection("v2deletedAds")
                                     .document(clickedAd.getCreatorEmail())
                                     .collection("deleted")
                                     .document(clickedAdSerial)
@@ -152,7 +152,7 @@ public class MyAdAdapter extends RecyclerView.Adapter<MyAdAdapter.AdHolder> {
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
-                                            db.collection("adsRepo")
+                                            db.collection("v2adsRepo")
                                                     .document(clickedAdSerial)
                                                     .set(clickedAd)
                                             .addOnSuccessListener(new OnSuccessListener<Void>() {

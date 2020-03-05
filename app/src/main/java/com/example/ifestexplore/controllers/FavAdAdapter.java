@@ -77,14 +77,14 @@ public class FavAdAdapter extends RecyclerView.Adapter<FavAdAdapter.AdHolder> {
                 String datetime = formatter.format(date);
                 Events event = new Events(datetime, "Removed From Favorites: "+favAd.getAdSerialNo()+" "+favAd.getTitle());
                 db = FirebaseFirestore.getInstance();
-                db.collection("users").document(user.getEmail()).collection("events").add(event);
+                db.collection("v2users").document(user.getEmail()).collection("events").add(event);
 
 
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 final String currentEmail = user.getEmail();
 
 
-                final DocumentReference favAdReference = db.collection("favoriteAds").document(currentEmail)
+                final DocumentReference favAdReference = db.collection("v2favoriteAds").document(currentEmail)
                         .collection("favorites").document(favAd.getAdSerialNo());
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(mContext);

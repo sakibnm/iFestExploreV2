@@ -170,7 +170,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         Date date = new Date();
         String datetime = formatter.format(date);
         Events event = new Events(datetime, "Resumed App");
-        db.collection("users").document(user.getEmail()).collection("events").add(event);
+        db.collection("v2users").document(user.getEmail()).collection("events").add(event);
 
     }
 
@@ -267,7 +267,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                 Date date = new Date();
                 String datetime = formatter.format(date);
                 Events event = new Events(datetime, "Logging Out");
-                db.collection("users").document(user.getEmail()).collection("events").add(event);
+                db.collection("v2users").document(user.getEmail()).collection("events").add(event);
 
                 mAuth.signOut();
                 beaconManager.unbind(Home.this );
@@ -296,7 +296,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         });
 //______________________________________________________________________________________________________________________________________
 //        Fetching MYADS................
-        db.collection("adsRepo")
+        db.collection("v2adsRepo")
                 .whereEqualTo("creatorEmail", user.getEmail())
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
@@ -324,7 +324,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                 });
 //______________________________________________________________________________________________________________________________________
 //        Fetching MY DELETED ADS................
-        db.collection("deletedAds")
+        db.collection("v2deletedAds")
                 .document(user.getEmail()).collection("deleted")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
@@ -348,7 +348,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                 });
 
         //        Fetching MY Favorite ADS................
-        CollectionReference collectionReference = db.collection("favoriteAds")
+        CollectionReference collectionReference = db.collection("v2favoriteAds")
                 .document(user.getEmail()).collection("favorites");
         collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
@@ -417,7 +417,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         final HashMap<String, Boolean> newAdsMap = new HashMap<>();
 //        List<String> currentAds = new ArrayList<>(currentAdsMap.keySet());
 
-        db.collection("adsRepo").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+        db.collection("v2adsRepo").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                 for (QueryDocumentSnapshot docSnap: queryDocumentSnapshots){
@@ -451,7 +451,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
 //______________________________________________________________________________________________________________________________________
 
     private void getUserInstanceIDandTransmit(String userEmail) {
-        db.collection("users").document(userEmail).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        db.collection("v2users").document(userEmail).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if(task.isSuccessful()){
@@ -523,7 +523,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
             if (String.valueOf(masterUUID).equals(String.valueOf(namespaceId)) && beacon.getServiceUuid() == 0xfeaa && beacon.getBeaconTypeCode() == 0x00 ) {
                 // This is a Eddystone-UID frame
                 Log.d(TAG, "New Beacon found: " + beacon.getBluetoothName()+", "+beacon.getBluetoothAddress()+", "+beacon.getServiceUuid());
-                db.collection("mapIDtoemail").document(String.valueOf(instanceId)).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                db.collection("v2mapIDtoemail").document(String.valueOf(instanceId)).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful()) {
@@ -535,7 +535,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                             //______________________________________________________________________________________________________________________________________
 //        Fetching Others' ads...
 //                            final int[] adscount = {0};
-                            db.collection("adsRepo")
+                            db.collection("v2adsRepo")
 //                                    .whereEqualTo("creator",emailRec.trim())
                                     .addSnapshotListener(new EventListener<QuerySnapshot>() {
                                         @Override
@@ -752,7 +752,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                 Date date = new Date();
                 String datetime = formatter.format(date);
                 Events event = new Events(datetime, "Fragment Loaded: Received_Posts");
-                db.collection("users").document(user.getEmail()).collection("events").add(event);
+                db.collection("v2users").document(user.getEmail()).collection("events").add(event);
                 break;
             case R.id.navigation_new_post:
                 fragment = new CreatePosts();
@@ -760,7 +760,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                 date = new Date();
                 datetime = formatter.format(date);
                 event = new Events(datetime, "Fragment Loaded: New_Posts");
-                db.collection("users").document(user.getEmail()).collection("events").add(event);
+                db.collection("v2users").document(user.getEmail()).collection("events").add(event);
                 break;
             case R.id.nav_my_posts:
                 fragment = new MyPosts();
@@ -768,7 +768,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                 date = new Date();
                 datetime = formatter.format(date);
                 event = new Events(datetime, "Fragment Loaded: My_Posts");
-                db.collection("users").document(user.getEmail()).collection("events").add(event);
+                db.collection("v2users").document(user.getEmail()).collection("events").add(event);
                 break;
             case R.id.nav_bookmarks:
                 fragment = new Bookmarks();
@@ -776,7 +776,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                 date = new Date();
                 datetime = formatter.format(date);
                 event = new Events(datetime, "Fragment Loaded: Favorites");
-                db.collection("users").document(user.getEmail()).collection("events").add(event);
+                db.collection("v2users").document(user.getEmail()).collection("events").add(event);
                 break;
         }
 
@@ -957,7 +957,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
                         final ArrayList<Ad> arrayLists;
                         arrayLists = othersAdArrayList;
                         final Ad[] ad = {new Ad()};
-                        db.collection("adsRepo").get()
+                        db.collection("v2adsRepo").get()
                             .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                                 @Override
                                 public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
@@ -1151,7 +1151,7 @@ public class Home extends AppCompatActivity implements BeaconConsumer, RangeNoti
         Date date = new Date();
         String datetime = formatter.format(date);
         Events event = new Events(datetime, "App stopped");
-        db.collection("users").document(user.getEmail()).collection("events").add(event);
+        db.collection("v2users").document(user.getEmail()).collection("events").add(event);
         super.onStop();
 
     }

@@ -96,7 +96,7 @@ public class MyPosts extends Fragment implements SwipeRefreshLayout.OnRefreshLis
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
             db = FirebaseFirestore.getInstance();
-            adsReference = db.collection("adsRepo");
+            adsReference = db.collection("v2adsRepo");
             getUpdatedList();
         }
     }
