@@ -41,5 +41,12 @@ dependencies {
     implementation 'com.github.madappstechnologies:country-picker-android:2.0.1'
     implementation 'com.drewnoakes:metadata-extractor:2.13.0'
     implementation 'com.google.android.material:material:1.2.0-alpha05'
+    def camerax_version = '1.0.0-alpha06'
+    implementation "androidx.camera:camera-core:${camerax_version}"
+    implementation "androidx.camera:camera-camera2:${camerax_version}"
+    implementation group: 'com.google.guava', name: 'guava', version: '27.0.1-android'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'

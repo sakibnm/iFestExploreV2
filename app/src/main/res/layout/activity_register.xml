@@ -278,9 +278,9 @@
                         android:id="@+id/cardView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
+                        android:layout_marginStart="32dp"
                         android:layout_marginTop="32dp"
-                        android:layout_marginEnd="8dp"
+                        android:layout_marginEnd="32dp"
                         android:background="@drawable/edit_round"
                         android:backgroundTint="#99303F9F"
                         android:backgroundTintMode="src_over"
@@ -291,8 +291,8 @@
 
                         <ImageView
                             android:id="@+id/iv_userphoto"
-                            android:layout_width="96dp"
-                            android:layout_height="96dp"
+                            android:layout_width="124dp"
+                            android:layout_height="124dp"
                             android:backgroundTint="#5A23C1"
                             android:backgroundTintMode="src_atop"
                             android:contentDescription="@string/todo"
