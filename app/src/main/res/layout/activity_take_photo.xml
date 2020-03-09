@@ -8,8 +8,8 @@
 
     <TextureView
         android:id="@+id/view_finder"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -17,15 +17,11 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/button_capture"
-        style="@android:style/Widget.Material.Light.ImageButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:background="@drawable/camera_capture"
-        android:backgroundTint="#FFFFFF"
         android:clickable="true"
         android:focusable="true"
-        android:src="@drawable/camera_capture"
         android:visibility="visible"
         app:backgroundTint="#9FA8DA"
         app:borderWidth="0dp"

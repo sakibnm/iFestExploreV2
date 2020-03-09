@@ -221,7 +221,7 @@ public class Register extends AppCompatActivity {
 
     private void dispatchTakePictureIntent() {
         Intent intent = new Intent(Register.this, TakePhoto.class);
-        intent.putExtra("orientation", "FRONT_CAMERA");
+        intent.putExtra("purpose", "PROFILE");
         startActivityForResult(intent, CAM_REQ);
     }
 

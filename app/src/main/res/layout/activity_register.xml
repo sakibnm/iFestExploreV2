@@ -297,7 +297,6 @@
                             android:backgroundTintMode="src_atop"
                             android:contentDescription="@string/todo"
                             android:contextClickable="true"
-                            android:scaleType="centerCrop"
                             app:srcCompat="@drawable/ic_photo_48dp" />
                     </androidx.cardview.widget.CardView>
 

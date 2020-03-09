@@ -20,6 +20,8 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import com.example.ifestexplore.R
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.io.File
 import java.util.concurrent.Executors
 
@@ -27,20 +29,27 @@ class TakePhoto : AppCompatActivity(), LifecycleOwner {
 
     private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
     private lateinit var preview_image:ImageView
+    private lateinit var purpose: String
     private lateinit var orientation: String
+    private lateinit var button_capture:FloatingActionButton
     private var CAM_REQ: Int = 0
+    var screenWIDTH:Int = 720
+    var screenHEIGHT:Int = 1280
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_take_photo)
+        button_capture = findViewById(R.id.button_capture)
         viewFinder = findViewById(R.id.view_finder)
-
+        screenWIDTH = viewFinder.width
+        screenHEIGHT = viewFinder.height
 //      Getting request from Parent Activity.....
         val bundle:Bundle = intent.extras!!
-        orientation = bundle.getString("orientation", "ALL_CAMERA")
+        purpose = bundle.getString("purpose", "POST")
         // Request camera permissions
         if (allPermissionsGranted()) {
             viewFinder.post { startCamera() }
+
         } else {
             ActivityCompat.requestPermissions(
                     this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
@@ -57,8 +66,10 @@ class TakePhoto : AppCompatActivity(), LifecycleOwner {
     private fun startCamera() {
         // Create configuration object for the viewfinder use case
         val previewConfig = PreviewConfig.Builder().apply {
-
-            setTargetResolution(Size(1280, 960))
+//            setTargetResolution(Size(1280, 960))
+            setTargetResolution(Size(screenWIDTH,screenHEIGHT))
+            if (purpose=="PROFILE")setLensFacing(CameraX.LensFacing.FRONT)
+            else setLensFacing(CameraX.LensFacing.BACK)
         }.build()
 
 
@@ -85,12 +96,13 @@ class TakePhoto : AppCompatActivity(), LifecycleOwner {
                     // resolution based on aspect ration and requested mode
                     setCaptureMode(ImageCapture.CaptureMode.MIN_LATENCY)
                     //        TO Use Front Camera: Set Lence Facing....
-                    if (orientation=="FRONT_CAMERA")setLensFacing(androidx.camera.core.CameraX.LensFacing.FRONT);
+                    if (purpose=="PROFILE")setLensFacing(CameraX.LensFacing.FRONT)
+                    else setLensFacing(CameraX.LensFacing.BACK)
 
                 }.build()
         // Build the image capture use case and attach button click listener
         val imageCapture = ImageCapture(imageCaptureConfig)
-        findViewById<ImageButton>(R.id.button_capture).setOnClickListener {
+        button_capture.setOnClickListener {
             val file = File(externalMediaDirs.first(),
                     "${System.currentTimeMillis()}.jpg")
 
