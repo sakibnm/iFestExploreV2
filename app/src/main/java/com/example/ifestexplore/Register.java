@@ -37,6 +37,7 @@ import com.example.ifestexplore.models.Ad;
 import com.example.ifestexplore.models.Events;
 import com.example.ifestexplore.models.User;
 import com.example.ifestexplore.models.UsersData;
+import com.example.ifestexplore.utils.camera.TakePhoto;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -216,78 +217,26 @@ public class Register extends AppCompatActivity {
 
 
     }
-
-
-
 //    Taking photo____________________________________________________________________________________________________________________________________________
 
     private void dispatchTakePictureIntent() {
-
+        Intent intent = new Intent(Register.this, TakePhoto.class);
+        intent.putExtra("orientation", "FRONT_CAMERA");
+        startActivityForResult(intent, CAM_REQ);
     }
-
-    private File createImageFile() {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = null;
-        try {
-            image = File.createTempFile(
-                    imageFileName,  /* prefix */
-                    ".jpg",         /* suffix */
-                    storageDir      /* directory */
-            );
-
-            // Save a file: path for use with ACTION_VIEW intents
-            currentPhotoPath = image.getAbsolutePath();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return image;
-    }
-
-//    private int getRotationFromCamera(Context context, Uri imageFile) {
-//        int rotate = 0;
-//        try {
-//
-//            context.getContentResolver().notifyChange(imageFile, null);
-//            ExifInterface exif = new ExifInterface(imageFile.getPath());
-//            int orientation = exif.getAttributeInt(
-//                    ExifInterface.TAG_ORIENTATION,
-//                    ExifInterface.ORIENTATION_NORMAL);
-//
-//            switch (orientation) {
-//                case ExifInterface.ORIENTATION_ROTATE_270:
-//                    rotate = 270;
-//                    break;
-//                case ExifInterface.ORIENTATION_ROTATE_180:
-//                    rotate = 180;
-//                    break;
-//                case ExifInterface.ORIENTATION_ROTATE_90:
-//                    rotate = 90;
-//                    break;
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return rotate;
-//    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        galleryAddPic();
-    }
-
-    private void galleryAddPic() {
-        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        File f = new File(currentPhotoPath);
-        Uri contentUri = Uri.fromFile(f);
-//        Log.d(TAG, "Image Rotation: "+getRotationFromCamera(this, contentUri));
-        mediaScanIntent.setData(contentUri);
-        this.sendBroadcast(mediaScanIntent);
-
-        setPic();
+//        Camera photo......
+        if (requestCode == CAM_REQ){
+            if (data !=null) {
+                Bundle bundle = data.getExtras();
+                String imagepath = bundle.getString("filepath");
+                currentPhotoPath = imagepath;
+                setPic();
+            }
+        }
     }
 
     private void setPic() {
@@ -317,7 +266,7 @@ public class Register extends AppCompatActivity {
         ivUserPhoto.setImageBitmap(this.bitmap);
     }
 
-    //    ____________________________________________________________________________________________________________________________________________
+//        ____________________________________________________________________________________________________________________________________________
 
 
     @Override
@@ -345,7 +294,7 @@ public class Register extends AppCompatActivity {
 //
         userPhotoBitmap.compress(Bitmap.CompressFormat.JPEG, 25, stream);
         final byte[] bytes = stream.toByteArray();
-        Log.d(TAG, "uploadImage: "+bytes.length);
+//        Log.d(TAG, "uploadImage: "+bytes.length);
 
         FirebaseStorage storage = FirebaseStorage.getInstance();
         final StorageReference userPhotoReference = storage.getReference().child("v2userPhotos/"+user.getEmail()+"_photo.jpg");

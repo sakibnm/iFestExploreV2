@@ -1,33 +1,25 @@
 package com.example.ifestexplore.utils.camera
 
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import com.example.ifestexplore.R
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.util.Size
 import android.graphics.Matrix
-import android.graphics.drawable.GradientDrawable
-import android.util.DisplayMetrics
+import android.os.Bundle
 import android.util.Log
-import android.util.Rational
+import android.util.Size
 import android.view.Surface
 import android.view.TextureView
-import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.example.ifestexplore.R
 import java.io.File
 import java.util.concurrent.Executors
 
@@ -35,12 +27,17 @@ class TakePhoto : AppCompatActivity(), LifecycleOwner {
 
     private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
     private lateinit var preview_image:ImageView
+    private lateinit var orientation: String
+    private var CAM_REQ: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_take_photo)
         viewFinder = findViewById(R.id.view_finder)
 
+//      Getting request from Parent Activity.....
+        val bundle:Bundle = intent.extras!!
+        orientation = bundle.getString("orientation", "ALL_CAMERA")
         // Request camera permissions
         if (allPermissionsGranted()) {
             viewFinder.post { startCamera() }
@@ -61,7 +58,7 @@ class TakePhoto : AppCompatActivity(), LifecycleOwner {
         // Create configuration object for the viewfinder use case
         val previewConfig = PreviewConfig.Builder().apply {
 
-            setTargetResolution(Size(1280, 720))
+            setTargetResolution(Size(1280, 960))
         }.build()
 
 
@@ -88,7 +85,7 @@ class TakePhoto : AppCompatActivity(), LifecycleOwner {
                     // resolution based on aspect ration and requested mode
                     setCaptureMode(ImageCapture.CaptureMode.MIN_LATENCY)
                     //        TO Use Front Camera: Set Lence Facing....
-                    setLensFacing(androidx.camera.core.CameraX.LensFacing.FRONT);
+                    if (orientation=="FRONT_CAMERA")setLensFacing(androidx.camera.core.CameraX.LensFacing.FRONT);
 
                 }.build()
         // Build the image capture use case and attach button click listener
@@ -118,8 +115,8 @@ class TakePhoto : AppCompatActivity(), LifecycleOwner {
 //                            Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
                                 val intent = Intent(applicationContext, GetImage::class.java)
                                 intent.putExtra("filedir", file.absolutePath)
-                                startActivity(intent)
-                                finish()
+                                CAM_REQ = 0x2222
+                                startActivityForResult(intent, CAM_REQ);
                             }
 
 //                        findViewById<FloatingActionButton>(R.id.button_ok).visibility(View.VISIBLE)
@@ -127,6 +124,11 @@ class TakePhoto : AppCompatActivity(), LifecycleOwner {
                         }
                     })
         }
+        // Bind use cases to lifecycle
+        // If Android Studio complains about "this" being not a LifecycleOwner
+        // try rebuilding the project or updating the appcompat dependency to
+        // version 1.1.0 or higher.
+        CameraX.bindToLifecycle(this, preview, imageCapture)
     }
 
     private fun updateTransform() {
@@ -177,4 +179,24 @@ class TakePhoto : AppCompatActivity(), LifecycleOwner {
     companion object {
         private const val REQUEST_CODE_PERMISSIONS = 10
     }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        // Check which request we're responding to
+        if (requestCode == CAM_REQ) {
+            // Make sure the request was successful
+            if (resultCode == Activity.RESULT_OK) {
+                val bundle = data?.extras
+                val newpath = bundle!!.getString("filepath")
+                val returnIntent = Intent()
+                returnIntent.putExtra("filepath", newpath)
+                setResult(Activity.RESULT_OK, returnIntent)
+                finish()
+            }
+        }
+    }
 }
+
+private fun Intent.putExtra(s: String, newBitmap: Any?) {
+
+}
+

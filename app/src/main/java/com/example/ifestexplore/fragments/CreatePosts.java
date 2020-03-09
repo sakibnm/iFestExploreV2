@@ -145,7 +145,6 @@ public class CreatePosts extends Fragment implements View.OnClickListener {
                 dispatchTakePictureIntent();
             }
         });
-        button_searchCountry = view.findViewById(R.id.button_addCountry);
 
         button_createAd.setOnClickListener(this);
         button_searchCountry.setOnClickListener(this);
@@ -210,8 +209,6 @@ public class CreatePosts extends Fragment implements View.OnClickListener {
 
         }else if (view.getId() == R.id.button_createAdClearAll){
             clearAll();
-        }else if (view.getId() == R.id.button_addCountry){
-            searchAndAddCountry();
         }
     }
 
